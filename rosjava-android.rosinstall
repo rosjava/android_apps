@@ -10,3 +10,11 @@
     local-name: google
     uri: https://code.google.com/p/rosjava.google/
     version: default
+- git:
+    local-name: common
+    uri: https://github.com/ros-android/common.git
+    version: default
+- git:
+    local-name: app_chooser
+    uri: https://github.com/ros-android/app_chooser.git
+    version: default
