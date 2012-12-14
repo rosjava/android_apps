@@ -14,3 +14,7 @@
     local-name: app_chooser
     uri: https://github.com/ros-android/app_chooser.git
     version: master
+- git:
+    local-name: android_teleop
+    uri: https://github.com/ros-android/android_teleop.git
+    version: master
