@@ -6,10 +6,6 @@
     local-name: android_core
     uri: https://code.google.com/p/rosjava.android/
     version: 2cd488729f61
-- hg:
-    local-name: google
-    uri: https://code.google.com/p/rosjava.google/
-    version: 432c6cee9ae7
 - git:
     local-name: common
     uri: https://github.com/ros-android/common.git
