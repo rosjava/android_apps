@@ -6,15 +6,7 @@
     local-name: android_core
     uri: https://code.google.com/p/rosjava.android/
     version: 2cd488729f61
-- git:
-    local-name: common
-    uri: https://github.com/ros-android/common.git
-    version: master
-- git:
-    local-name: app_chooser
-    uri: https://github.com/ros-android/app_chooser.git
-    version: master
-- git:
-    local-name: android_teleop
-    uri: https://github.com/ros-android/android_teleop.git
-    version: master
+- hg:
+    local-name: osrf_rosandroid
+    uri: https://bitbucket.org/osrf/rosandroid
+    version: default
