@@ -1,0 +1,9 @@
+To build:
+
+$ ./configure.py
+$ make
+
+You should find .apk files in the bin subdirectory of each project.  To upload them to a connected device:
+
+$ make load
+
