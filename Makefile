@@ -1,4 +1,4 @@
-PROJECTS = teleop_video
+PROJECTS = android_teleop_video
 BUILD_CMD = ant debug
 CLEAN_CMD = ant clean
 LOAD_CMD = adb -d install -r
