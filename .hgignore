@@ -1,3 +1,4 @@
-teleop_video/gen
-teleop_video/bin
+gen
+bin
 project.properties
+local.properties
