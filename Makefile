@@ -1,4 +1,4 @@
-PROJECTS = android_teleop_video foobar
+PROJECTS = teleop_video
 BUILD_CMD = ant debug
 CONF_CMD = tools/configure.py
 CLEAN_CMD = ant clean
