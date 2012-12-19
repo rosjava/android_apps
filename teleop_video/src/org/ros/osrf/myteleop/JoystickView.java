@@ -58,7 +58,6 @@ public class JoystickView extends ImageView implements OnTouchListener, NodeMain
   private Publisher<Twist> twistPub;
   private boolean sendMessages = true;
   private boolean nullMessage = true;
-  private Publisher<geometry_msgs.Twist> publisher;
 
   public JoystickView(Context ctx) {
     super(ctx);
