@@ -1,4 +1,4 @@
-PROJECTS = teleop_video
+PROJECTS = teleop_video tiltteleopvideo
 BUILD_CMD = ant debug
 CONF_CMD = tools/configure.py
 CLEAN_CMD = ant clean
