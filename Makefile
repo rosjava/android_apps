@@ -9,5 +9,5 @@ all:
 clean:
 	$(foreach p,$(PROJECTS),cd $(p) && $(CLEAN_CMD))
 
-load:
+load: all
 	$(foreach p,$(PROJECTS),$(LOAD_CMD) $(p)/bin/*-debug.apk)
