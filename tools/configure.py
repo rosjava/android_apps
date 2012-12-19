@@ -1,19 +1,33 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import os
+import sys
 import subprocess
 
-projects = ['android_teleop_video']
 android_version = 'android-17'
 other_libs = ['android_gingerbread_mr1', 'android_honeycomb_mr2']
 properties_fname = 'project.properties'
 
-cwd = os.path.dirname(__file__)
+cwd = os.getcwd()
 android_core_path = subprocess.check_output(['rosstack', 'find', 'android_core']).strip()
 # ant/Android requires the path to be relative for some reason
 android_core_relpath = os.path.relpath(android_core_path, cwd)
 
-for p in projects:
+USAGE = 'configure.py <proj_dir>'
+
+def parse_args(argv):
+    if len(argv) != 2:
+        print(USAGE)
+        sys.exit(1)
+    args = {}    
+    args['proj'] = argv[1]
+    return args
+
+def go(argv):
+    args = parse_args(argv)
+    p = args['proj']
+
     p_path = os.path.join(cwd, p)
     prop_path = os.path.join(p_path, properties_fname)
     if os.path.exists(prop_path):
@@ -22,3 +36,6 @@ for p in projects:
         l_path = os.path.join('..', android_core_relpath, l)
         cmd = ['android', 'update', 'project', '--path', p_path, '--target', android_version, '--library', l_path]
         subprocess.check_call(cmd)
+
+if __name__ == '__main__':
+    go(sys.argv)
