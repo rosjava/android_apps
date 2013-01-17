@@ -1,12 +1,10 @@
 To configure (only need to do this the first time):
 
-$ make conf
+./tools/configure.py
 
 To build:
 
-$ make
+./gradlew debug
 
-You should find .apk files in the bin subdirectory of each project.  To upload them to a connected device:
-
-$ make load
+You should find .apk files in the bin subdirectory of each project.
 
