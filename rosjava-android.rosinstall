@@ -1,11 +1,11 @@
-- hg:
+- git:
     local-name: rosjava_core
-    uri: https://code.google.com/p/rosjava/
-    version: c655a7f4f79a
-- hg:
+    uri: git://github.com/rosjava/rosjava_core.git
+    version: groovy-devel
+- git:
     local-name: android_core
-    uri: https://code.google.com/p/rosjava.android/
-    version: 2cd488729f61
+    uri: git://github.com/rosjava/android_core.git
+    version: groovy-devel
 - hg:
     local-name: osrf_rosandroid
     uri: https://bitbucket.org/osrf/rosandroid
