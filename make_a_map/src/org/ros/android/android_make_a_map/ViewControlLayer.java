@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2013 OSRF.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -37,7 +37,9 @@ import org.ros.concurrent.SignalRunnable;
 import org.ros.node.ConnectedNode;
 import org.ros.rosjava_geometry.FrameTransformTree;
 
-
+/**
+ * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
+ */
 public class ViewControlLayer extends CameraControlLayer {
 
     private static final String ROBOT_FRAME = "base_link";

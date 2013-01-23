@@ -71,6 +71,7 @@ public class MainActivity extends RosAppActivity {
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
+		
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
 		cameraView.setTopicName("/turtlebot/application/camera/rgb/image_color/compressed_throttle");
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
@@ -116,7 +117,7 @@ public class MainActivity extends RosAppActivity {
 
 		
 		nodeMainExecutor.execute(cameraView, nodeConfiguration
-				.setNodeName("/turtlebot/application/camera/rgb/image_color/compressed_throttle"));
+				.setNodeName("camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("virtual_joystick"));
 
