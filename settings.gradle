@@ -17,3 +17,4 @@
 include 'teleop_video'
 include 'tiltteleopvideo'
 include 'make_a_map'
+include 'app_chooser'

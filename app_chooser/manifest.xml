@@ -1,10 +1,10 @@
 <package>
-  <description brief="android_make_a_map">
-    android_make_a_map
+  <description brief="android_app_manager">
+    android_app_manager
   </description>
   <author>Kazuto Murase</author>
   <license>Apache 2.0</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/android_make_a_map</url>
+  <url>http://ros.org/wiki/android_app_manager</url>
 </package>
 
