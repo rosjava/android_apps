@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013 OSRF.
  *
- * Licensed under the Apache LicensSe, Version 2.0 (the "License"); you may not
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
  *
@@ -67,6 +67,7 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
+		setDefaultAppName("turtlebot_core_apps/android_make_a_map");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
@@ -153,7 +154,7 @@ public class MainActivity extends RosAppActivity {
 				nodeMainExecutor.getScheduledExecutorService());
 		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView, nodeConfiguration);
-		
+		nodeMainExecutor.execute(mapView, nodeConfiguration);	
 	}
+	
 }
