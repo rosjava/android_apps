@@ -4,10 +4,44 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Hello World, AppChooser"
-    />
+  <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content"
+                android:background="#ff404040"
+android:id="@+id/top_bar" >
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:id="@+id/robot_name_view"
+              android:textSize="30sp" />
+  </LinearLayout>
+  <GridView android:id="@+id/gridview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:columnWidth="90dp"
+            android:numColumns="auto_fit"
+            android:verticalSpacing="10dp"
+            android:horizontalSpacing="10dp"
+            android:stretchMode="columnWidth"
+            android:gravity="fill_vertical"
+            android:layout_weight="1"/>
+  <TextView android:id="@+id/status_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+  <Button android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Stop Application"
+          android:onClick="stopApplicationsClicked"
+android:id="@+id/stop_applications"/>
+  <Button android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Deactivate Robot"
+          android:onClick="deactivateRobotClicked"
+android:id="@+id/deactivate_robot"/>
+  <Button android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="App Manager"
+          android:onClick="exchangeButtonClicked"
+android:id="@+id/exchange_button"/>
+  <Button android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:text="Choose New Master"
+          android:onClick="chooseNewMasterClicked"/>
 </LinearLayout>
-
