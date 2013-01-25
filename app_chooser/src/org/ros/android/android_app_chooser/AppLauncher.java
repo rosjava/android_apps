@@ -79,7 +79,6 @@ public class AppLauncher {
       ClientAppData appData = appropriateAndroidApps.get(i);
       Intent intent = appData.createIntent();
       intent.putExtra(AppManager.PACKAGE + ".robot_app_name", app.getName());
-      Log.v("RosAndroid",""+app.getName());
       try {
         className = intent.getAction();
         Log.i("RosAndroid", "trying to startActivity( action: " + intent.getAction() + " )");
