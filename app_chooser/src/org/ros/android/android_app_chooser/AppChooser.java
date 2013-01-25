@@ -62,6 +62,19 @@ public class AppChooser extends RosAppActivity
 		listApps();
 	}
 	
+	public void onAppClicked(final App app, final boolean isClientApp) {
+	    /*if( appManager == null ) {
+	      //safeSetStatus("Failed: appManager is not ready.");
+	      return;
+	    }*/
+	    boolean running = false;
+	    for (App i : runningAppsCache) {
+	      if (i.getName().equals(app.getName())) {
+	        running = true;
+	        }
+	      }
+	    }
+	
 	private void listApps() {
         Log.i("RosAndroid", "listing application");
     	AppManager appManager = new AppManager("");
@@ -138,7 +151,7 @@ public class AppChooser extends RosAppActivity
 		          showDialog(CLOSE_EXISTING);
 		          return;
 		        }*/
-		        //AppLauncher.launch(AppChooser.this, apps.get(position));
+		        AppLauncher.launch(AppChooser.this, apps.get(position));
 		        
 		      }
 		    });

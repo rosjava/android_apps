@@ -21,6 +21,10 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="org.ros.android.android_make_a_map.MainActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
         <activity android:name="org.ros.android.MasterChooser" />
 
