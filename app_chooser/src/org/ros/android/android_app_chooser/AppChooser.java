@@ -10,7 +10,12 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,13 +34,17 @@ public class AppChooser extends RosAppActivity
 	private TextView robotNameView;
 	private ArrayList<App> availableAppsCache;
 	private ArrayList<App> runningAppsCache;
-  	
-    public AppChooser() {
+	private AppManager appManager;
+
+	
+	
+	public AppChooser() {
 		super("app chooser", "app chooser");
 		availableAppsCache = new ArrayList<App>();
 		runningAppsCache = new ArrayList<App>();
 	}
 
+    
 	/** Called when the activity is first created. */
     @SuppressWarnings("unchecked")
     @Override
@@ -77,7 +86,7 @@ public class AppChooser extends RosAppActivity
 	
 	private void listApps() {
         Log.i("RosAndroid", "listing application");
-    	AppManager appManager = new AppManager("");
+    	appManager = new AppManager("");
     	appManager.setFunction("list");
     	appManager.setListService(new ServiceResponseListener<ListAppsResponse>() {
             @Override
@@ -119,8 +128,12 @@ public class AppChooser extends RosAppActivity
         
        nodeMainExecutor.execute(appManager, nodeConfiguration.setNodeName("list_app"));
     	
+       
 	}
 	
+
+	  
+
 	  protected void updateAppList(final ArrayList<App> apps, final ArrayList<App> runningApps) {
 		    Log.i("RosAndroid", "updating gridview");
 		    GridView gridview = (GridView) findViewById(R.id.gridview);
@@ -151,8 +164,10 @@ public class AppChooser extends RosAppActivity
 		          showDialog(CLOSE_EXISTING);
 		          return;
 		        }*/
-		        AppLauncher.launch(AppChooser.this, apps.get(position));
 		        
+		        AppLauncher.launch(AppChooser.this, apps.get(position), getMasterUri());
+				onDestroy();
+
 		      }
 		    });
 		    if (runningApps != null) {
@@ -164,7 +179,7 @@ public class AppChooser extends RosAppActivity
 		    }
 		    Log.i("RosAndroid", "gridview updated");
 		  }
-	
+
 	  public void chooseNewMasterClicked(View view){
 	  }
 	  

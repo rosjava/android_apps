@@ -9,16 +9,19 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.ros.android.AppManager;
+import org.ros.android.RosAppActivity;
+
 import android.net.Uri;
 import app_manager.ClientApp;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 public class AppLauncher {
   static private final String CLIENT_TYPE = "android";
 
   /** Launch a client app for the given robot app. */
-  static public void launch(final Activity parentActivity, app_manager.App app) {
+  static public void launch(final RosAppActivity parentActivity, app_manager.App app, URI uri) {
     ArrayList<ClientAppData> android_apps = new ArrayList<ClientAppData>();
     
     if (parentActivity instanceof AppChooser) {
@@ -34,7 +37,7 @@ public class AppLauncher {
     if (app.getClientApps().size() == 0) {
       return;
     }
-
+    
     Log.i("RosAndroid", "launching robot app " + app.getName() + ". Found " + app.getClientApps().size()
         + " client apps.");
 
@@ -79,10 +82,13 @@ public class AppLauncher {
       ClientAppData appData = appropriateAndroidApps.get(i);
       Intent intent = appData.createIntent();
       intent.putExtra(AppManager.PACKAGE + ".robot_app_name", app.getName());
+      intent.putExtra("ChooserURI", uri.toString());
       try {
         className = intent.getAction();
         Log.i("RosAndroid", "trying to startActivity( action: " + intent.getAction() + " )");
-        parentActivity.startActivity(intent);
+        //parentActivity.startActivity(intent);
+        parentActivity.startActivityForResult(intent, 1);
+
         return;
       } catch (ActivityNotFoundException e) {
         Log.i("RosAndroid", "activity not found for action: " + intent.getAction());
@@ -105,7 +111,8 @@ public class AppLauncher {
       public void onClick(DialogInterface dlog, int i) {
         Uri uri = Uri.parse("market://details?id=" + installPackage);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        parentActivity.startActivity(intent);
+        // parentActivity.startActivity(intent);
+        parentActivity.startActivityForResult(intent, 1);
       }
     });
     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {

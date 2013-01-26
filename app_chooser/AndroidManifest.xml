@@ -12,12 +12,16 @@
         <activity android:name="org.ros.android.android_app_chooser.AppChooser"
                   android:label="@string/app_name">
             <intent-filter>
+                <action android:name="org.ros.android.android_app_chooser.AppChooser" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name="org.ros.android.MasterChooser" />
-
+		<service android:name="AppLauncher" />
         <service android:name="org.ros.android.NodeMainExecutorService" />
     </application>
 </manifest>
