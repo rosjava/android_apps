@@ -4,27 +4,28 @@ import java.util.ArrayList;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.android.AppManager;
+import org.ros.android.MasterChooser;
 import org.ros.android.RosAppActivity;
 import org.ros.exception.RemoteException;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
-import android.content.ComponentName;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
 import app_manager.App;
 import app_manager.ListAppsResponse;
-import app_manager.StartAppResponse;
+import app_manager.StopAppResponse;
 
 public class AppChooser extends RosAppActivity
 {
@@ -34,7 +35,11 @@ public class AppChooser extends RosAppActivity
 	private TextView robotNameView;
 	private ArrayList<App> availableAppsCache;
 	private ArrayList<App> runningAppsCache;
+	private ProgressDialog progressDialog;
 	private AppManager appManager;
+	private Button deactivate;
+	private Button stopApps;
+	private Button exchangeButton;
 
 	
 	
@@ -44,9 +49,19 @@ public class AppChooser extends RosAppActivity
 		runningAppsCache = new ArrayList<App>();
 	}
 
+	  private void stopProgress() {
+		    final ProgressDialog temp = progressDialog;
+		    progressDialog = null;
+		    if (temp != null) {
+		      runOnUiThread(new Runnable() {
+		          public void run() {
+		            temp.dismiss();
+		          }});
+		    }
+		  }
+	
     
 	/** Called when the activity is first created. */
-    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -56,20 +71,26 @@ public class AppChooser extends RosAppActivity
         super.onCreate(savedInstanceState);
         
         robotNameView = (TextView)findViewById(R.id.robot_name_view);
+        deactivate = (Button) findViewById(R.id.deactivate_robot);
+        deactivate.setVisibility(deactivate.GONE);
+        stopApps = (Button) findViewById(R.id.stop_applications);
+        stopApps.setVisibility(stopApps.GONE);
+        exchangeButton = (Button) findViewById(R.id.exchange_button);
+        exchangeButton.setVisibility(deactivate.GONE);
     }
 
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
 		
 		super.init(nodeMainExecutor);
-
-		
 		this.nodeMainExecutor = nodeMainExecutor;
 		nodeConfiguration = NodeConfiguration.newPublic(
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
 		listApps();
 	}
+	
+
 	
 	public void onAppClicked(final App app, final boolean isClientApp) {
 	    /*if( appManager == null ) {
@@ -127,8 +148,6 @@ public class AppChooser extends RosAppActivity
         });
         
        nodeMainExecutor.execute(appManager, nodeConfiguration.setNodeName("list_app"));
-    	
-       
 	}
 	
 
@@ -159,28 +178,34 @@ public class AppChooser extends RosAppActivity
 		          }
 		        }
 
-
 		        /*if (!running && (runningAppsCache.size() > 0 && mode == REG)) {
 		          showDialog(CLOSE_EXISTING);
 		          return;
 		        }*/
 		        
-		        AppLauncher.launch(AppChooser.this, apps.get(position), getMasterUri());
-				onDestroy();
+		        if(AppLauncher.launch(AppChooser.this, apps.get(position), getMasterUri()) == true) {
+		        	onDestroy();
+		        }
 
 		      }
 		    });
 		    if (runningApps != null) {
 		      if (runningApps.toArray().length != 0) {
-		        //stopApps.setVisibility(stopApps.VISIBLE);
+		        stopApps.setVisibility(stopApps.VISIBLE);
 		      } else {
-		        //stopApps.setVisibility(stopApps.GONE);
+		        stopApps.setVisibility(stopApps.GONE);
 		      }
 		    }
 		    Log.i("RosAndroid", "gridview updated");
 		  }
 
 	  public void chooseNewMasterClicked(View view){
+		
+	      nodeMainExecutor.shutdownNodeMain(appManager);
+	      releaseDashboardNode();
+	      availableAppsCache.clear();
+	      runningAppsCache.clear();
+		  startActivityForResult(new Intent(this, MasterChooser.class), 0);
 	  }
 	  
 	  public void exchangeButtonClicked(View view){
@@ -190,5 +215,58 @@ public class AppChooser extends RosAppActivity
 	  }
 	  
 	  public void stopApplicationsClicked(View view){
+		  final AppChooser activity = this;
+
+		    for (App i : runningAppsCache) {
+		      Log.i("AppLauncher", "Sending intent.");
+		      AppLauncher.launch(this, i,getMasterUri());
+		      }
+
+		    stopProgress();
+		    progressDialog = ProgressDialog.show(activity,
+		               "Stopping Applications", "Stopping all applications...", true, false);
+		    progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		    
+		    AppManager appManager = new AppManager("*");
+		    appManager.setFunction("stop");
+		    appManager.setStopService(new ServiceResponseListener<StopAppResponse>() {
+	            @Override
+	            public void onSuccess(StopAppResponse message) {
+	                    Log.i("RosAndroid", "App stopped successfully");
+	                    availableAppsCache = new ArrayList<App>();
+	                    runningAppsCache = new ArrayList<App>();
+	                    runOnUiThread(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                          updateAppList(availableAppsCache, runningAppsCache);
+	                        }});
+	                    listApps();
+	                    stopProgress();
+
+	            }
+	            @Override
+	            public void onFailure(RemoteException e) {
+	                    Log.e("RosAndroid", "App failed to stop!");
+	            }
+	        });
+	        nodeMainExecutor.execute(appManager, nodeConfiguration.setNodeName("stop_app"));
 	  }
+	  
+	  @Override
+	  public boolean onCreateOptionsMenu(Menu menu){
+		  menu.add(0,0,0,R.string.stop_app);
+		  return super.onCreateOptionsMenu(menu);
+	  }
+	  
+	  @Override
+	  public boolean onOptionsItemSelected(MenuItem item){
+		  super.onOptionsItemSelected(item);
+		  switch (item.getItemId()){
+		  case 0:
+			  onDestroy();
+			  break;
+		  }
+		  return true;
+	  }
+	  
 }

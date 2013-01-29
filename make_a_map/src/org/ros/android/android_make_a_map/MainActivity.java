@@ -19,6 +19,8 @@ package org.ros.android.android_make_a_map;
 import java.util.concurrent.TimeUnit;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -156,5 +158,22 @@ public class MainActivity extends RosAppActivity {
 		nodeConfiguration.setTimeProvider(ntpTimeProvider);
 		nodeMainExecutor.execute(mapView, nodeConfiguration);	
 	}
+	
+	  @Override
+	  public boolean onCreateOptionsMenu(Menu menu){
+		  menu.add(0,0,0,R.string.stop_app);
+		  return super.onCreateOptionsMenu(menu);
+	  }
+	  
+	  @Override
+	  public boolean onOptionsItemSelected(MenuItem item){
+		  super.onOptionsItemSelected(item);
+		  switch (item.getItemId()){
+		  case 0:
+			  onDestroy();
+			  break;
+		  }
+		  return true;
+	  }
 	
 }

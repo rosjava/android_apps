@@ -21,7 +21,7 @@ public class AppLauncher {
   static private final String CLIENT_TYPE = "android";
 
   /** Launch a client app for the given robot app. */
-  static public void launch(final RosAppActivity parentActivity, app_manager.App app, URI uri) {
+  static public boolean launch(final RosAppActivity parentActivity, app_manager.App app, URI uri) {
     ArrayList<ClientAppData> android_apps = new ArrayList<ClientAppData>();
     
     if (parentActivity instanceof AppChooser) {
@@ -30,12 +30,12 @@ public class AppLauncher {
       Log.i("RosAndroid", "Could not launch becase parent is not an appchooser");
       if (app.getClientApps().size() == 0) {
         Log.e("RosAndroid", "Not launching application!!!");
-        return;
+        return false;
       }
     }
 
     if (app.getClientApps().size() == 0) {
-      return;
+      return false;
     }
     
     Log.i("RosAndroid", "launching robot app " + app.getName() + ". Found " + app.getClientApps().size()
@@ -71,7 +71,7 @@ public class AppLauncher {
             dlog.dismiss();
           }});
       dialog.show();
-      return;
+      return false;
     }
 
     //TODO: this installs the last android app in the set.
@@ -89,7 +89,8 @@ public class AppLauncher {
         //parentActivity.startActivity(intent);
         parentActivity.startActivityForResult(intent, 1);
 
-        return;
+
+        return true;
       } catch (ActivityNotFoundException e) {
         Log.i("RosAndroid", "activity not found for action: " + intent.getAction());
       }
@@ -111,8 +112,7 @@ public class AppLauncher {
       public void onClick(DialogInterface dlog, int i) {
         Uri uri = Uri.parse("market://details?id=" + installPackage);
         Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-        // parentActivity.startActivity(intent);
-        parentActivity.startActivityForResult(intent, 1);
+        parentActivity.startActivity(intent);
       }
     });
     dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -122,5 +122,6 @@ public class AppLauncher {
       }
     });
     dialog.show();
+    return false;
   }
 }
