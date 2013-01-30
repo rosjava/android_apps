@@ -1,15 +1,14 @@
 package org.ros.android.android_app_chooser;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 
-import org.ros.android.AppManager;
-import org.ros.android.RosAppActivity;
+import org.ros.android.robotapp.AppManager;
+import org.ros.android.robotapp.RosAppActivity;
 
 import android.net.Uri;
 import app_manager.ClientApp;

@@ -3,9 +3,9 @@ package org.ros.android.android_app_chooser;
 import java.util.ArrayList;
 
 import org.ros.address.InetAddressFactory;
-import org.ros.android.AppManager;
+import org.ros.android.robotapp.AppManager;
 import org.ros.android.MasterChooser;
-import org.ros.android.RosAppActivity;
+import org.ros.android.robotapp.RosAppActivity;
 import org.ros.exception.RemoteException;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -42,7 +42,6 @@ public class AppChooser extends RosAppActivity
 	private Button exchangeButton;
 
 	
-	
 	public AppChooser() {
 		super("app chooser", "app chooser");
 		availableAppsCache = new ArrayList<App>();
@@ -70,6 +69,7 @@ public class AppChooser extends RosAppActivity
     	setMainWindowResource(R.layout.main);
         super.onCreate(savedInstanceState);
         
+        
         robotNameView = (TextView)findViewById(R.id.robot_name_view);
         deactivate = (Button) findViewById(R.id.deactivate_robot);
         deactivate.setVisibility(deactivate.GONE);
@@ -90,6 +90,16 @@ public class AppChooser extends RosAppActivity
 		listApps();
 	}
 	
+	@Override
+	  public void startMasterChooser() {
+		if(!fromApplication){
+			Log.v("RosAndroid","why?");
+		super.startActivityForResult(new Intent(this, RobotMasterChooser.class), 0);
+		}
+		else super.startMasterChooser();		
+	}
+	
+
 
 	
 	public void onAppClicked(final App app, final boolean isClientApp) {
@@ -202,10 +212,10 @@ public class AppChooser extends RosAppActivity
 	  public void chooseNewMasterClicked(View view){
 		
 	      nodeMainExecutor.shutdownNodeMain(appManager);
-	      releaseDashboardNode();
+	      releaseDashboardNode(); //todo: this work costs too many times
 	      availableAppsCache.clear();
 	      runningAppsCache.clear();
-		  startActivityForResult(new Intent(this, MasterChooser.class), 0);
+		  startActivityForResult(new Intent(this, RobotMasterChooser.class), 0);
 	  }
 	  
 	  public void exchangeButtonClicked(View view){

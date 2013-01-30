@@ -2,7 +2,9 @@
 <classpath>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="lib" path="/home/pr2/work/osrf_rosandroid/app_chooser/libs/snakeyaml-android-1.8-SNAPSHOT.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="src" path="menu"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

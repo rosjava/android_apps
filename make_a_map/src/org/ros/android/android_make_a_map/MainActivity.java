@@ -26,7 +26,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import org.ros.android.RosAppActivity;
+import org.ros.android.robotapp.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
