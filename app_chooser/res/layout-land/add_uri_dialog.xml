@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="wrap_content" 
+                      android:layout_height="fill_parent">
+<TableLayout android:orientation="vertical"
+             android:padding="10dp"
+             android:id="@+id/table_layout"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             android:stretchColumns="1">
+    <TableRow>
+      <TextView 
+                android:text="Fields marked with an asterisk (*) are required."
+                android:layout_width="wrap_content"
+                android:textColor="#FF0000"
+                android:weightSum="0"
+                android:layout_span="2"
+                android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+      <TextView android:text="Enter master URI: *"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+      <TextView android:text="Enter wifi network name:"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+      <EditText android:id="@+id/uri_editor"
+                android:layout_alignParentLeft="true"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"
+                android:layout_toLeftOf="@+id/enter_button"/>
+      <EditText android:id="@+id/wifi_name_editor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"/>
+    </TableRow>
+    <TableRow> 
+      <TextView android:text="Enter control URI:"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+      <TextView android:text="Enter wifi password if applicable:"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
+    </TableRow>
+    <TableRow>
+      <EditText android:id="@+id/control_uri_editor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textUri"/>
+      <EditText android:id="@+id/wifi_password_editor"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"/>
+    </TableRow>
+   
+    <TableRow>
+  <Button android:text="Enter"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:id="@+id/enter_button" 
+          android:layout_below="@id/table_layout"
+          android:layout_span="2"/>
+    </TableRow>
+ 
+    <TableRow>
+  <TextView android:text="or"
+            android:id="@+id/text_or"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/enter_button"/>
+  </TableRow>
+  <TableRow>
+  <Button android:text="Scan a QR-code URI"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:drawableLeft="@drawable/qrcode"
+          android:id="@+id/scan_robot_button"
+          android:layout_below="@id/text_or"
+          android:weightSum="1"/>
+  <Button android:text="Cancel"
+          android:layout_width="wrap_content"
+          android:layout_height="fill_parent"
+          android:id="@+id/cancel_button"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentBottom="true"/>
+  </TableRow>
+</TableLayout>
+</HorizontalScrollView>
+</ScrollView>

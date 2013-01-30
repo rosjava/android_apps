@@ -4,9 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import org.ros.node.NodeConfiguration;
 import org.ros.android.robotapp.RobotDescription;
@@ -30,6 +32,9 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -140,16 +145,27 @@ public class RobotMasterChooser extends Activity {
 		  }
 	  
 	  private void choose(int position) {
-		    masterUri = robots.get(position).getRobotId().toString();
-		    SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
-		    editor.putString(PREFS_KEY_NAME, masterUri);
-		    editor.commit();
-		    // Package the intent to be consumed by the calling activity.
-		    Intent intent = new Intent();
-		    intent.putExtra("ROS_MASTER_URI", masterUri);
-		    setResult(RESULT_OK, intent);
-		    finish();
-		    
+		  RobotDescription robot = robots.get(position);
+	      if (robot == null || robot.getConnectionStatus() == null
+	          || robot.getConnectionStatus().equals(robot.ERROR)) {
+		    	AlertDialog d = new AlertDialog.Builder(RobotMasterChooser.this).setTitle("Error!").setCancelable(false)
+		    			.setMessage("Failed: Cannot contact robot")
+		    			.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+		    				public void onClick(DialogInterface dialog, int which) { }
+		    			}).create();
+		    	d.show();
+		    }
+		    else {
+			    masterUri = robots.get(position).getRobotId().toString();
+			    SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
+			    editor.putString(PREFS_KEY_NAME, masterUri);
+			    editor.commit();
+			    // Package the intent to be consumed by the calling activity.
+			    Intent intent = new Intent();
+			    intent.putExtra("ROS_MASTER_URI", masterUri);
+			    setResult(RESULT_OK, intent);
+			    finish();
+		    }
 		  /*
 		    Intent resultIntent = new Intent();
 		    resultIntent.putExtra(ROBOT_DESCRIPTION_EXTRA, robots.get(position));
@@ -188,6 +204,49 @@ public class RobotMasterChooser extends Activity {
 	  private void onRobotsChanged() {
 		    writeRobotList();
 		    updateListView();
+		  }
+	  
+	  private void deleteAllRobots() {
+		    robots.clear();
+		    onRobotsChanged();
+		    //currentRobotAccessor.setCurrentRobot( null );
+		    //currentRobotAccessor.saveCurrentRobot();
+		  }
+	  
+	  
+	  private void deleteSelectedRobots(boolean[] array) {
+		    int j=0;
+		    for (int i=0; i<array.length; i++) {
+		      if (array[i]) {
+		        /*if( robots.get(j).equals( currentRobotAccessor.getCurrentRobot() )) {
+		          currentRobotAccessor.setCurrentRobot( null );
+		          currentRobotAccessor.saveCurrentRobot();
+		        }*/
+		        robots.remove(j);
+		      }
+		      else {
+		        j++;
+		      }
+		    }
+		    onRobotsChanged();
+		  }
+	  
+	  private void deleteUnresponsiveRobots() {
+		    Iterator<RobotDescription> iter = robots.iterator();
+		    while (iter.hasNext()) {
+		      RobotDescription robot = iter.next();
+		      if (robot == null || robot.getConnectionStatus() == null
+		          || robot.getConnectionStatus().equals(robot.ERROR)) {
+		        Log.i("RosAndroid", "Removing robot with connection status '" + robot.getConnectionStatus()
+		            + "'");
+		        iter.remove();
+		        /*if( robot != null && robot.equals( currentRobotAccessor.getCurrentRobot() )) {
+		          currentRobotAccessor.setCurrentRobot( null );
+		          currentRobotAccessor.saveCurrentRobot();
+		        }*/
+		      }
+		    }
+		    onRobotsChanged();
 		  }
 	  
 	  @Override
@@ -268,20 +327,20 @@ public class RobotMasterChooser extends Activity {
 	            robot_names[i] = name;
 	          }
 	          builder.setTitle("Delete a robot");
-	       /*   builder.setMultiChoiceItems(robot_names, selections, new DialogSelectionClickHandler());
+	          builder.setMultiChoiceItems(robot_names, selections, new DialogSelectionClickHandler());
 	          builder.setPositiveButton( "Delete Selections", new DialogButtonClickHandler() ); 
-	          builder.setNegativeButton( "Cancel", new DialogButtonClickHandler());*/
+	          builder.setNegativeButton( "Cancel", new DialogButtonClickHandler());
 	          dialog = builder.create();
 	        }
 	       else {
 	         builder.setTitle("No robots to delete.");
 	         dialog = builder.create();
-	     /*    final Timer t = new Timer();
+	         final Timer t = new Timer();
 	         t.schedule(new TimerTask() {
 	           public void run() {
 	             removeDialog(ADD_DELETION_DIALOG_ID);
 	           }
-	         }, 3*1000);*/
+	         }, 2*1000);
 	       }
 	        break;
 	      default: 
@@ -289,6 +348,27 @@ public class RobotMasterChooser extends Activity {
 	    }
 	    return dialog;
 	  }
+	  
+	  public class DialogSelectionClickHandler implements DialogInterface.OnMultiChoiceClickListener {
+		    public void onClick( DialogInterface dialog, int clicked, boolean selected ) {
+		      return;
+		      }
+		    }
+		     
+		  public class DialogButtonClickHandler implements DialogInterface.OnClickListener {
+		    public void onClick( DialogInterface dialog, int clicked ) {
+		      switch( clicked ) {
+		        case DialogInterface.BUTTON_POSITIVE:
+		          deleteSelectedRobots(selections);
+		          removeDialog(ADD_DELETION_DIALOG_ID);
+		          break;
+		        case DialogInterface.BUTTON_NEGATIVE:
+		          removeDialog(ADD_DELETION_DIALOG_ID);
+		          break;
+		      }
+		    }
+		  }
+
 	  
 	  
 	  public void enterRobotInfo(Dialog dialog) {
@@ -357,6 +437,37 @@ public class RobotMasterChooser extends Activity {
 		      // Call the Barcode Scanner to let the user scan a QR code.
 		      startActivityForResult(intent, 0);
 		    }
+	  }
+	  
+	  @Override
+	  public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.robot_master_chooser_option_menu, menu);
+	    return true;
+	  }
+	  @Override
+	  public boolean onOptionsItemSelected(MenuItem item) {
+	    int id = item.getItemId();
+	    if (id == R.id.add_robot) {
+	      showDialog(ADD_URI_DIALOG_ID);
+	      return true;
+	    } else if (id == R.id.delete_selected) {
+	      showDialog(ADD_DELETION_DIALOG_ID);
+	      return true;
+	    } else if (id == R.id.delete_unresponsive) {
+	      deleteUnresponsiveRobots();
+	      return true;
+	    } else if (id == R.id.delete_all) {
+	      deleteAllRobots();
+	      return true;
+	    } else if (id == R.id.kill) {
+		    Intent intent = new Intent();
+		    setResult(RESULT_CANCELED, intent);
+		    finish();
+		    return true;
+	    } else {
+	      return super.onOptionsItemSelected(item);
+	    }
 	  }
 	  
 	  /**

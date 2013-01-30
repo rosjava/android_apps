@@ -94,6 +94,7 @@ public class MasterItem implements MasterChecker.RobotDescriptionReceiver,
       });
     }
   }
+  
   private void populateView() {
     Log.i("MasterItem", "connection status = " + description.getConnectionStatus());
     boolean isOk = description.getConnectionStatus().equals(RobotDescription.OK);

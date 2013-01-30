@@ -90,10 +90,18 @@ public class AppChooser extends RosAppActivity
 		listApps();
 	}
 	
+	 @Override
+	  public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		 if(resultCode == RESULT_CANCELED){
+			 onDestroy();
+		 }
+		 super.onActivityResult(requestCode, resultCode, intent);
+	 }
+	
+	
 	@Override
 	  public void startMasterChooser() {
 		if(!fromApplication){
-			Log.v("RosAndroid","why?");
 		super.startActivityForResult(new Intent(this, RobotMasterChooser.class), 0);
 		}
 		else super.startMasterChooser();		
@@ -156,7 +164,6 @@ public class AppChooser extends RosAppActivity
                     Log.e("RosAndroid", "App failed to get lists!");
             }
         });
-        
        nodeMainExecutor.execute(appManager, nodeConfiguration.setNodeName("list_app"));
 	}
 	
