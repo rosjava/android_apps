@@ -13,6 +13,8 @@ import java.util.TimerTask;
 import org.ros.node.NodeConfiguration;
 import org.ros.android.robotapp.RobotDescription;
 import org.ros.android.robotapp.RobotId;
+import org.ros.android.robotapp.zxing.IntentIntegrator;
+import org.ros.android.robotapp.zxing.IntentResult;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -180,7 +182,6 @@ public class RobotMasterChooser extends Activity {
 	  private void addMaster(RobotId robotId, boolean connectToDuplicates)  {
 		    Log.i("MasterChooserActivity", "addMaster ["+robotId.toString()+"]");
 		    if (robotId == null || robotId.getMasterUri() == null) {
-
 		    } else {
 		      for (int i = 0; i < robots.toArray().length; i++) {
 		        RobotDescription robot = robots.get(i);
@@ -252,27 +253,26 @@ public class RobotMasterChooser extends Activity {
 	  @Override
 	  protected void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
-	    //uriText = (EditText) findViewById(R.id.master_chooser_uri);
-	    // Get the URI from preferences and display it. Since only primitive types
-	    // can be saved in preferences the URI is stored as a string.
-	    //masterUri =
-	    //    getPreferences(MODE_PRIVATE).getString(PREFS_KEY_NAME,
-	    //        NodeConfiguration.DEFAULT_MASTER_URI.toString());
-	    //uriText.setText(masterUri);
 	    readRobotList();
 	    updateListView();
 	  }
 
 	  @Override
 	  public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-	    // If the Barcode Scanner returned a string then display that string.
-	    if (requestCode == 0) {
-	      if (resultCode == RESULT_OK) {
-	        Preconditions.checkState(intent.getStringExtra("SCAN_RESULT_FORMAT").equals("TEXT_TYPE"));
-	        String contents = intent.getStringExtra("SCAN_RESULT");
-	        uriText.setText(contents);
-	      }
-	    }
+		  IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+		    if (scanResult != null && scanResult.getContents() != null) {
+		      Yaml yaml = new Yaml();
+		      Map<String, Object> data = (Map<String, Object>)yaml.load(scanResult.getContents().toString());
+		      Log.i("MasterChooserActivity", "OBJECT: " + data.toString());
+		      try {
+		        addMaster(new RobotId(data), false);
+		      } catch (Exception e) {
+		        Toast.makeText(this, "Invalid robot description: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+		      }
+		    } else {
+		      Toast.makeText(this, "Scan failed", Toast.LENGTH_SHORT).show();
+		    }
+
 	  }
 
 
@@ -422,8 +422,14 @@ public class RobotMasterChooser extends Activity {
 	  public void refreshClicked(View view) {
 		    refresh();
 	  }
-
 	  public void scanRobotClicked(View view) {
+		    dismissDialog(ADD_URI_DIALOG_ID);
+		    IntentIntegrator.initiateScan(this, IntentIntegrator.DEFAULT_TITLE,
+		        IntentIntegrator.DEFAULT_MESSAGE, IntentIntegrator.DEFAULT_YES,
+		        IntentIntegrator.DEFAULT_NO, IntentIntegrator.QR_CODE_TYPES);
+	  }
+
+	  /*public void scanRobotClicked(View view) {
 		    dismissDialog(ADD_URI_DIALOG_ID);
 		    Intent intent = new Intent(BAR_CODE_SCANNER_PACKAGE_NAME);
 		    intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
@@ -437,7 +443,7 @@ public class RobotMasterChooser extends Activity {
 		      // Call the Barcode Scanner to let the user scan a QR code.
 		      startActivityForResult(intent, 0);
 		    }
-	  }
+	  }*/
 	  
 	  @Override
 	  public boolean onCreateOptionsMenu(Menu menu) {
@@ -478,9 +484,5 @@ public class RobotMasterChooser extends Activity {
 	   * @return true if the desired activity is install on the device, false
 	   *         otherwise.
 	   */
-	  private boolean isQRCodeReaderInstalled(Intent intent) {
-	    List<ResolveInfo> list =
-	        getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
-	    return (list.size() > 0);
-	  }
+
 }
