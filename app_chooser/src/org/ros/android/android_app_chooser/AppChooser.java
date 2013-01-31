@@ -1,18 +1,22 @@
 package org.ros.android.android_app_chooser;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.android.robotapp.AppManager;
-import org.ros.android.MasterChooser;
 import org.ros.android.robotapp.RosAppActivity;
+import org.ros.android.robotapp.RobotDescription;
 import org.ros.exception.RemoteException;
+import org.ros.exception.RosRuntimeException;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +33,9 @@ import app_manager.StopAppResponse;
 
 public class AppChooser extends RosAppActivity
 {
+	
+	private static final int ROBOT_MASTER_CHOOSER_REQUEST_CODE = 0;
+
 	
     private NodeConfiguration nodeConfiguration;
 	private NodeMainExecutor nodeMainExecutor;
@@ -91,11 +98,40 @@ public class AppChooser extends RosAppActivity
 	}
 	
 	 @Override
-	  public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+	  public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		 if(resultCode == RESULT_CANCELED){
 			 onDestroy();
 		 }
-		 super.onActivityResult(requestCode, resultCode, intent);
+		 else if (resultCode == RESULT_OK) {
+				    if (requestCode == ROBOT_MASTER_CHOOSER_REQUEST_CODE) {
+				        if (data == null) {
+				          nodeMainExecutorService.startMaster();
+				        } else {
+				          URI uri;
+				          try {
+				        	RobotDescription currentRobot = (RobotDescription) data
+				        	          .getSerializableExtra(RobotMasterChooser.ROBOT_DESCRIPTION_EXTRA);
+				            uri = new URI(currentRobot.getRobotId().toString());
+				          } catch (URISyntaxException e) {
+				            throw new RosRuntimeException(e);
+				          }
+				          nodeMainExecutorService.setMasterUri(uri);
+				        }
+				        // Run init() in a new thread as a convenience since it often requires
+				        // network access.
+				        new AsyncTask<Void, Void, Void>() {
+				          @Override
+				          protected Void doInBackground(Void... params) {
+				            AppChooser.this.init(nodeMainExecutorService);
+				            return null;
+				          }
+				        }.execute();
+				      } else {
+				        // Without a master URI configured, we are in an unusable state.
+				        nodeMainExecutorService.shutdown();
+				        finish();
+				      }
+	      }
 	 }
 	
 	

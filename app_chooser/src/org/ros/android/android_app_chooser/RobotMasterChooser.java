@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.ros.node.NodeConfiguration;
 import org.ros.android.robotapp.RobotDescription;
 import org.ros.android.robotapp.RobotId;
 import org.ros.android.robotapp.zxing.IntentIntegrator;
@@ -22,9 +21,6 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -47,8 +43,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import org.ros.android.robotapp.RobotsContentProvider;
 import org.yaml.snakeyaml.Yaml;
-
-import com.google.common.base.Preconditions;
 
 public class RobotMasterChooser extends Activity {
 	  /**
@@ -158,21 +152,12 @@ public class RobotMasterChooser extends Activity {
 		    	d.show();
 		    }
 		    else {
-			    masterUri = robots.get(position).getRobotId().toString();
-			    SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
-			    editor.putString(PREFS_KEY_NAME, masterUri);
-			    editor.commit();
-			    // Package the intent to be consumed by the calling activity.
-			    Intent intent = new Intent();
-			    intent.putExtra("ROS_MASTER_URI", masterUri);
-			    setResult(RESULT_OK, intent);
+		    	
+		    	Intent resultIntent = new Intent();
+			    resultIntent.putExtra(ROBOT_DESCRIPTION_EXTRA, robots.get(position));
+			    setResult(RESULT_OK, resultIntent);
 			    finish();
 		    }
-		  /*
-		    Intent resultIntent = new Intent();
-		    resultIntent.putExtra(ROBOT_DESCRIPTION_EXTRA, robots.get(position));
-		    setResult(RESULT_OK, resultIntent);
-		    finish();*/
 	  }
 	  
 	  private void addMaster(RobotId robotId) {
@@ -429,21 +414,6 @@ public class RobotMasterChooser extends Activity {
 		        IntentIntegrator.DEFAULT_NO, IntentIntegrator.QR_CODE_TYPES);
 	  }
 
-	  /*public void scanRobotClicked(View view) {
-		    dismissDialog(ADD_URI_DIALOG_ID);
-		    Intent intent = new Intent(BAR_CODE_SCANNER_PACKAGE_NAME);
-		    intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-		    // Check if the Barcode Scanner is installed.
-		    if (!isQRCodeReaderInstalled(intent)) {
-		      // Open the Market and take them to the page from which they can download
-		      // the Barcode Scanner app.
-		      startActivity(new Intent(Intent.ACTION_VIEW,
-		          Uri.parse("market://details?id=com.google.zxing.client.android")));
-		    } else {
-		      // Call the Barcode Scanner to let the user scan a QR code.
-		      startActivityForResult(intent, 0);
-		    }
-	  }*/
 	  
 	  @Override
 	  public boolean onCreateOptionsMenu(Menu menu) {
@@ -475,14 +445,4 @@ public class RobotMasterChooser extends Activity {
 	      return super.onOptionsItemSelected(item);
 	    }
 	  }
-	  
-	  /**
-	   * Check if the specified app is installed.
-	   * 
-	   * @param intent
-	   *          The activity that you wish to look for.
-	   * @return true if the desired activity is install on the device, false
-	   *         otherwise.
-	   */
-
 }
