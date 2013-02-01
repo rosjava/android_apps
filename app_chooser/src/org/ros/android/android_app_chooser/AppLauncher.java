@@ -1,20 +1,53 @@
+/*
+* Software License Agreement (BSD License)
+*
+* Copyright (c) 2011, Willow Garage, Inc.
+* Copyright (c) 2013, OSRF.
+* All rights reserved.
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+*
+* * Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimer.
+* * Redistributions in binary form must reproduce the above
+* copyright notice, this list of conditions and the following
+* disclaimer in the documentation and/or other materials provided
+* with the distribution.
+* * Neither the name of Willow Garage, Inc. nor the names of its
+* contributors may be used to endorse or promote products derived
+* from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
+*/
+
 package org.ros.android.android_app_chooser;
 
+import java.net.URI;
+import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import org.ros.android.robotapp.AppManager;
 import org.ros.android.robotapp.RosAppActivity;
 
-import android.net.Uri;
 import app_manager.ClientApp;
-
-import java.net.URI;
-import java.util.ArrayList;
 
 public class AppLauncher {
   static private final String CLIENT_TYPE = "android";
@@ -44,7 +77,6 @@ public class AppLauncher {
     for (int i = 0; i < app.getClientApps().size(); i++) {
       ClientApp client_app = app.getClientApps().get(i);
       if (client_app.getClientType() != null && client_app.getClientType().equals(CLIENT_TYPE)) {
-        //android_apps.add(new ClientAppData(client_app));
      ClientAppData data = new ClientAppData(client_app);
      android_apps.add(data);
       }
@@ -86,8 +118,6 @@ public class AppLauncher {
         className = intent.getAction();
         Log.i("RosAndroid", "trying to startActivity( action: " + intent.getAction() + " )");
         parentActivity.startActivity(intent);
-        //parentActivity.startActivityForResult(intent, 1);
-
         return true;
       } catch (ActivityNotFoundException e) {
         Log.i("RosAndroid", "activity not found for action: " + intent.getAction());
