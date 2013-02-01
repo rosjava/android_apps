@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.android.robotapp.AppManager;
+import org.ros.android.robotapp.ControlChecker;
 import org.ros.android.robotapp.MasterChecker;
 import org.ros.android.robotapp.RobotId;
 import org.ros.android.robotapp.RosAppActivity;
@@ -55,8 +56,9 @@ public class AppChooser extends RosAppActivity
 	private Button exchangeButton;
 	private ProgressDialogWrapper progress;
 	private AlertDialogWrapper wifiDialog;
+	private AlertDialogWrapper evictDialog;
 	private AlertDialogWrapper errorDialog;
-	private boolean connectedWifi;
+	private boolean validatedRobot;
 	private RobotDescription currentRobot;
 
 	  /**
@@ -208,13 +210,10 @@ public class AppChooser extends RosAppActivity
 				        	  
 				        	currentRobot = (RobotDescription) data
 				        	          .getSerializableExtra(RobotMasterChooser.ROBOT_DESCRIPTION_EXTRA);
-				        	if(currentRobot.getRobotId().getWifi() != null){
-				        		connectedWifi = false;
-				        		connectWifi(currentRobot.getRobotId());
-				        	}
-				        	else {
-				        		connectedWifi = true;
-				        	}
+
+				        	validatedRobot = false;
+				        	validateRobot(currentRobot.getRobotId());
+
 				            uri = new URI(currentRobot.getRobotId().getMasterUri());
 				          } catch (URISyntaxException e) {
 				            throw new RosRuntimeException(e);
@@ -226,7 +225,7 @@ public class AppChooser extends RosAppActivity
 				        new AsyncTask<Void, Void, Void>() {
 				          @Override
 				          protected Void doInBackground(Void... params) {
-				        	while(!connectedWifi) {
+				        	while(!validatedRobot) {
 				        	}
 
 				            AppChooser.this.init(nodeMainExecutorService);
@@ -250,14 +249,127 @@ public class AppChooser extends RosAppActivity
 		else super.startMasterChooser();		
 	}
 	
-	public void connectWifi(RobotId id){
+	public void validateRobot(final RobotId id){
 	     wifiDialog = new AlertDialogWrapper(this,
 	            new AlertDialog.Builder(this).setTitle("Change Wifi?").setCancelable(false), "Yes", "No");
+	     evictDialog = new AlertDialogWrapper(this,
+	    	        new AlertDialog.Builder(this).setTitle("Evict User?").setCancelable(false), "Yes", "No");
 	     errorDialog = new AlertDialogWrapper(this,
 	            new AlertDialog.Builder(this).setTitle("Could Not Connect").setCancelable(false), "Ok");
 	     progress = new ProgressDialogWrapper(this);
 		 final AlertDialogWrapper  wifiDialog = new AlertDialogWrapper(this,
 			        new AlertDialog.Builder(this).setTitle("Change Wifi?").setCancelable(false), "Yes", "No");
+		 
+	        final MasterChecker mc = new MasterChecker(
+	                new MasterChecker.RobotDescriptionReceiver() {
+	                  public void receive(RobotDescription robotDescription) {
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                          }
+	                        }});
+                   	 validatedRobot = true;
+
+	                    //It's important that this is done because at startup the robots are unnamed
+	                    //robotMasterChooser.setCurrentRobot(robotDescription);
+	                    //masterChooser.saveCurrentRobot();
+	                    //createNode();
+	                  }
+	                },
+	                new MasterChecker.FailureHandler() {
+	                  public void handleFailure(String reason) {
+	                    final String reason2 = reason;
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                          }
+	                        }
+	                      });
+	                    errorDialog.show("Cannot contact ROS master: " + reason2);
+	                    errorDialog.dismiss();
+		                 finish();	                 
+
+	                  }
+	                });
+	           //Ensure the robot is in a good state
+	           final ControlChecker cc = new ControlChecker(
+	                new ControlChecker.SuccessHandler() {
+	                  public void handleSuccess() {
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                            p.show("Connecting...", "Connecting to ROS master");
+	                          }
+	                        }});
+	                    mc.beginChecking(id);
+	                  }
+	                },
+	                new ControlChecker.FailureHandler() {
+	                  public void handleFailure(String reason) {
+	                    final String reason2 = reason;
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                          }
+	                        }
+	                      });
+	                    errorDialog.show("Cannot connect to control robot: " + reason2);
+	                    errorDialog.dismiss();
+		                 finish();	                 
+
+	                  }
+	                },
+	                new ControlChecker.EvictionHandler() {
+	                  public boolean doEviction(String current, String message) {
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                          }
+	                        }});
+	                    String m = "";
+	                    if (message != null) {
+	                      m = " The user says: \"" + message + "\"";
+	                    }
+	                    evictDialog.setMessage(current + " is running custom software on this robot. Do you want to evict this user?" + m);
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.show("Connecting...", "Deactivating robot");
+	                          }
+	                        }});
+	                    return evictDialog.show();
+	                  }
+
+					@Override
+					public boolean doEviction(String user) {
+						// TODO Auto-generated method stub
+						return false;
+					}
+	                },
+	                new ControlChecker.StartHandler() {
+	                  public void handleStarting() {
+	                    runOnUiThread(new Runnable() { 
+	                        public void run() {
+	                          final ProgressDialogWrapper p = progress;
+	                          if (p != null) {
+	                            p.dismiss();
+	                            p.show("Connecting...", "Starting robot");
+	                          }
+	                        }});
+	                  }
+	                });
+	           //Ensure that the correct WiFi network is selected.
 		 final WifiChecker wc = new WifiChecker(
 	             new WifiChecker.SuccessHandler() {
 	               public void handleSuccess() {
@@ -265,10 +377,11 @@ public class AppChooser extends RosAppActivity
 	                     public void run() {
 	                       final ProgressDialogWrapper p = progress;
 	                       if (p != null) {
-	                    	 connectedWifi = true;
 	                         p.dismiss();
+	                         p.show("Connecting...", "Checking robot state");
 	                       }
 	                     }});
+	                 cc.beginChecking(id);
 	               }
 	             },
 	             new WifiChecker.FailureHandler() {
