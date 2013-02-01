@@ -6,16 +6,22 @@ import java.util.ArrayList;
 
 import org.ros.address.InetAddressFactory;
 import org.ros.android.robotapp.AppManager;
+import org.ros.android.robotapp.MasterChecker;
+import org.ros.android.robotapp.RobotId;
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.android.robotapp.RobotDescription;
+import org.ros.android.robotapp.WifiChecker;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosRuntimeException;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,7 +53,98 @@ public class AppChooser extends RosAppActivity
 	private Button deactivate;
 	private Button stopApps;
 	private Button exchangeButton;
+	private ProgressDialogWrapper progress;
+	private AlertDialogWrapper wifiDialog;
+	private AlertDialogWrapper errorDialog;
+	private boolean connectedWifi;
+	private RobotDescription currentRobot;
 
+	  /**
+	   * Wraps the alert dialog so it can be used as a yes/no function
+	   */
+	  private class AlertDialogWrapper {
+	    private int state;
+	    private AlertDialog dialog;
+	    private RosAppActivity context;
+	    public AlertDialogWrapper(RosAppActivity context, AlertDialog.Builder builder, String yesButton, String noButton) {
+	      state = 0;
+	      this.context = context;
+	      dialog = builder.setPositiveButton(yesButton, new DialogInterface.OnClickListener() {
+	                              public void onClick(DialogInterface dialog, int which) { 
+	                                state = 1;
+	                              }})
+	                      .setNegativeButton(noButton, new DialogInterface.OnClickListener() {
+	                              public void onClick(DialogInterface dialog, int which) { 
+	                                state = 2;
+	                              }})
+	                      .create();
+	    }
+	    public AlertDialogWrapper(RosAppActivity context, AlertDialog.Builder builder, String okButton) {
+	      state = 0;
+	      this.context = context;
+	      dialog = builder.setNeutralButton(okButton, new DialogInterface.OnClickListener() {
+	          public void onClick(DialogInterface dialog, int which) {
+	            state = 1;
+	          }}).create();
+	    }
+	    public void setTitle(String m) {
+	      dialog.setTitle(m);
+	    }
+	   
+	    public void setMessage(String m) {
+	      dialog.setMessage(m);
+	    }
+	    public boolean show(String m) {
+	      setMessage(m);
+	      return show();
+	    }
+	    public boolean show() {
+	      state = 0;
+	      context.runOnUiThread(new Runnable() { 
+	          public void run() {
+	            dialog.show();
+	          }});
+	      //Kind of a hack. Do we know a better way?
+	      while (state == 0) {
+	        try {
+	          Thread.sleep(1L);
+	        } catch (Exception e) {
+	          break;
+	        }
+	      }
+	      dismiss();
+	      return state == 1;
+	    }
+	   
+	    public void dismiss() {
+	      if (dialog != null) {
+	        dialog.dismiss();
+	      }
+	      dialog = null;
+	    }
+	  }
+	  private class ProgressDialogWrapper {
+	    private ProgressDialog progress;
+	    private RosAppActivity activity;
+	    public ProgressDialogWrapper(RosAppActivity activity) {
+	      this.activity = activity;
+	      progress = null;
+	    }
+	    public void dismiss() {
+	      if (progress != null) {
+	        progress.dismiss();
+	      }
+	      progress = null;
+	    }
+	    public void show(String title, String text) {
+	      if (progress != null) {
+	        this.dismiss();
+	      }
+	      progress = ProgressDialog.show(activity, title, text, true, true);
+	      progress.setCancelable(false);
+	      progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+	    }
+	  }
 	
 	public AppChooser() {
 		super("app chooser", "app chooser");
@@ -75,7 +172,6 @@ public class AppChooser extends RosAppActivity
     	setDashboardResource(R.id.top_bar);
     	setMainWindowResource(R.layout.main);
         super.onCreate(savedInstanceState);
-        
         
         robotNameView = (TextView)findViewById(R.id.robot_name_view);
         deactivate = (Button) findViewById(R.id.deactivate_robot);
@@ -109,9 +205,17 @@ public class AppChooser extends RosAppActivity
 				        } else {
 				          URI uri;
 				          try {
-				        	RobotDescription currentRobot = (RobotDescription) data
+				        	  
+				        	currentRobot = (RobotDescription) data
 				        	          .getSerializableExtra(RobotMasterChooser.ROBOT_DESCRIPTION_EXTRA);
-				            uri = new URI(currentRobot.getRobotId().toString());
+				        	if(currentRobot.getRobotId().getWifi() != null){
+				        		connectedWifi = false;
+				        		connectWifi(currentRobot.getRobotId());
+				        	}
+				        	else {
+				        		connectedWifi = true;
+				        	}
+				            uri = new URI(currentRobot.getRobotId().getMasterUri());
 				          } catch (URISyntaxException e) {
 				            throw new RosRuntimeException(e);
 				          }
@@ -122,6 +226,9 @@ public class AppChooser extends RosAppActivity
 				        new AsyncTask<Void, Void, Void>() {
 				          @Override
 				          protected Void doInBackground(Void... params) {
+				        	while(!connectedWifi) {
+				        	}
+
 				            AppChooser.this.init(nodeMainExecutorService);
 				            return null;
 				          }
@@ -142,6 +249,73 @@ public class AppChooser extends RosAppActivity
 		}
 		else super.startMasterChooser();		
 	}
+	
+	public void connectWifi(RobotId id){
+	     wifiDialog = new AlertDialogWrapper(this,
+	            new AlertDialog.Builder(this).setTitle("Change Wifi?").setCancelable(false), "Yes", "No");
+	     errorDialog = new AlertDialogWrapper(this,
+	            new AlertDialog.Builder(this).setTitle("Could Not Connect").setCancelable(false), "Ok");
+	     progress = new ProgressDialogWrapper(this);
+		 final AlertDialogWrapper  wifiDialog = new AlertDialogWrapper(this,
+			        new AlertDialog.Builder(this).setTitle("Change Wifi?").setCancelable(false), "Yes", "No");
+		 final WifiChecker wc = new WifiChecker(
+	             new WifiChecker.SuccessHandler() {
+	               public void handleSuccess() {
+	                 runOnUiThread(new Runnable() { 
+	                     public void run() {
+	                       final ProgressDialogWrapper p = progress;
+	                       if (p != null) {
+	                    	 connectedWifi = true;
+	                         p.dismiss();
+	                       }
+	                     }});
+	               }
+	             },
+	             new WifiChecker.FailureHandler() {
+	               public void handleFailure(String reason) {
+	                 final String reason2 = reason;
+	                 runOnUiThread(new Runnable() { 
+	                     public void run() {
+	                       final ProgressDialogWrapper p = progress;
+	                       if (p != null) {
+	                         p.dismiss();
+	                       }
+	                     }
+	                   });
+	                 errorDialog.show("Cannot connect to robot WiFi: " + reason2);
+	                 errorDialog.dismiss();
+	                 finish();	                 
+	               }
+	             },
+	             new WifiChecker.ReconnectionHandler() {
+	               public boolean doReconnection(String from, String to) {
+	                 runOnUiThread(new Runnable() { 
+	                     public void run() {
+	                       final ProgressDialogWrapper p = progress;
+	                       if (p != null) {
+	                         p.dismiss();
+	                       }
+	                     }});
+	                 if (from == null) {
+	                   wifiDialog.setMessage("To use this robot, you must connect to a wifi network. You are currently not connected to a wifi network. Would you like to connect to the correct wireless network?");
+	                 } else {
+	                   wifiDialog.setMessage("To use this robot, you must switch wifi networks. Do you want to switch from " + from + " to " + to + "?");
+	                 }
+	                 runOnUiThread(new Runnable() { 
+	                     public void run() {
+	                       final ProgressDialogWrapper p = progress;
+	                       if (p != null) {
+	                         p.show("Connecting...", "Switching wifi networks");
+	                       }
+	                     }});
+	                 return wifiDialog.show();
+	               }
+	             });
+	        progress.show("Connecting...", "Checking wifi connection");
+	        wc.beginChecking(id, (WifiManager)getSystemService(WIFI_SERVICE));
+	}
+	
+
 	
 
 
@@ -239,7 +413,6 @@ public class AppChooser extends RosAppActivity
 		        if(AppLauncher.launch(AppChooser.this, apps.get(position), getMasterUri()) == true) {
 		        	onDestroy();
 		        }
-
 		      }
 		    });
 		    if (runningApps != null) {
@@ -254,6 +427,7 @@ public class AppChooser extends RosAppActivity
 
 	  public void chooseNewMasterClicked(View view){
 		
+
 	      nodeMainExecutor.shutdownNodeMain(appManager);
 	      releaseDashboardNode(); //todo: this work costs too many times
 	      availableAppsCache.clear();

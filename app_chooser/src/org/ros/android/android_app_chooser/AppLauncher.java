@@ -85,9 +85,8 @@ public class AppLauncher {
       try {
         className = intent.getAction();
         Log.i("RosAndroid", "trying to startActivity( action: " + intent.getAction() + " )");
-        //parentActivity.startActivity(intent);
-        parentActivity.startActivityForResult(intent, 1);
-
+        parentActivity.startActivity(intent);
+        //parentActivity.startActivityForResult(intent, 1);
 
         return true;
       } catch (ActivityNotFoundException e) {
