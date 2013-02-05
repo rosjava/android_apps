@@ -75,21 +75,33 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/enter_button"/>
   </TableRow>
-  <TableRow>
-  <Button android:text="Scan a QR-code URI"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:drawableLeft="@drawable/qrcode"
-          android:id="@+id/scan_robot_button"
-          android:layout_below="@id/text_or"
-          android:weightSum="1"/>
-  <Button android:text="Cancel"
-          android:layout_width="wrap_content"
-          android:layout_height="fill_parent"
-          android:id="@+id/cancel_button"
-          android:layout_alignParentRight="true"
-          android:layout_alignParentBottom="true"/>
-  </TableRow>
+
+    <TableRow>
+
+        <Button
+            android:id="@+id/scan_robot_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_or"
+            android:drawableLeft="@drawable/qrcode"
+            android:text="Scan a QR-code URI"
+            android:weightSum="1" />
+
+        <Button
+            android:id="@+id/search_master_button"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:text="Search for local network" />
+
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="Cancel" />
+    </TableRow>
+
 </TableLayout>
 </HorizontalScrollView>
 </ScrollView>

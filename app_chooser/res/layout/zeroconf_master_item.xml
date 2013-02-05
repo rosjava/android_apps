@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="6dip"
+    >
+    <!--  
+      android:layout_height="?android:attr/listPreferredItemHeight"
+    -->
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="6dip"
+        android:src="@drawable/conductor"
+    />
+    <TextView
+        style="@android:style/TextAppearance.Medium"
+        android:id="@+id/service_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        
+        android:layout_toRightOf="@id/icon"
+        android:text="My Application" 
+    />
+    <CheckedTextView  
+        style="@android:style/TextAppearance.Small"
+        android:id="@+id/service_detail"
+        android:layout_marginLeft="15dip"
+
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight" 
+        
+        android:layout_toRightOf="@id/icon"
+        android:layout_below="@id/service_name"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:ellipsize="marquee"
+        android:text="Simple application that\n shows how to\n use RelativeLayout" 
+    />
+        </RelativeLayout>

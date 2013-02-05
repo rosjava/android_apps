@@ -42,10 +42,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.jmdns.ServiceInfo;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -56,11 +59,14 @@ import android.text.Spannable.Factory;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
@@ -74,6 +80,7 @@ import org.ros.android.robotapp.RobotId;
 import org.ros.android.robotapp.zxing.IntentIntegrator;
 import org.ros.android.robotapp.zxing.IntentResult;
 import org.ros.android.robotapp.RobotsContentProvider;
+import org.ros.android.zeroconf.MasterSearcher;
 
 import org.yaml.snakeyaml.Yaml;
 /**
@@ -84,14 +91,17 @@ public class RobotMasterChooser extends Activity {
 
 	private static final int ADD_URI_DIALOG_ID = 0;
 	private static final int ADD_DELETION_DIALOG_ID = 1;
+	private static final int ADD_SEARCH_ROBOT_DIALOG_ID = 2;
 	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.robotapp.RobotDescription";
 
 	private List<RobotDescription> robots;
 	private boolean[] selections;
+	private MasterSearcher masterSearcher;
+	private ListView listView;
 
 	public RobotMasterChooser() {
 		robots = new ArrayList<RobotDescription>();
-
+		
 	}
 
 	private void readRobotList() {
@@ -249,6 +259,7 @@ public class RobotMasterChooser extends Activity {
 		super.onCreate(savedInstanceState);
 		readRobotList();
 		updateListView();
+		
 	}
 
 	@Override
@@ -278,6 +289,7 @@ public class RobotMasterChooser extends Activity {
 		readRobotList();
 		final Dialog dialog;
 		Button button;
+		AlertDialog.Builder builder;
 		switch (id) {
 		case ADD_URI_DIALOG_ID:
 			dialog = new Dialog(this);
@@ -305,6 +317,14 @@ public class RobotMasterChooser extends Activity {
 					scanRobotClicked(v);
 				}
 			});
+			button = (Button) dialog.findViewById(R.id.search_master_button);
+			button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					searchRobotClicked(v);
+				}
+			});
+			
 			button = (Button) dialog.findViewById(R.id.cancel_button);
 			button.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -314,7 +334,7 @@ public class RobotMasterChooser extends Activity {
 			});
 			break;
 		case ADD_DELETION_DIALOG_ID:
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder = new AlertDialog.Builder(this);
 			String newline = System.getProperty("line.separator");
 			if (robots.size() > 0) {
 				selections = new boolean[robots.size()];
@@ -336,9 +356,9 @@ public class RobotMasterChooser extends Activity {
 				builder.setMultiChoiceItems(robot_names, selections,
 						new DialogSelectionClickHandler());
 				builder.setPositiveButton("Delete Selections",
-						new DialogButtonClickHandler());
+						new DeletionDialogButtonClickHandler());
 				builder.setNegativeButton("Cancel",
-						new DialogButtonClickHandler());
+						new DeletionDialogButtonClickHandler());
 				dialog = builder.create();
 			} else {
 				builder.setTitle("No robots to delete.");
@@ -350,6 +370,21 @@ public class RobotMasterChooser extends Activity {
 					}
 				}, 2 * 1000);
 			}
+			break;
+		case ADD_SEARCH_ROBOT_DIALOG_ID:
+			   builder = new AlertDialog.Builder(this);
+				builder.setTitle("Search for local network...");
+		       LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		       listView = (ListView) layoutInflater.inflate(R.layout.zeroconf_master_list, null);
+			   masterSearcher = new MasterSearcher(this,listView);
+			   builder.setView(listView);
+				builder.setPositiveButton("Select",
+						new SearchRobotDialogButtonClickHandler());
+				builder.setNegativeButton("Cancel",
+						new SearchRobotDialogButtonClickHandler());
+			  dialog = builder.create();
+			  dialog.setOnKeyListener(new DialogKeyListener());
+			
 			break;
 		default:
 			dialog = null;
@@ -365,7 +400,7 @@ public class RobotMasterChooser extends Activity {
 		}
 	}
 
-	public class DialogButtonClickHandler implements
+	public class DeletionDialogButtonClickHandler implements
 			DialogInterface.OnClickListener {
 		public void onClick(DialogInterface dialog, int clicked) {
 			switch (clicked) {
@@ -378,6 +413,44 @@ public class RobotMasterChooser extends Activity {
 				break;
 			}
 		}
+	}
+	
+	public class SearchRobotDialogButtonClickHandler implements
+		DialogInterface.OnClickListener {
+	public void onClick(DialogInterface dialog, int clicked) {
+		switch (clicked) {
+		case DialogInterface.BUTTON_POSITIVE:
+			SparseBooleanArray positions = listView.getCheckedItemPositions();
+
+			for(int i = 0;i < positions.size();i++){
+				if(positions.valueAt(i)){
+					enterRobotInfo((ServiceInfo) listView.getAdapter().getItem(positions.keyAt(i)));
+				}
+			}
+			removeDialog(ADD_DELETION_DIALOG_ID);
+		break;
+		case DialogInterface.BUTTON_NEGATIVE:
+			removeDialog(ADD_DELETION_DIALOG_ID);
+		break;
+			}
+		}
+	}
+	
+	public void enterRobotInfo(ServiceInfo serviceInfo){
+		String newMasterUri = "http:/"+serviceInfo.getAddress()+":"+serviceInfo.getPort()+"/";
+		if (newMasterUri != null && newMasterUri.length() > 0) {
+			Map<String, Object> data = new HashMap<String, Object>();
+			data.put("URL", newMasterUri);
+			try {
+				addMaster(new RobotId(data));
+			} catch (Exception e) {
+				Toast.makeText(RobotMasterChooser.this, "Invalid Parameters.",
+						Toast.LENGTH_SHORT).show();
+			}
+		} else {
+			Toast.makeText(RobotMasterChooser.this, "Must specify Master URI.",
+					Toast.LENGTH_SHORT).show();
+		}	
 	}
 
 	public void enterRobotInfo(Dialog dialog) {
@@ -429,6 +502,7 @@ public class RobotMasterChooser extends Activity {
 			return false;
 		}
 	}
+	
 
 	public void addRobotClicked(View view) {
 		showDialog(ADD_URI_DIALOG_ID);
@@ -443,6 +517,12 @@ public class RobotMasterChooser extends Activity {
 		IntentIntegrator.initiateScan(this, IntentIntegrator.DEFAULT_TITLE,
 				IntentIntegrator.DEFAULT_MESSAGE, IntentIntegrator.DEFAULT_YES,
 				IntentIntegrator.DEFAULT_NO, IntentIntegrator.QR_CODE_TYPES);
+	}
+	
+	public void searchRobotClicked(View view) {
+		   removeDialog(ADD_URI_DIALOG_ID);
+		   showDialog(ADD_SEARCH_ROBOT_DIALOG_ID);
+		
 	}
 
 	@Override

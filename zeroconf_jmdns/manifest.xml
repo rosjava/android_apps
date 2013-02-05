@@ -1,0 +1,23 @@
+<package>
+  <description brief="the java zeroconf'ing library">
+
+     Uses the sources from jmnds and builds them in place in the ros environment.
+
+  </description>
+  <author>Daniel Stonier</author>
+  <license>BSD</license>
+  <review status="3rdparty" notes=""/>
+  <url>http://jmdns.sourceforge.net/</url>
+
+  <depend package="rosjava_bootstrap"/>
+  <depend package="zeroconf_comms"/>
+  <rosdep name="ant" />
+  <rosdep name="openjdk-6-jdk" />
+
+  <export>
+    <rosjava-src location="src/main/java" />
+    <rosjava-pathelement location="target" groupId="javax" artifactId="javax.jmdns" version="3.4.2" built="true" />
+  </export>
+</package>
+
+
