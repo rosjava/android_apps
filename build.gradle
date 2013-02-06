@@ -23,7 +23,9 @@ allprojects {
   version = '0.0.0-SNAPSHOT'
 }
 
+
 subprojects {
+
   repositories {
     mavenLocal()
     mavenCentral()
@@ -47,9 +49,11 @@ subprojects {
     ant.delete dir: "${projectDir}/gen"
     ant.delete dir: "${projectDir}/libs"
   }
+
   
   task debug(type: Exec) {
     dependsOn deployLibs
     commandLine 'ant', 'debug'
   }
+
 }
