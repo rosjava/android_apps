@@ -1,41 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
-              android:id="@+id/main_layout">
-  <org.ros.android.view.RosImageView android:layout_width="fill_parent"
-                                     android:layout_height="fill_parent"
-                                     android:layout_weight=".25"
-                                     android:src="@drawable/icon"
-                                     android:id="@+id/image"/>
-  <LinearLayout android:orientation="vertical"
-                android:gravity="right"
+    android:id="@+id/main_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/top_view"
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="#ff404040"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:onClick="back"
+            android:text="Back" />
+
+        <ImageButton
+            android:id="@+id/refresh_button"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:onClick="refreshMap"
+            android:padding="7.5dip"
+            android:scaleType="fitCenter"
+            android:src="@drawable/make_a_map_refresh" />
+
+        <ImageButton
+            android:id="@+id/save_map"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:onClick="saveMap"
+            android:padding="7.5dip"
+            android:scaleType="fitCenter"
+            android:src="@drawable/make_a_map_save" />
+
+        <LinearLayout
+            android:id="@+id/top_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#ff404040"
+            android:gravity="right"
+            android:orientation="horizontal" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/main_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal" >
+
+        <org.ros.android.view.RosImageView
+            android:id="@+id/image"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".25"
+            android:src="@drawable/icon" />
+
+        <LinearLayout
+            android:id="@+id/side_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight=".75"
+            android:gravity="right"
+            android:orientation="vertical" >
+
+            <org.ros.android.view.visualization.VisualizationView
+                android:id="@+id/map_view"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_weight=".75"
-                android:id="@+id/side_layout">
-    <LinearLayout android:orientation="horizontal" android:layout_width="fill_parent" android:layout_height="wrap_content"
-                  android:background="#ff404040"
-		            android:id="@+id/top_bar" />
-    <org.ros.android.view.visualization.VisualizationView android:layout_width="fill_parent"
-                               android:layout_height="fill_parent"
-                               android:layout_weight=".25"
-                               android:id="@+id/map_view"/>
-    <Button android:layout_width="fill_parent" 
-	        android:layout_height="wrap_content" 
-		    android:text="Refresh Map"
-		        android:onClick="refreshMap"
-			    android:id="@+id/refresh_button"/>
-    <Button android:layout_width="fill_parent" 
-	        android:layout_height="wrap_content" 
-		    android:text="Save Map"
-		        android:onClick="saveMap"
-			    android:id="@+id/save_map"/>
-    <org.ros.android.view.VirtualJoystickView android:layout_width="fill_parent"
-					      android:layout_height="fill_parent"
-					      android:layout_weight=".25"
-					      android:adjustViewBounds="true"
-					      android:id="@+id/virtual_joystick"/>
-  </LinearLayout>
+                android:layout_weight=".25" />
+
+            <org.ros.android.view.VirtualJoystickView
+                android:id="@+id/virtual_joystick"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight=".25"
+                android:adjustViewBounds="true" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

@@ -19,11 +19,13 @@ package org.ros.android.android_make_a_map;
 import java.util.concurrent.TimeUnit;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import org.ros.android.robotapp.RosAppActivity;
@@ -54,8 +56,9 @@ public class MainActivity extends RosAppActivity {
 	private VisualizationView mapView;
 	private ViewGroup mainLayout;
 	private ViewGroup sideLayout;
-	private Button refreshButton;
-	private Button saveButton;
+	private ImageButton refreshButton;
+	private ImageButton saveButton;
+	private Button backButton;
 
 	public MainActivity() {
 		// The RosActivity constructor configures the notification title and
@@ -82,8 +85,10 @@ public class MainActivity extends RosAppActivity {
 		mapView = (VisualizationView) findViewById(R.id.map_view);
 		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
 		virtualJoystickView.setTopicName("/cmd_vel");
-		refreshButton = (Button) findViewById(R.id.refresh_button);
-		saveButton = (Button) findViewById(R.id.save_map);
+		refreshButton = (ImageButton) findViewById(R.id.refresh_button);
+		saveButton = (ImageButton) findViewById(R.id.save_map);
+		backButton = (Button) findViewById(R.id.back_button);
+		
 
 		refreshButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -102,6 +107,14 @@ public class MainActivity extends RosAppActivity {
 				systemCommands.saveGeotiff();
 			}
 		});
+		
+		backButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				onBackPressed();
+			}
+		});
+		
 		mapView.getCamera().jumpToFrame(ROBOT_FRAME);
 
 		mainLayout = (ViewGroup) findViewById(R.id.main_layout);
