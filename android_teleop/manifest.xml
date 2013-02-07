@@ -1,0 +1,10 @@
+<package>
+  <description brief="android_teleop">
+    android_teleop
+  </description>
+  <author>Kazuto Murase</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/android_teleop</url>
+</package>
+
