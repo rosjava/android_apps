@@ -49,7 +49,7 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		setDefaultAppName("turtlebot_core_apps/android_teleop");
+		setDefaultAppName("new_turtlebot_android_apps/android_teleop");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/top_view"
+        android:layout_width="fill_parent"
+        android:layout_height="50dip"
+        android:background="#ff404040"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:onClick="back"
+            android:text="Back" />
+
+        <Button
+            android:id="@+id/rename_button"
+            android:layout_width="wrap_content"
+            android:layout_height="50dip"
+            android:onClick="renameMap"
+            android:text="Rename" />
+        <LinearLayout
+            android:id="@+id/top_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#ff404040"
+            android:gravity="right"
+            android:orientation="horizontal" />
+    </LinearLayout>
+            <org.ros.android.view.visualization.VisualizationView
+                android:id="@+id/map_view"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="3" />
+    <ListView
+        android:layout_weight="2"
+        android:id="@+id/map_list"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice"
+        android:divider="#00000000"
+        android:dividerHeight="0sp"
+        android:footerDividersEnabled="true"
+        android:headerDividersEnabled="true" />
+</LinearLayout>

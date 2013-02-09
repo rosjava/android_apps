@@ -72,7 +72,7 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		setDefaultAppName("turtlebot_core_apps/android_make_a_map");
+		setDefaultAppName("new_turtlebot_android_apps/android_make_a_map");
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
@@ -169,7 +169,7 @@ public class MainActivity extends RosAppActivity {
 				nodeMainExecutor.getScheduledExecutorService());
 		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView, nodeConfiguration);	
+		nodeMainExecutor.execute(mapView, nodeConfiguration);
 	}
 	
 	  @Override

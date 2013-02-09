@@ -1,0 +1,10 @@
+<package>
+  <description brief="map_manager">
+    map_manager
+  </description>
+  <author>Kazuto Murase</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/map_manager</url>
+</package>
+
