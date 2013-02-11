@@ -33,12 +33,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -74,8 +74,10 @@ public class MainActivity extends RosAppActivity {
 	private ListView mapListView;
 	private ArrayList<MapListEntry> mapList = new ArrayList<MapListEntry>();
 	public OnTouchListener gestureListener;
+	public OnLongClickListener longClickListener;
 	private int radioFocus = 0;
 	private int viewPosition = -1;
+	private int targetPosition;
 	private boolean startMapManager = true;
 	private boolean showDeleteDialog = false;
 	private boolean visibleMapView = true;
@@ -118,6 +120,7 @@ public class MainActivity extends RosAppActivity {
 			@Override
 			public void onClick(View view) {
 				if (radioFocus != -1) {
+					targetPosition = radioFocus;
 					showDialog(NAME_MAP_DIALOG_ID);
 				}
 			}
@@ -125,27 +128,27 @@ public class MainActivity extends RosAppActivity {
 
 		gestureListener = new View.OnTouchListener() {
 			private int padding = 0;
-			private int initialx = 0;
-			private int currentx = 0;
+			private int initialX = 0;
+			private int currentX = 0;
 
 			public boolean onTouch(View v, MotionEvent event) {
 				if (!showDeleteDialog) {
 
 					if (event.getAction() == MotionEvent.ACTION_DOWN) {
 						padding = 0;
-						initialx = (int) event.getX();
-						currentx = (int) event.getX();
+						initialX = (int) event.getX();
+						currentX = (int) event.getX();
 					}
 					if (event.getAction() == MotionEvent.ACTION_MOVE) {
-						currentx = (int) event.getX();
-						padding = currentx - initialx;
+						currentX = (int) event.getX();
+						padding = currentX - initialX;
 					}
 
 					if (event.getAction() == MotionEvent.ACTION_UP
 							|| event.getAction() == MotionEvent.ACTION_CANCEL) {
 						padding = 0;
-						initialx = 0;
-						currentx = 0;
+						initialX = 0;
+						currentX = 0;
 					}
 
 					if (Math.abs(padding) > display.getWidth() * 0.2f) {
@@ -164,8 +167,19 @@ public class MainActivity extends RosAppActivity {
 						v.setAlpha(0);
 					}
 				}
-				return true;
+				return false;
 			}
+		};
+		
+		longClickListener = new View.OnLongClickListener() {
+
+			@Override
+			public boolean onLongClick(View v) {
+				targetPosition = v.getId();
+				showDialog(NAME_MAP_DIALOG_ID);
+				return false;
+			}
+			
 		};
 
 		mapView.getCamera().jumpToFrame(ROBOT_FRAME);
@@ -281,7 +295,7 @@ public class MainActivity extends RosAppActivity {
 			public void run() {
 				final MapListArrayAdapter ad = new MapListArrayAdapter(
 						MainActivity.this, 0, availableMapNames,
-						gestureListener);
+						gestureListener,longClickListener);
 				mapListView.setAdapter(ad);
 				if (viewPosition != -1) {
 					mapListView.setSelection(viewPosition);
@@ -423,10 +437,10 @@ public class MainActivity extends RosAppActivity {
 			dialog.setContentView(R.layout.name_map_dialog);
 			dialog.setTitle("Rename Map");
 
-			final String targetMapId = mapList.get(radioFocus).getMapId();
+			final String targetMapId = mapList.get(targetPosition).getMapId();
 			final EditText nameField = (EditText) dialog
 					.findViewById(R.id.name_editor);
-			nameField.setText(mapList.get(radioFocus).getName());
+			nameField.setText(mapList.get(targetPosition).getName());
 			nameField.setOnKeyListener(new View.OnKeyListener() {
 				@Override
 				public boolean onKey(final View view, int keyCode,

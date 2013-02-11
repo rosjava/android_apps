@@ -6,6 +6,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -19,15 +20,17 @@ public class MapListArrayAdapter extends ArrayAdapter<MapListData> {
 		RadioButton radioButton;
 	}
 
-	private OnTouchListener listener;
+	private OnTouchListener touchListener;
+	private OnLongClickListener longClickListener;
 	private List<MapListData> mapList = null;
 	private LayoutInflater inflator;
 	private MainActivity context;
 
 	public MapListArrayAdapter(MainActivity context, int resourceId,
-			List<MapListData> mapList, OnTouchListener listener) {
+			List<MapListData> mapList, OnTouchListener touchListener,OnLongClickListener longClickListener) {
 		super(context, resourceId, mapList);
-		this.listener = listener;
+		this.touchListener = touchListener;
+		this.longClickListener = longClickListener;
 		this.mapList = mapList;
 		this.context = context;
 
@@ -73,7 +76,8 @@ public class MapListArrayAdapter extends ArrayAdapter<MapListData> {
 
 		});
 		convertView.setId(position);
-		convertView.setOnTouchListener(listener);
+		convertView.setOnTouchListener(touchListener);
+		convertView.setOnLongClickListener(longClickListener);
 		return convertView;
 	}
 
