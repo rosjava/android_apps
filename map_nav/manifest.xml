@@ -1,0 +1,10 @@
+<package>
+  <description brief="map_nav">
+    map_nav
+  </description>
+  <author>Kazuto Murase</author>
+  <license>Apache 2.0</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/map_nav</url>
+</package>
+
