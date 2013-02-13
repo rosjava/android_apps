@@ -5,7 +5,6 @@ import javax.microedition.khronos.opengles.GL10;
 import org.ros.android.view.visualization.Camera;
 import org.ros.android.view.visualization.layer.SubscriberLayer;
 import org.ros.android.view.visualization.layer.TfLayer;
-import org.ros.android.view.visualization.shape.GoalShape;
 import org.ros.android.view.visualization.shape.RobotShape;
 import org.ros.android.view.visualization.shape.Shape;
 import org.ros.message.MessageListener;
