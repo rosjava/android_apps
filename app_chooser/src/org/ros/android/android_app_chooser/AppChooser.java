@@ -216,6 +216,8 @@ public class AppChooser extends RosAppActivity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		String defaultRobotName = getString(R.string.default_robot);
+		setDefaultRobotName(defaultRobotName);
 		setDefaultAppName(null);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
@@ -237,7 +239,9 @@ public class AppChooser extends RosAppActivity {
 		this.nodeMainExecutor = nodeMainExecutor;
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
+
 		listApps();
+
 	}
 
 	@Override
@@ -504,7 +508,7 @@ public class AppChooser extends RosAppActivity {
 
 	private void listApps() {
 		Log.i("RosAndroid", "listing application");
-		appManager = new AppManager("");
+		AppManager appManager = new AppManager("", getRobotNameSpace());
 		appManager.setFunction("list");
 		appManager
 				.setListService(new ServiceResponseListener<ListAppsResponse>() {
@@ -583,7 +587,7 @@ public class AppChooser extends RosAppActivity {
 				}
 
 				if (AppLauncher.launch(AppChooser.this, apps.get(position),
-						getMasterUri()) == true) {
+						getMasterUri(), currentRobot) == true) {
 					onDestroy();
 				}
 			}
@@ -601,6 +605,7 @@ public class AppChooser extends RosAppActivity {
 	public void chooseNewMasterClicked(View view) {
 
 		nodeMainExecutor.shutdownNodeMain(appManager);
+		releaseRobotNameResolver();
 		releaseDashboardNode(); // TODO this work costs too many times
 		availableAppsCache.clear();
 		runningAppsCache.clear();
@@ -618,14 +623,14 @@ public class AppChooser extends RosAppActivity {
 
 		for (App i : runningAppsCache) {
 			Log.i("AppLauncher", "Sending intent.");
-			AppLauncher.launch(this, i, getMasterUri());
+			AppLauncher.launch(this, i, getMasterUri(), currentRobot);
 		}
 
 		progressDialog = new ProgressDialogWrapper(this);
 		progressDialog.show("Stopping Applications",
 				"Stopping all applications...");
 
-		AppManager appManager = new AppManager("*");
+		AppManager appManager = new AppManager("*", getRobotNameSpace());
 		appManager.setFunction("stop");
 		appManager
 				.setStopService(new ServiceResponseListener<StopAppResponse>() {

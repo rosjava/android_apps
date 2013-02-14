@@ -2,5 +2,6 @@
 <resources>
 	<string name="stop_app">Kill</string>
     <string name="app_name">Teleop</string>
-
+    <string name="default_robot">turtlebot</string>
+	<string name="default_app">new_turtlebot_android_apps/android_teleop</string>
 </resources>

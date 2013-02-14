@@ -45,16 +45,21 @@ import android.net.Uri;
 import android.util.Log;
 
 import org.ros.android.robotapp.AppManager;
+import org.ros.android.robotapp.RobotDescription;
 import org.ros.android.robotapp.RosAppActivity;
+import org.ros.namespace.NameResolver;
 
 import app_manager.ClientApp;
 
 public class AppLauncher {
   static private final String CLIENT_TYPE = "android";
+	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.robotapp.RobotDescription";
+
 
   /** Launch a client app for the given robot app. */
-  static public boolean launch(final RosAppActivity parentActivity, app_manager.App app, URI uri) {
+  static public boolean launch(final RosAppActivity parentActivity, app_manager.App app, URI uri,RobotDescription currentRobot) {
     ArrayList<ClientAppData> android_apps = new ArrayList<ClientAppData>();
+
     
     if (parentActivity instanceof AppChooser) {
       ((AppChooser)parentActivity).onAppClicked(app, app.getClientApps().size() > 0);
@@ -113,6 +118,7 @@ public class AppLauncher {
       ClientAppData appData = appropriateAndroidApps.get(i);
       Intent intent = appData.createIntent();
       intent.putExtra(AppManager.PACKAGE + ".robot_app_name", app.getName());
+      intent.putExtra(ROBOT_DESCRIPTION_EXTRA, currentRobot);
       intent.putExtra("ChooserURI", uri.toString());
       try {
         className = intent.getAction();

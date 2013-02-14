@@ -26,8 +26,10 @@ import com.google.common.base.Preconditions;
 
 public class MapPosePublisherLayer extends DefaultLayer {
 
-	private final Context context;
+	private static final String MAP_FRAME = "map";
+	private static final String ROBOT_FRAME = "base_link";
 
+	private final Context context;
 	private Shape shape;
 	private Publisher<geometry_msgs.PoseWithCovarianceStamped> initialPosePublisher;
 	private Publisher<geometry_msgs.PoseStamped> androidGoalPublisher;
@@ -102,7 +104,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 				PoseStamped poseStamped;
 				switch (mode) {
 				case POSE_MODE:
-					camera.setFrame("/map");
+					camera.setFrame(MAP_FRAME);
 					poseVector = fixedPose.apply(Vector3.zero());
 					pointerVector = camera.toMetricCoordinates(
 							(int) event.getX(), (int) event.getY());
@@ -111,15 +113,15 @@ public class MapPosePublisherLayer extends DefaultLayer {
 							poseVector.getY());
 					fixedPose = Transform.translation(poseVector).multiply(
 							Transform.zRotation(angle2));
-					camera.setFrame("/base_link");
+					camera.setFrame(ROBOT_FRAME);
 					poseStamped = fixedPose.toPoseStampedMessage(
-							GraphName.of("/base_link"),
+							GraphName.of(ROBOT_FRAME),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 
 					PoseWithCovarianceStamped initialPose = initialPosePublisher
 							.newMessage();
-					initialPose.getHeader().setFrameId("/map");
+					initialPose.getHeader().setFrameId(MAP_FRAME);
 					initialPose.getPose().setPose(poseStamped.getPose());
 					double[] covariance = initialPose.getPose().getCovariance();
 					covariance[6 * 0 + 0] = 0.5 * 0.5;
@@ -130,7 +132,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 					break;
 				case GOAL_MODE:
 					poseStamped = pose.toPoseStampedMessage(
-							GraphName.of("/base_link"),
+							GraphName.of(ROBOT_FRAME),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 					androidGoalPublisher.publish(poseStamped);
@@ -179,11 +181,11 @@ public class MapPosePublisherLayer extends DefaultLayer {
 										.toMetricCoordinates((int) e.getX(),
 												(int) e.getY()));
 								shape.setTransform(pose);
-								camera.setFrame("/map");
+								camera.setFrame(MAP_FRAME);
 								fixedPose = Transform.translation(camera
 										.toMetricCoordinates((int) e.getX(),
 												(int) e.getY()));
-								camera.setFrame("/base_link");
+								camera.setFrame(ROBOT_FRAME);
 								visible = true;
 							}
 						});

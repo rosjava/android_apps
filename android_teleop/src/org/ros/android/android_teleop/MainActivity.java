@@ -21,8 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.address.InetAddressFactory;
@@ -37,6 +39,8 @@ public class MainActivity extends RosAppActivity {
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
 	private Button backButton;
+	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
+
 
 	public MainActivity() {
 		// The RosActivity constructor configures the notification title and
@@ -48,15 +52,17 @@ public class MainActivity extends RosAppActivity {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
-		setDefaultAppName("new_turtlebot_android_apps/android_teleop");
+		
+		String defaultRobotName = getString(R.string.default_robot);
+		String defaultAppName = getString(R.string.default_app);
+		setDefaultRobotName(defaultRobotName);
+		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
 		
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
-		cameraView.setTopicName("/turtlebot/application/camera/rgb/image_color/compressed_throttle");
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
 		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
 		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
@@ -70,18 +76,20 @@ public class MainActivity extends RosAppActivity {
 				onBackPressed();
 			}
 		});
-
 	}
 
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
 		
 		super.init(nodeMainExecutor);
+		
 
 		NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
 
+		NameResolver appNameSpace = getAppNameSpace();
+			cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
 		
 		nodeMainExecutor.execute(cameraView, nodeConfiguration
 				.setNodeName("camera_view"));
@@ -96,6 +104,7 @@ public class MainActivity extends RosAppActivity {
 	  @Override
 	  public boolean onCreateOptionsMenu(Menu menu){
 		  menu.add(0,0,0,R.string.stop_app);
+
 		  return super.onCreateOptionsMenu(menu);
 	  }
 	  

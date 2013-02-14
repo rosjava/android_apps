@@ -39,6 +39,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -96,7 +97,10 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		setDefaultAppName("new_turtlebot_android_apps/android_map_manager");
+		String defaultRobotName = getString(R.string.default_robot);
+		String defaultAppName = getString(R.string.default_app);
+		setDefaultRobotName(defaultRobotName);
+		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);

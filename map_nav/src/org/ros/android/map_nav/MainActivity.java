@@ -37,6 +37,7 @@ import map_store.PublishMapResponse;
 
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
@@ -58,6 +59,7 @@ public class MainActivity extends RosAppActivity {
 
 	private static final String MAP_FRAME = "map";
 	private static final String ROBOT_FRAME = "base_link";
+	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
 
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
@@ -83,14 +85,15 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
-		setDefaultAppName("new_turtlebot_android_apps/android_map_nav");
+		String defaultRobotName = getString(R.string.default_robot);
+		String defaultAppName = getString(R.string.default_app);
+		setDefaultRobotName(defaultRobotName);
+		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
-		cameraView
-				.setTopicName("/turtlebot/application/camera/rgb/image_color/compressed_throttle");
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
 		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
 		mapView = (VisualizationView) findViewById(R.id.map_view);
@@ -122,12 +125,16 @@ public class MainActivity extends RosAppActivity {
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
 
-		this.nodeMainExecutor = nodeMainExecutor;
 		super.init(nodeMainExecutor);
-
+		
+		this.nodeMainExecutor = nodeMainExecutor;
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
+		NameResolver appNameSpace = getAppNameSpace();
+			cameraView.setTopicName(appNameSpace.resolve(cameraTopic)
+					.toString());
+			
 		nodeMainExecutor.execute(cameraView,
 				nodeConfiguration.setNodeName("camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
