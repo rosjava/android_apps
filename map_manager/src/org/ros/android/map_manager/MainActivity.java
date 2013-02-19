@@ -218,7 +218,7 @@ public class MainActivity extends RosAppActivity {
 		mapView.addLayer(cameraControlLayer);
 		occupancyGridLayer = new OccupancyGridLayer("map");
 		mapView.addLayer(occupancyGridLayer);
-		nodeMainExecutor.execute(mapView, nodeConfiguration);
+		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 
 		updateMapList();
 	}

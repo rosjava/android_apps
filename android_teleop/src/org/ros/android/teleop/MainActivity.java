@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.android.android_teleop;
+package org.ros.android.teleop;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -92,9 +92,9 @@ public class MainActivity extends RosAppActivity {
 			cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
 		
 		nodeMainExecutor.execute(cameraView, nodeConfiguration
-				.setNodeName("camera_view"));
+				.setNodeName("android/camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
-				nodeConfiguration.setNodeName("virtual_joystick"));
+				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
 
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory

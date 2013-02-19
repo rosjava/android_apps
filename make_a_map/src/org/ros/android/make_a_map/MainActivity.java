@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.android.android_make_a_map;
+package org.ros.android.make_a_map;
 
 import java.util.concurrent.TimeUnit;
 import android.os.Bundle;
@@ -139,9 +139,9 @@ public class MainActivity extends RosAppActivity {
 		cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
 
 		nodeMainExecutor.execute(cameraView,
-				nodeConfiguration.setNodeName("camera_view"));
+				nodeConfiguration.setNodeName("android/camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
-				nodeConfiguration.setNodeName("virtual_joystick"));
+				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
 		ViewControlLayer viewControlLayer = new ViewControlLayer(this,
 				nodeMainExecutor.getScheduledExecutorService(), cameraView,
@@ -168,14 +168,13 @@ public class MainActivity extends RosAppActivity {
 		mapView.addLayer(new OccupancyGridLayer("map"));
 		mapView.addLayer(new LaserScanLayer("scan"));
 		mapView.addLayer(new RobotLayer(ROBOT_FRAME));
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
 		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView, nodeConfiguration);
+		nodeMainExecutor.execute(mapView,
+				nodeConfiguration.setNodeName("android/map_view"));
 	}
 
 	@Override

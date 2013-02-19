@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.ros.android.android_app_chooser"
-    android:versionCode="1"
+    android:versionCode="3"
     android:versionName="1.0" >
 
     <uses-sdk android:minSdkVersion="10" />
@@ -13,12 +13,11 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <provider
             android:name="org.ros.android.robotapp.RobotsContentProvider"
             android:authorities="org.ros.android.robotapp" />
-
         <activity
             android:name="org.ros.android.android_app_chooser.AppChooser"
             android:label="@string/app_name"

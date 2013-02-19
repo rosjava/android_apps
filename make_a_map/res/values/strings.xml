@@ -3,5 +3,5 @@
 	<string name="stop_app">Kill</string>
     <string name="app_name">MakeAMap</string>
 	<string name="default_robot">turtlebot</string>
-	<string name="default_app">new_turtlebot_android_apps/android_make_a_map</string>
+	<string name="default_app">android_core_apps/android_make_a_map</string>
 </resources>

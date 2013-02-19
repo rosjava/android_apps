@@ -136,9 +136,9 @@ public class MainActivity extends RosAppActivity {
 					.toString());
 			
 		nodeMainExecutor.execute(cameraView,
-				nodeConfiguration.setNodeName("camera_view"));
+				nodeConfiguration.setNodeName("android/camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
-				nodeConfiguration.setNodeName("virtual_joystick"));
+				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
 		ViewControlLayer viewControlLayer = new ViewControlLayer(this,
 				nodeMainExecutor.getScheduledExecutorService(), cameraView,
@@ -168,14 +168,12 @@ public class MainActivity extends RosAppActivity {
 		mapView.addLayer(mapPosePublisherLayer);
 		mapView.addLayer(new InitialPoseSubscriberLayer("/android/initialpose"));
 		mapView.addLayer(new PoseSubscriberLayer("/android/goal"));
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
 		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView, nodeConfiguration);
+		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 
 		readAvailableMapList();
 	}

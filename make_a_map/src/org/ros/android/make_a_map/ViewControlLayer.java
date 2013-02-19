@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.android.android_make_a_map;
+package org.ros.android.make_a_map;
 
 
 
