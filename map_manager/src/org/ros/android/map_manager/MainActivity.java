@@ -259,7 +259,7 @@ public class MainActivity extends RosAppActivity {
 				});
 
 		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("publish_map"));
+				nodeConfiguration.setNodeName("android/publish_map"));
 
 	}
 
@@ -335,7 +335,7 @@ public class MainActivity extends RosAppActivity {
 				});
 
 		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("list_maps"));
+				nodeConfiguration.setNodeName("android/list_maps"));
 
 	}
 
@@ -406,7 +406,7 @@ public class MainActivity extends RosAppActivity {
 							});
 
 					nodeMainExecutor.execute(mapManager,
-							nodeConfiguration.setNodeName("delete_map"));
+							nodeConfiguration.setNodeName("android/delete_map"));
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -486,7 +486,7 @@ public class MainActivity extends RosAppActivity {
 										});
 								nodeMainExecutor.execute(mapManager,
 										nodeConfiguration
-												.setNodeName("rename_map"));
+												.setNodeName("android/rename_map"));
 
 							} catch (Exception e) {
 								e.printStackTrace();

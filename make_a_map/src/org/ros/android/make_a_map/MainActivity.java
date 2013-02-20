@@ -17,21 +17,32 @@
 package org.ros.android.make_a_map;
 
 import java.util.concurrent.TimeUnit;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import map_store.RenameMapResponse;
+import map_store.SaveMapResponse;
 
 import org.ros.android.robotapp.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
+import org.ros.node.service.ServiceResponseListener;
 import org.ros.address.InetAddressFactory;
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.view.VirtualJoystickView;
@@ -40,6 +51,7 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.android.view.visualization.layer.OccupancyGridLayer;
 import org.ros.android.view.visualization.layer.LaserScanLayer;
 import org.ros.android.view.visualization.layer.RobotLayer;
+import org.ros.exception.RemoteException;
 import org.ros.time.NtpTimeProvider;
 
 /**
@@ -50,7 +62,7 @@ public class MainActivity extends RosAppActivity {
 	private static final String MAP_FRAME = "map";
 	private static final String ROBOT_FRAME = "base_link";
 	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
-	private final SystemCommands systemCommands;
+	private static final int NAME_MAP_DIALOG_ID = 0;
 
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
@@ -60,13 +72,17 @@ public class MainActivity extends RosAppActivity {
 	private ImageButton refreshButton;
 	private ImageButton saveButton;
 	private Button backButton;
+	private NodeMainExecutor nodeMainExecutor;
+	private NodeConfiguration nodeConfiguration;
+	private ProgressDialog waitingDialog;
+	private AlertDialog errorDialog;
 
 	public MainActivity() {
 		// The RosActivity constructor configures the notification title and
 		// ticker
 		// messages.
 		super("Make a map", "Make a map");
-		systemCommands = new SystemCommands();
+
 	}
 
 	@SuppressWarnings("unchecked")
@@ -95,19 +111,20 @@ public class MainActivity extends RosAppActivity {
 		refreshButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				systemCommands.reset();
+				// TODO
 				Toast.makeText(MainActivity.this, "refreshing map...",
 						Toast.LENGTH_SHORT).show();
 				mapView.getCamera().jumpToFrame(ROBOT_FRAME);
 			}
 		});
+
 		saveButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Toast.makeText(MainActivity.this, "saving map...",
-						Toast.LENGTH_SHORT).show();
-				systemCommands.saveGeotiff();
+				showDialog(NAME_MAP_DIALOG_ID);
+
 			}
+
 		});
 
 		backButton.setOnClickListener(new View.OnClickListener() {
@@ -125,16 +142,144 @@ public class MainActivity extends RosAppActivity {
 	}
 
 	@Override
+	protected Dialog onCreateDialog(int id) {
+		Dialog dialog;
+		Button button;
+
+		switch (id) {
+		case NAME_MAP_DIALOG_ID:
+			dialog = new Dialog(this);
+			dialog.setContentView(R.layout.name_map_dialog);
+			dialog.setTitle("Save Map");
+			final EditText nameField = (EditText) dialog
+					.findViewById(R.id.name_editor);
+
+			nameField.setOnKeyListener(new View.OnKeyListener() {
+				@Override
+				public boolean onKey(final View view, int keyCode,
+						KeyEvent event) {
+					if (event.getAction() == KeyEvent.ACTION_DOWN
+							&& keyCode == KeyEvent.KEYCODE_ENTER) {
+						safeShowWaitingDialog("Saving map...");
+						try {
+							MapManager mapManager = new MapManager();
+							String name = nameField.getText().toString();
+							if (name != null) {
+								mapManager.setMapName(name);
+							}
+
+							mapManager
+									.setSaveService(new ServiceResponseListener<SaveMapResponse>() {
+										@Override
+										public void onFailure(RemoteException e) {
+											e.printStackTrace();
+
+										}
+
+										@Override
+										public void onSuccess(
+												SaveMapResponse arg0) {
+											safeDismissWaitingDialog();
+
+										}
+									});
+
+							nodeMainExecutor.execute(mapManager,
+									nodeConfiguration
+											.setNodeName("android/save_map"));
+
+						} catch (Exception e) {
+							e.printStackTrace();
+							safeShowErrorDialog("Error during saving: "
+									+ e.toString());
+						}
+
+						removeDialog(NAME_MAP_DIALOG_ID);
+						return true;
+					} else {
+						return false;
+					}
+				}
+			});
+
+			button = (Button) dialog.findViewById(R.id.cancel_button);
+			button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					removeDialog(NAME_MAP_DIALOG_ID);
+				}
+			});
+			break;
+		default:
+			dialog = null;
+		}
+		return dialog;
+	}
+
+	private void safeDismissWaitingDialog() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (waitingDialog != null) {
+					waitingDialog.dismiss();
+					waitingDialog = null;
+				}
+			}
+		});
+	}
+
+	private void safeShowWaitingDialog(final CharSequence message) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (waitingDialog != null) {
+					waitingDialog.dismiss();
+					waitingDialog = null;
+				}
+				waitingDialog = ProgressDialog.show(MainActivity.this, "",
+						message, true);
+			}
+		});
+	}
+
+	private void safeShowErrorDialog(final CharSequence message) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (errorDialog != null) {
+					errorDialog.dismiss();
+					errorDialog = null;
+				}
+				if (waitingDialog != null) {
+					waitingDialog.dismiss();
+					waitingDialog = null;
+				}
+				AlertDialog.Builder dialog = new AlertDialog.Builder(
+						MainActivity.this);
+				dialog.setTitle("Error");
+				dialog.setMessage(message);
+				dialog.setNeutralButton("Ok",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dlog, int i) {
+								dlog.dismiss();
+							}
+						});
+				errorDialog = dialog.show();
+			}
+		});
+	}
+
+	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
 
 		super.init(nodeMainExecutor);
+		this.nodeMainExecutor = nodeMainExecutor;
 
-		NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
-				InetAddressFactory.newNonLoopback().getHostAddress(),
-				getMasterUri());
+		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
+				.newNonLoopback().getHostAddress(), getMasterUri());
 
 		NameResolver appNameSpace = getAppNameSpace();
-		Log.v("RosAndroid", appNameSpace.resolve(cameraTopic).toString());
 
 		cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
 

@@ -222,7 +222,7 @@ public class MainActivity extends RosAppActivity {
 				});
 
 		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("list_map"));
+				nodeConfiguration.setNodeName("android/list_maps"));
 	}
 
 	/**
@@ -293,7 +293,7 @@ public class MainActivity extends RosAppActivity {
 			safeDismissWaitingDialog();
 		}
 		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("publish_map"));
+				nodeConfiguration.setNodeName("android/publish_map"));
 	}
 
 	private void safeDismissChooseMapDialog() {
