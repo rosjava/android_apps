@@ -57,7 +57,7 @@ public class AppLauncher {
 
 
   /** Launch a client app for the given robot app. */
-  static public boolean launch(final RosAppActivity parentActivity, app_manager.App app, URI uri,RobotDescription currentRobot) {
+  static public boolean launch(final RosAppActivity parentActivity, app_manager.App app, URI uri,RobotDescription currentRobot,boolean runningNodes) {
     ArrayList<ClientAppData> android_apps = new ArrayList<ClientAppData>();
 
     
@@ -120,6 +120,7 @@ public class AppLauncher {
       intent.putExtra(AppManager.PACKAGE + ".robot_app_name", app.getName());
       intent.putExtra(ROBOT_DESCRIPTION_EXTRA, currentRobot);
       intent.putExtra("ChooserURI", uri.toString());
+      intent.putExtra("runningNodes", runningNodes);
       try {
         className = intent.getAction();
         Log.i("RosAndroid", "trying to startActivity( action: " + intent.getAction() + " )");
