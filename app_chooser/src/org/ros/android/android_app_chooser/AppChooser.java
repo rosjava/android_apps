@@ -84,7 +84,7 @@ import app_manager.StopAppResponse;
  */
 public class AppChooser extends RosAppActivity {
 
-	private static final int ROBOT_MASTER_CHOOSER_REQUEST_CODE = 0;
+	private static final int ROBOT_MASTER_CHOOSER_REQUEST_CODE = 1;
 	private static final int MULTI_APP_DISABLED = 1;
 	private static final int CLOSE_EXISTING = 0;
 
@@ -102,7 +102,6 @@ public class AppChooser extends RosAppActivity {
 	private AlertDialogWrapper wifiDialog;
 	private AlertDialogWrapper evictDialog;
 	private AlertDialogWrapper errorDialog;
-	private RobotDescription currentRobot;
 	private boolean alreadyClicked = false;
 	private boolean validatedRobot;
 	private boolean runningNodes = false;
@@ -285,13 +284,17 @@ public class AppChooser extends RosAppActivity {
 					URI uri;
 					try {
 
-						currentRobot = (RobotDescription) data
+						robotDescription = (RobotDescription) data
 								.getSerializableExtra(RobotMasterChooser.ROBOT_DESCRIPTION_EXTRA);
 
-						validatedRobot = false;
-						validateRobot(currentRobot.getRobotId());
+						robotNameResolver.setRobotName(robotDescription
+								.getRobotName());
 
-						uri = new URI(currentRobot.getRobotId().getMasterUri());
+						validatedRobot = false;
+						validateRobot(robotDescription.getRobotId());
+
+						uri = new URI(robotDescription.getRobotId()
+								.getMasterUri());
 					} catch (URISyntaxException e) {
 						throw new RosRuntimeException(e);
 					}
@@ -323,7 +326,8 @@ public class AppChooser extends RosAppActivity {
 	public void startMasterChooser() {
 		if (!fromApplication) {
 			super.startActivityForResult(new Intent(this,
-					RobotMasterChooser.class), 0);
+					RobotMasterChooser.class),
+					ROBOT_MASTER_CHOOSER_REQUEST_CODE);
 		} else
 			super.startMasterChooser();
 	}
@@ -641,6 +645,7 @@ public class AppChooser extends RosAppActivity {
 	private void listApps() {
 		Log.i("RosAndroid", "listing application");
 		AppManager appManager = new AppManager("", getRobotNameSpace());
+		Log.v("debugPR2", "" + getRobotNameSpace().getNamespace().toString());
 		appManager.setFunction("list");
 		appManager
 				.setListService(new ServiceResponseListener<ListAppsResponse>() {
@@ -712,10 +717,12 @@ public class AppChooser extends RosAppActivity {
 					runningNodes = true;
 					Log.i("AppChooser", "RunningAppsCache greater than zero.");
 				}
-				
+
 				if (AppLauncher.launch(AppChooser.this, apps.get(position),
-						getMasterUri(), currentRobot,runningNodes) == true) {
-					progress.dismiss();
+						getMasterUri(), robotDescription, runningNodes) == true) {
+					if (progress != null) {
+						progress.dismiss();
+					}
 					onDestroy();
 				} else
 					onAppClicked(app, true);
@@ -738,7 +745,8 @@ public class AppChooser extends RosAppActivity {
 		releaseDashboardNode(); // TODO this work costs too many times
 		availableAppsCache.clear();
 		runningAppsCache.clear();
-		startActivityForResult(new Intent(this, RobotMasterChooser.class), 0);
+		startActivityForResult(new Intent(this, RobotMasterChooser.class),
+				ROBOT_MASTER_CHOOSER_REQUEST_CODE);
 	}
 
 	public void exchangeButtonClicked(View view) {
@@ -751,7 +759,8 @@ public class AppChooser extends RosAppActivity {
 
 		for (App i : runningAppsCache) {
 			Log.i("AppLauncher", "Sending intent.");
-			AppLauncher.launch(this, i, getMasterUri(), currentRobot,false);
+			AppLauncher
+					.launch(this, i, getMasterUri(), robotDescription, false);
 		}
 
 		progressDialog = new ProgressDialogWrapper(this);
