@@ -10,3 +10,7 @@
     local-name: osrf_rosandroid
     uri: https://bitbucket.org/osrf/rosandroid
     version: default
+- hg:
+    local-name: rosjava_zeroconf
+    uri: https://bitbucket.org/osrf/rosjava_zeroconf
+    version: default

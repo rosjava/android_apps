@@ -53,7 +53,6 @@ public class MasterAdapter extends BaseAdapter {
     if (robots != null) {
       for (int i = 0; i < robots.size(); i++) {
         masterItems.add(new MasterItem(robots.get(i), rmc));
-
       }
     }
   }
