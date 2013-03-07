@@ -645,7 +645,6 @@ public class AppChooser extends RosAppActivity {
 	private void listApps() {
 		Log.i("RosAndroid", "listing application");
 		AppManager appManager = new AppManager("", getRobotNameSpace());
-		Log.v("debugPR2", "" + getRobotNameSpace().getNamespace().toString());
 		appManager.setFunction("list");
 		appManager
 				.setListService(new ServiceResponseListener<ListAppsResponse>() {
