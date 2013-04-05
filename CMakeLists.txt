@@ -20,7 +20,7 @@ rosbuild_find_ros_stack(pr2_android_utilities)
 set(android_gingerbread_mr1_path "${android_core_STACK_PATH}/android_gingerbread_mr1")
 set(android_honeycomb_mr2_path "${android_core_STACK_PATH}/android_honeycomb_mr2")
 set(turtlebot_core_components_path "${turtlebot_android_STACK_PATH}/turtlebot_android_core_components")
-set(pr2_core_components_path "${pr2_android_utilities_STACK_PATH}/pr2_core_components")
+set(pr2_core_components_path "${pr2_android_utilities_STACK_PATH}/pr2_android_core_components")
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
  ${android_gingerbread_mr1_path} "${PROJECT_SOURCE_DIR}/android_gingerbread_mr1"
 )
@@ -31,5 +31,5 @@ EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
  ${turtlebot_core_components_path} "${PROJECT_SOURCE_DIR}/turtlebot_android_core_components"
 )
 EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink
- ${pr2_core_components_path} "${PROJECT_SOURCE_DIR}/pr2_core_components"
+ ${pr2_core_components_path} "${PROJECT_SOURCE_DIR}/pr2_android_core_components"
 )
