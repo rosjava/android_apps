@@ -14,11 +14,13 @@
  * the License.
  */
 
-include 'teleop_video'
-include 'tiltteleopvideo'
 include 'android_app_chooser'
+/*
+include 'teleop_video'
+inlude 'tiltteleopvideo'
 include 'android_teleop'
 include 'android_make_a_map'
 include 'android_map_manager'
 include 'android_map_nav'
-include 'zeroconf_jmdns'
+*/
+

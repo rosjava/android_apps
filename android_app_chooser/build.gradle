@@ -1,4 +1,4 @@
 dependencies {
-  compile 'ros.rosjava_zeroconf:rosjava_zeroconf:0.0.0-SNAPSHOT'
+  compile 'ros.rosjava_zeroconf:zeroconf_jmdns:0.1.0'
   compile fileTree(dir: '../out_libraries', include:'*.jar')
 }
