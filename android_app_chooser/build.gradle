@@ -1,4 +1,9 @@
+/*
+ * compile fileTree(dir: '../out_libraries', include:'*.jar')
+ * maven dependencies: 
+ *  - snakeyaml
+ */
 dependencies {
-  compile 'ros.rosjava_zeroconf:zeroconf_jmdns:0.1.0'
-  compile fileTree(dir: '../out_libraries', include:'*.jar')
+  compile 'ros.rosjava_extras:zeroconf_jmdns:0.1.0'
+  compile 'org.yaml:snakeyaml:1.8'
 }

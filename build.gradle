@@ -19,7 +19,7 @@ task wrapper(type: Wrapper) {
 }
 
 allprojects {
-  group 'ros.osrf_rosandroid'
+  group 'ros.android_apps'
   version = '0.1.0'
 }
 
