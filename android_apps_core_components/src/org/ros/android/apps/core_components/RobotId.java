@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import java.util.Map;
 public class RobotId implements java.io.Serializable {

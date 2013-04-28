@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import android.widget.LinearLayout;
 import android.widget.Checkable;

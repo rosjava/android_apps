@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import java.util.ArrayList;
 

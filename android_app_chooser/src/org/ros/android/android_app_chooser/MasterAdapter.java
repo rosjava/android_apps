@@ -38,7 +38,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import org.ros.android.robotapp.RobotDescription;
+import org.ros.android.apps.core_components.RobotDescription;
 import java.util.ArrayList;
 import java.util.List;
 /**

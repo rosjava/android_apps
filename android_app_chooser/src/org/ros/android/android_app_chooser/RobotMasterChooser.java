@@ -74,11 +74,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.ros.android.robotapp.RobotDescription;
-import org.ros.android.robotapp.RobotId;
-import org.ros.android.robotapp.zxing.IntentIntegrator;
-import org.ros.android.robotapp.zxing.IntentResult;
-import org.ros.android.robotapp.RobotsContentProvider;
+import org.ros.android.apps.core_components.RobotDescription;
+import org.ros.android.apps.core_components.RobotId;
+import org.ros.android.apps.core_components.zxing.IntentIntegrator;
+import org.ros.android.apps.core_components.zxing.IntentResult;
+import org.ros.android.apps.core_components.RobotsContentProvider;
 import org.ros.android.zeroconf.MasterSearcher;
 
 import org.yaml.snakeyaml.Yaml;
@@ -92,7 +92,7 @@ public class RobotMasterChooser extends Activity {
 	private static final int ADD_URI_DIALOG_ID = 0;
 	private static final int ADD_DELETION_DIALOG_ID = 1;
 	private static final int ADD_SEARCH_ROBOT_DIALOG_ID = 2;
-	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.robotapp.RobotDescription";
+	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.apps.core_components.RobotDescription";
 
 	private List<RobotDescription> robots;
 	private boolean[] selections;

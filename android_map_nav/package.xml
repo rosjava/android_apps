@@ -14,7 +14,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rosjava_tools</build_depend>
-  <build_depend>android_gingerbread</build_depend>
+  <build_depend>android_apps_core_components</build_depend>
   <build_depend>android_honeycomb</build_depend>
   <!-- Dashboard components that kazuto had started -->
   <!-- <build_depend>turtlebot_core_components</build_depend> -->

@@ -37,7 +37,7 @@ import android.widget.Toast;
 import map_store.RenameMapResponse;
 import map_store.SaveMapResponse;
 
-import org.ros.android.robotapp.RosAppActivity;
+import org.ros.android.apps.core_components.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

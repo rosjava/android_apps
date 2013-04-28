@@ -1,4 +1,4 @@
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;

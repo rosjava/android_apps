@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ros.android.robotapp.zxing;
+package org.ros.android.apps.core_components.zxing;
 
 import android.app.AlertDialog;
 import android.app.Activity;

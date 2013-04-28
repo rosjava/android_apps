@@ -41,10 +41,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import org.ros.android.robotapp.WifiChecker;
-import org.ros.android.robotapp.ControlChecker;
-import org.ros.android.robotapp.MasterChecker;
-import org.ros.android.robotapp.RobotDescription;
+import org.ros.android.apps.core_components.WifiChecker;
+import org.ros.android.apps.core_components.ControlChecker;
+import org.ros.android.apps.core_components.MasterChecker;
+import org.ros.android.apps.core_components.RobotDescription;
 import android.net.wifi.WifiManager;
 /**
  * Data class behind view of one item in the list of ROS Masters. Gets created

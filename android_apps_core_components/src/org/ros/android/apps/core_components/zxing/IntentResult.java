@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ros.android.robotapp.zxing;
+package org.ros.android.apps.core_components.zxing;
 
 /**
  * <p>Encapsulates the result of a barcode scan invoked through {@link IntentIntegrator}.</p>

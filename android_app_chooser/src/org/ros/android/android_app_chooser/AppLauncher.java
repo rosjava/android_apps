@@ -44,16 +44,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import org.ros.android.robotapp.AppManager;
-import org.ros.android.robotapp.RobotDescription;
-import org.ros.android.robotapp.RosAppActivity;
+import org.ros.android.apps.core_components.AppManager;
+import org.ros.android.apps.core_components.RobotDescription;
+import org.ros.android.apps.core_components.RosAppActivity;
 import org.ros.namespace.NameResolver;
 
 import app_manager.ClientApp;
 
 public class AppLauncher {
   static private final String CLIENT_TYPE = "android";
-	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.robotapp.RobotDescription";
+	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.apps.core_components.RobotDescription";
 
 
   /** Launch a client app for the given robot app. */

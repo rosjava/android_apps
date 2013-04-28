@@ -13,15 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 /*
- * maven dependencies: 
- *  - snakeyaml
- *
  * External android dependencies are handled by catkin
  * and listed in project.properties.
  */
 dependencies {
-  compile 'ros.rosjava_extras:zeroconf_jmdns:0.1.0'
-  compile 'org.yaml:snakeyaml:1.8'
   debug.dependsOn project(':android_apps_core_components').tasks.debug
 }

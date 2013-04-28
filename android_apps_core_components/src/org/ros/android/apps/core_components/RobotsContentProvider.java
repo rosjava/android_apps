@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -64,7 +64,7 @@ public class RobotsContentProvider extends ContentProvider {
     }
   }
 
-  public static final Uri CONTENT_URI = Uri.parse("content://org.ros.android.robotapp");
+  public static final Uri CONTENT_URI = Uri.parse("content://org.ros.android.apps.core_components");
   private static final int DATABASE_VERSION = 2;
   private static final String DATABASE_NAME = "robotlist_table";
   private static final String TABLE_NAME = "robotlist";

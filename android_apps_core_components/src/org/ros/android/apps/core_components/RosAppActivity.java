@@ -14,7 +14,7 @@
  * the License.
  */
 
-package org.ros.android.robotapp;
+package org.ros.android.apps.core_components;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,7 +49,7 @@ import app_manager.StopAppResponse;
  */
 public abstract class RosAppActivity extends RosActivity {
 
-	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.robotapp.RobotDescription";
+	public static final String ROBOT_DESCRIPTION_EXTRA = "org.ros.android.apps.core_components.RobotDescription";
 	private String robotAppName = null;
 	private String defaultAppName = null;
 	private String defaultRobotName = null;

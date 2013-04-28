@@ -35,7 +35,7 @@ import map_store.ListMapsResponse;
 import map_store.MapListEntry;
 import map_store.PublishMapResponse;
 
-import org.ros.android.robotapp.RosAppActivity;
+import org.ros.android.apps.core_components.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
