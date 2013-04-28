@@ -19,8 +19,6 @@
   <run_depend>android_map_manager</run_depend>
   <run_depend>android_map_nav</run_depend>
   <run_depend>android_teleop</run_depend>
-  <run_depend>teleop_video</run_depend>
-  <run_depend>tiltteleopvideo</run_depend>
   <export>
     <metapackage/>
   </export>
