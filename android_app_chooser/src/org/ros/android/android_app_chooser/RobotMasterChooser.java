@@ -74,10 +74,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.IntentIntegrator;
+import com.google.zxing.IntentResult;
+
 import org.ros.android.apps.core_components.RobotDescription;
 import org.ros.android.apps.core_components.RobotId;
-import org.ros.android.apps.core_components.zxing.IntentIntegrator;
-import org.ros.android.apps.core_components.zxing.IntentResult;
 import org.ros.android.apps.core_components.RobotsContentProvider;
 import org.ros.android.zeroconf.MasterSearcher;
 

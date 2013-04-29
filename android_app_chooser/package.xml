@@ -16,6 +16,7 @@
   <build_depend>rosjava_tools</build_depend>
   <build_depend>zeroconf_jmdns</build_depend>
   <build_depend>android_apps_core_components</build_depend>
+  <build_depend>android_barcode_scanner</build_depend>
   <!-- Dashboard components that kazuto had started -->
   <!-- <build_depend>turtlebot_core_components</build_depend> -->
   <!-- <build_depend>pr2_core_components</build_depend> -->
