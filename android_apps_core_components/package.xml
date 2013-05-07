@@ -15,7 +15,4 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rosjava_tools</build_depend>
   <build_depend>android_gingerbread</build_depend>
-  <export>
-    <android type="library"/>
-  </export>
 </package>

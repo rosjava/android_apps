@@ -19,7 +19,4 @@
   <!-- Dashboard components that kazuto had started -->
   <!-- <build_depend>turtlebot_core_components</build_depend> -->
   <!-- <build_depend>pr2_core_components</build_depend> -->
-  <export>
-    <android type="project"/>
-  </export>
 </package>
