@@ -50,9 +50,13 @@ subprojects {
     ant.delete dir: "${projectDir}/libs"
   }
 
+    task updateProject(type: Exec) {
+      commandLine 'android', 'update', 'project', '-p', projectDir
+    }
+
   
   task debug(type: Exec) {
-    dependsOn deployLibs
+      dependsOn updateProject, deployLibs
     commandLine 'ant', 'debug'
   }
 
