@@ -13,11 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
-/*
- * External android dependencies are handled by catkin
- * and listed in project.properties.
- */
 dependencies {
-  debug.dependsOn project(':android_apps_core_components').tasks.debug
+  compile project(':android_apps_core_components')
+  compile project('ros.android_core:android_honeycomb_mr2')
 }
+
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 13
+    buildToolsVersion androidBuildToolsVersion
+}
+

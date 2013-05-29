@@ -15,9 +15,10 @@
  */
 
 include 'android_apps_core_components'
+/*
 include 'android_app_chooser'
 include 'android_teleop'
 include 'android_make_a_map'
 include 'android_map_manager'
 include 'android_map_nav'
-
+*/

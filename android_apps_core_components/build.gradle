@@ -14,10 +14,14 @@
  * the License.
  */
 
-/*
- * No java dependencies, just android ones from another repo (handled by catkin
- * and listed in project.properties)
- */
 dependencies {
+  compile 'ros.android_core:android_gingerbread_mr1:0.0.0-SNAPSHOT'
+}
+
+apply plugin: 'android-library'
+  
+android {
+    compileSdkVersion 10
+    buildToolsVersion androidBuildToolsVersion
 }
 

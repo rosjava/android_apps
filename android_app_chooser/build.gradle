@@ -12,21 +12,25 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
- */
-/*
+ *
  * maven dependencies: 
+ *
  *  - snakeyaml
  *
- * External android dependencies are handled by catkin
- * and listed in project.properties.
- */
+ * can't use this one from maven central - it uses methods that davlik doesn't
+ * like (generates Verify Errors on adb logcat).
+*/
+
 dependencies {
   compile 'ros.rosjava_extras:zeroconf_jmdns:0.1.0'
   compile fileTree(dir: '../external_libraries', include:'snakeyaml*.jar')
-  debug.dependsOn project(':android_apps_core_components').tasks.debug
+  compile project(':android_apps_core_components')
 }
-/*
-  can't use this one from maven central - it uses methods that davlik doesn't
-  like (generates Verify Errors on adb logcat).
-  compile 'org.yaml:snakeyaml:1.12'
-*/
+
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 10
+    buildToolsVersion androidBuildToolsVersion
+}
+

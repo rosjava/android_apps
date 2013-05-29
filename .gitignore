@@ -5,3 +5,5 @@ build.xml
 local.properties
 proguard-project.txt
 .gradle
+build
+.project
