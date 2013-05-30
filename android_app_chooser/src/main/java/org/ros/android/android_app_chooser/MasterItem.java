@@ -41,6 +41,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import org.ros.android.android_app_chooser.R;
 import org.ros.android.apps.core_components.WifiChecker;
 import org.ros.android.apps.core_components.ControlChecker;
 import org.ros.android.apps.core_components.MasterChecker;

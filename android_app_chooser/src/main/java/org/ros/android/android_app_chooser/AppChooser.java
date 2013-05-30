@@ -57,6 +57,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import org.ros.address.InetAddressFactory;
+import org.ros.android.android_app_chooser.R;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosException;
 import org.ros.exception.RosRuntimeException;

@@ -34,7 +34,6 @@
 package org.ros.android.android_app_chooser;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;

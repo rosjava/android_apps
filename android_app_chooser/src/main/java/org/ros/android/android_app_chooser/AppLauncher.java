@@ -47,7 +47,6 @@ import android.util.Log;
 import org.ros.android.apps.core_components.AppManager;
 import org.ros.android.apps.core_components.RobotDescription;
 import org.ros.android.apps.core_components.RosAppActivity;
-import org.ros.namespace.NameResolver;
 
 import app_manager.ClientApp;
 

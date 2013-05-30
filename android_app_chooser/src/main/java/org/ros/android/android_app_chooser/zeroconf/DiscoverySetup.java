@@ -31,15 +31,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.zeroconf;
+package org.ros.android.android_app_chooser.zeroconf;
 
-import java.lang.String;
+import android.content.Context;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 
-import org.ros.zeroconf.jmdns.ZeroconfLogger;
+import com.github.rosjava.jmdns.Zeroconf;
 
-public class Logger implements ZeroconfLogger {
 
-        public void println(String msg) {
-                android.util.Log.i("zeroconf", msg);
+/**
+ * Configures the zeroconf class for discovery of services.
+ */
+
+public class DiscoverySetup extends AsyncTask<Zeroconf, String, Void> {
+
+	private ProgressDialog commencing_dialog; 
+	private final Context context;
+
+	public DiscoverySetup(Context context) {
+		this.context = context;
+	}
+	
+    protected Void doInBackground(Zeroconf... zeroconfs) {
+        if ( zeroconfs.length == 1 ) {
+            Zeroconf zconf = zeroconfs[0];
+            android.util.Log.i("zeroconf", "*********** Discovery Commencing **************");
+
+            zconf.addListener("_ros-master._tcp","local");
+            zconf.addListener("_ros-master._udp","local");
+
+        } else {
+        	android.util.Log.i("zeroconf", "Error - DiscoveryTask::doInBackground received #zeroconfs != 1");
         }
+        return null;
+    }
 }

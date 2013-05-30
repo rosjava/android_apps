@@ -46,6 +46,7 @@ import app_manager.App;
 import java.util.ArrayList;
 
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.ros.android.apps.app_chooser.R;
 
 public class AppAdapter extends BaseAdapter {
   private Context context;

@@ -31,50 +31,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.zeroconf;
+package org.ros.android.android_app_chooser.zeroconf;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import javax.jmdns.ServiceInfo;
+import java.lang.String;
 
-import android.content.Context;
-import android.widget.ListView;
+import com.github.rosjava.jmdns.ZeroconfLogger;
 
-import org.ros.zeroconf.jmdns.Zeroconf;
+public class Logger implements ZeroconfLogger {
 
-
-
-public class MasterSearcher {
-	
-	private Zeroconf zeroconf;
-	private ArrayList<ServiceInfo> discoveredMasters;
-	private DiscoveryAdapter discoveryAdapter;
-	private DiscoveryHandler discoveryHandler;
-	private Logger logger;
-
-	public MasterSearcher(Context context,final ListView listView) {
-
-		discoveredMasters = new ArrayList<ServiceInfo>();
-		
-		discoveryAdapter = new DiscoveryAdapter(context,discoveredMasters);
-		listView.setAdapter(discoveryAdapter);
-		listView.setItemsCanFocus(false);
-	    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-		logger = new Logger();
-		zeroconf = new Zeroconf(logger);
-		discoveryHandler = new DiscoveryHandler(discoveryAdapter,discoveredMasters);
-		zeroconf.setDefaultDiscoveryCallback(discoveryHandler);
-		
-		new DiscoverySetup(context).execute(zeroconf);
-	}
-
-	public void shutdown() {
-	    try {
-	    	zeroconf.shutdown();
-        } catch (IOException e) {
-	        e.printStackTrace();
+        public void println(String msg) {
+                android.util.Log.i("zeroconf", msg);
         }
-    }
-	
 }

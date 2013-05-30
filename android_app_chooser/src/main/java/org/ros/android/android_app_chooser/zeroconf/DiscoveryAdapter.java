@@ -14,10 +14,9 @@
  * the License.
  */
 
-package org.ros.android.zeroconf;
+package org.ros.android.android_app_chooser.zeroconf;
 
 import java.util.ArrayList;
-import javax.jmdns.ServiceInfo;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -30,10 +29,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.ros.android.android_app_chooser.R;
+import com.github.rosjava.jmdns.DiscoveredService;
+import org.ros.android.apps.app_chooser.R;
 
 
-public class DiscoveryAdapter extends ArrayAdapter<ServiceInfo> {
+public class DiscoveryAdapter extends ArrayAdapter<DiscoveredService> {
 
 	/**
 	 * This class is necessary to work a checkbox well
@@ -74,10 +74,10 @@ this,false);
 
 		
 	private final Context context;
-	private ArrayList<ServiceInfo> discovered_services;
+	private ArrayList<DiscoveredService> discovered_services;
 
-    public DiscoveryAdapter(Context context, ArrayList<ServiceInfo> discovered_services) {
-        super(context, R.layout.zeroconf_master_item,discovered_services); // pass the list to the super
+    public DiscoveryAdapter(Context context, ArrayList<DiscoveredService> discovered_services) {
+        super(context, R.layout.zeroconf_master_item, discovered_services); // pass the list to the super
         this.context = context;
         this.discovered_services = discovered_services;  // keep a pointer locally so we can play with it
     }
@@ -88,28 +88,36 @@ this,false);
         if (v == null) {
         	v = new CustomCheckBox(getContext());
         }
-        
-        ServiceInfo discovered_service = discovered_services.get(position);
+
+        DiscoveredService discovered_service = discovered_services.get(position);
         if (discovered_service != null) {
                 TextView tt = (TextView) v.findViewById(R.id.service_name);
                 TextView bt = (TextView) v.findViewById(R.id.service_detail);
                 if (tt != null) {
-                    tt.setText(discovered_service.getName());                           
+                    tt.setText(discovered_service.name);
                 }
                 if( bt != null ) {
                 	String result = "";
-                	String address = discovered_service.getAddress().toString(); //TODO
+                    for ( String ipv4_address : discovered_service.ipv4_addresses ) {
                 		if ( result.equals("") ) {
-                			result += address + ":" + discovered_service.getPort();
+                			result += ipv4_address + ":" + discovered_service.port;
                 		} else { 
-                			result += "\n" + address + ":" + discovered_service.getPort();
+                			result += "\n" + ipv4_address + ":" + discovered_service.port;
                 		}
+                    }
+                    for ( String ipv6_address : discovered_service.ipv6_addresses ) {
+                        if ( result.equals("") ) {
+                            result += ipv6_address + ":" + discovered_service.port;
+                        } else {
+                            result += "\n" + ipv6_address + ":" + discovered_service.port;
+                        }
+                    }
                     bt.setText(result);
                 }
                 ImageView im = (ImageView) v.findViewById(R.id.icon);
                 if ( im != null ) {
-                	if ( discovered_service.getType().indexOf("_ros-master._tcp" ) != -1 ||
-                		 discovered_service.getType().indexOf("_ros-master._udp" ) != -1) {
+                	if ( discovered_service.type.indexOf("_ros-master._tcp" ) != -1 ||
+                		 discovered_service.type.indexOf("_ros-master._udp" ) != -1) {
                     	im.setImageDrawable(context.getResources().getDrawable(R.drawable.turtle));
                 	} else {
                     	im.setImageDrawable(context.getResources().getDrawable(R.drawable.conductor));

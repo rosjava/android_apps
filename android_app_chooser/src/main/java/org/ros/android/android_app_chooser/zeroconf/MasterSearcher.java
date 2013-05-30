@@ -31,39 +31,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.ros.android.zeroconf;
+package org.ros.android.android_app_chooser.zeroconf;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 import android.content.Context;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
+import android.widget.ListView;
 
-import org.ros.zeroconf.jmdns.Zeroconf;
+import com.github.rosjava.jmdns.DiscoveredService;
+import com.github.rosjava.jmdns.Zeroconf;
 
 
-/**
- * Configures the zeroconf class for discovery of services.
- */
 
-public class DiscoverySetup extends AsyncTask<Zeroconf, String, Void> {
-
-	private ProgressDialog commencing_dialog; 
-	private final Context context;
-
-	public DiscoverySetup(Context context) {
-		this.context = context;
-	}
+public class MasterSearcher {
 	
-    protected Void doInBackground(Zeroconf... zeroconfs) {
-        if ( zeroconfs.length == 1 ) {
-            Zeroconf zconf = zeroconfs[0];
-            android.util.Log.i("zeroconf", "*********** Discovery Commencing **************");
+	private Zeroconf zeroconf;
+	private ArrayList<DiscoveredService> discoveredMasters;
+	private DiscoveryAdapter discoveryAdapter;
+	private DiscoveryHandler discoveryHandler;
+	private Logger logger;
 
-            zconf.addListener("_ros-master._tcp","local");
-            zconf.addListener("_ros-master._udp","local");
+	public MasterSearcher(Context context,final ListView listView) {
 
-        } else {
-        	android.util.Log.i("zeroconf", "Error - DiscoveryTask::doInBackground received #zeroconfs != 1");
+		discoveredMasters = new ArrayList<DiscoveredService>();
+		
+		discoveryAdapter = new DiscoveryAdapter(context,discoveredMasters);
+		listView.setAdapter(discoveryAdapter);
+		listView.setItemsCanFocus(false);
+	    listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
+		logger = new Logger();
+		zeroconf = new Zeroconf(logger);
+		discoveryHandler = new DiscoveryHandler(discoveryAdapter,discoveredMasters);
+		zeroconf.setDefaultDiscoveryCallback(discoveryHandler);
+		
+		new DiscoverySetup(context).execute(zeroconf);
+	}
+
+	public void shutdown() {
+	    try {
+	    	zeroconf.shutdown();
+        } catch (IOException e) {
+	        e.printStackTrace();
         }
-        return null;
     }
+	
 }

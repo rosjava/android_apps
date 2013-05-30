@@ -77,10 +77,11 @@ import android.widget.Toast;
 import com.google.zxing.IntentIntegrator;
 import com.google.zxing.IntentResult;
 
+import org.ros.android.android_app_chooser.R;
+import org.ros.android.android_app_chooser.zeroconf.MasterSearcher;
 import org.ros.android.apps.core_components.RobotDescription;
 import org.ros.android.apps.core_components.RobotId;
 import org.ros.android.apps.core_components.RobotsContentProvider;
-import org.ros.android.zeroconf.MasterSearcher;
 
 import org.yaml.snakeyaml.Yaml;
 

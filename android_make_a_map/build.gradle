@@ -16,7 +16,7 @@
 
 dependencies {
   compile project(':android_apps_core_components')
-  compile project('ros.android_core:android_honeycomb_mr2')
+  compile 'ros.android_core:android_honeycomb_mr2:0.0.0-SNAPSHOT'
 }
 
 apply plugin: 'android'

@@ -4,7 +4,7 @@
     android:versionCode="4"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="10" />
+    <uses-sdk android:minSdkVersion="13" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -36,8 +36,11 @@
         <activity android:name="org.ros.android.android_app_chooser.RobotMasterChooser" />
         <activity android:name="org.ros.android.MasterChooser" />
 
-        <service android:name="AppLauncher" />
-        <service android:name="org.ros.android.NodeMainExecutorService" />
+        <service android:name="org.ros.android.android_app_chooser.AppLauncher" />
+        <service android:name="org.ros.android.NodeMainExecutorService" >
+            <intent-filter>
+                <action android:name="org.ros.android.NodeMainExecutorService" />
+            </intent-filter>
+        </service>
     </application>
-
 </manifest>
