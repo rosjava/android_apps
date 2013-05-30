@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.rosjava.jmdns.DiscoveredService;
-import org.ros.android.apps.app_chooser.R;
+import org.ros.android.android_app_chooser.R;
 
 
 public class DiscoveryAdapter extends ArrayAdapter<DiscoveredService> {
