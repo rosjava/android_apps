@@ -9,7 +9,7 @@
   <url type="repository">https://github.com/ros-java/android_apps</url>
   <url type="bugtracker">https://github.com/ros-java/android_apps/issues</url>
   <maintainer email="d.stonier@gmail.com">Daniel Stonier</maintainer>
-  <author email="kattyokaccho3616@gmail.com">Kazuto Murase</maintainer>
+  <author email="kattyokaccho3616@gmail.com">Kazuto Murase</author>
   <license>Apache 2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
