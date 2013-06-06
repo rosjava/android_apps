@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 
-import com.github.rosjava.jmdns.DiscoveredService;
-import com.github.rosjava.jmdns.ZeroconfDiscoveryHandler;
+import com.github.ros_java.jmdns.DiscoveredService;
+import com.github.ros_java.jmdns.ZeroconfDiscoveryHandler;
 
 /**
  * This class is the callback handler for services being listened for

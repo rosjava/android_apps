@@ -39,8 +39,8 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.widget.ListView;
 
-import com.github.rosjava.jmdns.DiscoveredService;
-import com.github.rosjava.jmdns.Zeroconf;
+import com.github.ros_java.jmdns.DiscoveredService;
+import com.github.ros_java.jmdns.Zeroconf;
 
 
 

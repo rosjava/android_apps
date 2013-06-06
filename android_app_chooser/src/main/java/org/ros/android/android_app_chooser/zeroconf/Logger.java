@@ -35,7 +35,7 @@ package org.ros.android.android_app_chooser.zeroconf;
 
 import java.lang.String;
 
-import com.github.rosjava.jmdns.ZeroconfLogger;
+import com.github.ros_java.jmdns.ZeroconfLogger;
 
 public class Logger implements ZeroconfLogger {
 

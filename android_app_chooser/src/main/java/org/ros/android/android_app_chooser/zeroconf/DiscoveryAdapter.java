@@ -29,7 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.github.rosjava.jmdns.DiscoveredService;
+import com.github.ros_java.jmdns.DiscoveredService;
 import org.ros.android.android_app_chooser.R;
 
 

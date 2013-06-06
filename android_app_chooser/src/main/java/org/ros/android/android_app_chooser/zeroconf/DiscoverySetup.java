@@ -37,7 +37,7 @@ import android.content.Context;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 
-import com.github.rosjava.jmdns.Zeroconf;
+import com.github.ros_java.jmdns.Zeroconf;
 
 
 /**
