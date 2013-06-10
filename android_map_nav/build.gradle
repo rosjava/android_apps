@@ -14,7 +14,7 @@
  * the License.
  */
 dependencies {
-  compile project(':core_components')
+  compile project(':application_management')
   compile 'ros.android_core:android_honeycomb_mr2:0.0.0-SNAPSHOT'
   compile 'ros.rosjava_core:rosjava_geometry:0.0.0-SNAPSHOT'
 }
