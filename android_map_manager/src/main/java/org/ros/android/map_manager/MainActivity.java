@@ -40,7 +40,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import org.ros.android.apps.core_components.RosAppActivity;
+import com.github.ros_java.android_apps.core_components.RosAppActivity;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;

@@ -14,7 +14,7 @@
  * the License.
  */
 dependencies {
-  compile project(':android_apps_core_components')
+  compile project(':core_components')
   compile 'ros.android_core:android_honeycomb_mr2:0.0.0-SNAPSHOT'
 }
 

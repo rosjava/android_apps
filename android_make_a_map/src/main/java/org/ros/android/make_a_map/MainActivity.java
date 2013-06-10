@@ -23,7 +23,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,10 +33,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import map_store.RenameMapResponse;
 import map_store.SaveMapResponse;
 
-import org.ros.android.apps.core_components.RosAppActivity;
+import com.github.ros_java.android_apps.core_components.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

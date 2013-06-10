@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.ros.android.apps.core_components.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.ros_java.android_apps.core_components.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                          android:orientation="horizontal"
                                          android:layout_width="fill_parent"
                                          android:layout_height="wrap_content"
@@ -38,4 +38,4 @@
               android:textSize="8sp"
               android:id="@+id/status"/>
   </LinearLayout>
-</org.ros.android.apps.core_components.CheckableLinearLayout>
+</com.github.ros_java.android_apps.core_components.CheckableLinearLayout>

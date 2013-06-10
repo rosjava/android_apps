@@ -22,7 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import org.ros.android.apps.core_components.RosAppActivity;
+import com.github.ros_java.android_apps.core_components.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
