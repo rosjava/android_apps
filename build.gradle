@@ -34,7 +34,10 @@ subprojects {
             classpath 'com.android.tools.build:gradle:0.4.1'
         }
     }
+
     apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+
     repositories {
         mavenLocal()
         maven {
@@ -46,28 +49,12 @@ subprojects {
         exclude group: 'xml-apis'
     }
 
-    /*
-       EXPERIMENTAL: Trick to get local maven installs until the plugin supports an
-       install step for aar's (coming soon).
-    */
+
     uploadArchives {
         repositories {
             mavenDeployer {
                 repository url: 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
             }
-        }
-    }
-    task install() << {
-        description = 'installs .aar files to the local maven repository.'
-    }
-    afterEvaluate { Project project ->
-        if (plugins.findPlugin('android-library')) {
-            task doDebugArchives() << {
-                project.artifacts.add("default", bundleDebug)
-            }
-            doDebugArchives.dependsOn('bundleDebug')
-            uploadArchives.dependsOn('doDebugArchives')
-            install.dependsOn('uploadArchives')
         }
     }
 }

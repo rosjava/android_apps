@@ -16,6 +16,7 @@
 
 dependencies {
   compile 'ros.android_core:android_gingerbread_mr1:0.0.0-SNAPSHOT'
+  compile 'ros.rosjava_core:rosjava:0.0.0-SNAPSHOT'
 }
 
 apply plugin: 'android-library'
@@ -23,5 +24,16 @@ apply plugin: 'android-library'
 android {
     compileSdkVersion 10
     buildToolsVersion androidBuildToolsVersion
+}
+
+/* http://www.flexlabs.org/2013/06/using-local-aar-android-library-packages-in-gradle-builds */
+android.libraryVariants
+publishing {
+    publications {
+        maven(MavenPublication) {
+            /* artifact bundleDebug */
+            artifact bundleRelease
+        }
+    }
 }
 
