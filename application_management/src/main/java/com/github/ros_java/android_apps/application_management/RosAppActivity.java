@@ -153,13 +153,11 @@ public abstract class RosAppActivity extends RosActivity {
 					.getSerializableExtra(ROBOT_DESCRIPTION_EXTRA);
 		}
 		if (robotDescription != null) {
-			if (fromAppChooser) {
-				robotNameResolver.setRobot(robotDescription);
-			}
+            robotNameResolver.setRobot(robotDescription);
 			dashboard.setRobotName(robotDescription.getRobotType());
-		} else {
-			dashboard.setRobotName(getRobotNameSpace().getNamespace()
-					.toString());
+		} else if (fromApplication) {
+            robotNameResolver.setRobotName(getIntent().getStringExtra("RobotName"));
+            dashboard.setRobotName(getIntent().getStringExtra("RobotType"));
 		}
 		nodeMainExecutor.execute(robotNameResolver,
 				nodeConfiguration.setNodeName("robotNameResolver"));
@@ -169,8 +167,12 @@ public abstract class RosAppActivity extends RosActivity {
 			} catch (Exception e) {
 			}
 		}
-		
-		nodeMainExecutor.execute(dashboard,
+        if (robotDescription == null) {
+            dashboard.setRobotName(getRobotNameSpace().getNamespace()
+                .toString());
+        }
+
+        nodeMainExecutor.execute(dashboard,
 				nodeConfiguration.setNodeName("dashboard"));
 
 	
@@ -342,7 +344,9 @@ public abstract class RosAppActivity extends RosActivity {
 			intent.putExtra(AppManager.PACKAGE + ".robot_app_name",
 					"AppChooser");
 			intent.putExtra("ChooserURI", uri.toString());
-			intent.setAction("org.ros.android.android_app_chooser.AppChooser");
+            intent.putExtra("RobotType",robotDescription.getRobotType());
+            intent.putExtra("RobotName",robotDescription.getRobotName());
+            intent.setAction("org.ros.android.android_app_chooser.AppChooser");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
 			onDestroy();
