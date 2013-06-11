@@ -147,6 +147,7 @@ public abstract class RosAppActivity extends RosActivity {
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
+        // ROBOT_DESCRIPTION_EXTRA is ever only set by the remocons.
 		if (getIntent().hasExtra(ROBOT_DESCRIPTION_EXTRA)) {
 			robotDescription = (RobotDescription) getIntent()
 					.getSerializableExtra(ROBOT_DESCRIPTION_EXTRA);
@@ -159,7 +160,7 @@ public abstract class RosAppActivity extends RosActivity {
 		} else {
 			dashboard.setRobotName(getRobotNameSpace().getNamespace()
 					.toString());
-		}		
+		}
 		nodeMainExecutor.execute(robotNameResolver,
 				nodeConfiguration.setNodeName("robotNameResolver"));
 		while (getAppNameSpace() == null) {
