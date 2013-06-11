@@ -36,7 +36,6 @@ subprojects {
     }
 
     apply plugin: 'maven'
-    apply plugin: 'maven-publish'
 
     repositories {
         mavenLocal()
@@ -55,6 +54,14 @@ subprojects {
             mavenDeployer {
                 repository url: 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
             }
+        }
+    }
+    task publishToMavenLocal() << {
+        description = 'installs .aar files to the local maven repository.'
+    }
+    afterEvaluate { Project project ->
+        if (plugins.findPlugin('android-library')) {
+            publishToMavenLocal.dependsOn('uploadArchives')
         }
     }
 }

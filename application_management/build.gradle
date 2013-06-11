@@ -27,14 +27,3 @@ android {
     buildToolsVersion androidBuildToolsVersion
 }
 
-/* http://www.flexlabs.org/2013/06/using-local-aar-android-library-packages-in-gradle-builds */
-android.libraryVariants
-publishing {
-    publications {
-        maven(MavenPublication) {
-            /* artifact bundleDebug */
-            artifact bundleRelease
-        }
-    }
-}
-
