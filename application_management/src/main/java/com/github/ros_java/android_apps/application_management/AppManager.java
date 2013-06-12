@@ -111,7 +111,7 @@ public class AppManager extends AbstractNodeMain {
 
 		ServiceClient<StartAppRequest, StartAppResponse> startAppClient;
 		try {
-			Log.i("RosAndroid", "Start app service client created");
+			Log.i("ApplicationManagement", "Start app service client created");
 			startAppClient = connectedNode.newServiceClient(startTopic,
 					StartApp._TYPE);
 		} catch (ServiceNotFoundException e) {
@@ -120,7 +120,7 @@ public class AppManager extends AbstractNodeMain {
 		final StartAppRequest request = startAppClient.newMessage();
 		request.setName(appName);
 		startAppClient.call(request, startServiceResponseListener);
-		Log.i("RosAndroid", "Done call");
+		Log.i("ApplicationManagement", "Start app service call done");
 	}
 
 	public void stopApp() {
@@ -128,7 +128,7 @@ public class AppManager extends AbstractNodeMain {
 
 		ServiceClient<StopAppRequest, StopAppResponse> stopAppClient;
 		try {
-			Log.i("RosAndroid", "Stop app service client created");
+			Log.i("ApplicationManagement", "Stop app service client created");
 			stopAppClient = connectedNode.newServiceClient(stopTopic,
 					StopApp._TYPE);
 		} catch (ServiceNotFoundException e) {
@@ -137,7 +137,7 @@ public class AppManager extends AbstractNodeMain {
 		final StopAppRequest request = stopAppClient.newMessage();
 		// request.setName(appName); // stop app name unused for now
 		stopAppClient.call(request, stopServiceResponseListener);
-		Log.i("RosAndroid", "Done call");
+		Log.i("ApplicationManagement", "Stop app service call done");
 	}
 
 	public void listApps() {
@@ -145,7 +145,7 @@ public class AppManager extends AbstractNodeMain {
 		
 		ServiceClient<GetAppListRequest, GetAppListResponse> listAppsClient;
 		try {
-			Log.i("RosAndroid", "List app service client created" + listTopic);
+			Log.i("ApplicationManagement", "List app service client created" + listTopic);
 			listAppsClient = connectedNode.newServiceClient(listTopic,
 					GetAppList._TYPE);
 		} catch (ServiceNotFoundException e) {
@@ -153,7 +153,7 @@ public class AppManager extends AbstractNodeMain {
 		}
 		final GetAppListRequest request = listAppsClient.newMessage();
 		listAppsClient.call(request, listServiceResponseListener);
-		Log.i("RosAndroid", "Done call");
+		Log.i("ApplicationManagement", "Done call");
 	}
 
 	@Override
