@@ -176,11 +176,11 @@ public abstract class RosAppActivity extends RosActivity {
 				nodeConfiguration.setNodeName("dashboard"));
 
 	
-		if (fromAppChooser && startApplication) {
-			if (getIntent().getBooleanExtra("runningNodes", false)) {
-				restartApp();
-			} else
-				startApp();
+		if (fromAppChooser) { // && startApplication) {
+//			if (getIntent().getBooleanExtra("runningNodes", false)) {
+//				restartApp();
+//			} else
+//				startApp();
 		} else if (startApplication) {
 			startApp();
 		}
@@ -269,7 +269,7 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	private void startApp() {
-		Log.i("RosAndroid", "Starting application");
+		Log.i("ApplicationManagement", "Starting application [" + robotAppName + "]");
 
 		AppManager appManager = new AppManager(robotAppName,
 				getRobotNameSpace());
@@ -283,14 +283,15 @@ public abstract class RosAppActivity extends RosActivity {
 							if (fromAppChooser == true) {
 								startingDialog.dismiss();
 							}
-							Log.i("RosAndroid", "App started successfully");
-						} else
-							Log.e("RosAndroid", "App failed to start!");
+							Log.i("ApplicationManagement", "Rapp started successfully [" + robotAppName + "]");
+						} else {
+							Log.e("ApplicationManagement", "Rapp failed to start! [" + message.getMessage() + "]");
+                        }
 					}
 
 					@Override
 					public void onFailure(RemoteException e) {
-						Log.e("RosAndroid", "App failed to start!");
+						Log.e("ApplicationManagement", "App failed to start - no response!");
 					}
 				});
 
@@ -299,7 +300,7 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	protected void stopApp() {
-		Log.i("RosAndroid", "Stopping application");
+		Log.i("ApplicationManagement", "Stopping application");
 		AppManager appManager = new AppManager(robotAppName,
 				getRobotNameSpace());
 		appManager.setFunction("stop");
@@ -308,12 +309,12 @@ public abstract class RosAppActivity extends RosActivity {
 				.setStopService(new ServiceResponseListener<StopAppResponse>() {
 					@Override
 					public void onSuccess(StopAppResponse message) {
-						Log.i("RosAndroid", "App stopped successfully");
+						Log.i("ApplicationManagement", "App stopped successfully");
 					}
 
 					@Override
 					public void onFailure(RemoteException e) {
-						Log.e("RosAndroid", "App failed to stop!");
+						Log.e("ApplicationManagement", "App failed to stop when requested!");
 					}
 				});
 		nodeMainExecutor.execute(appManager,
@@ -346,7 +347,7 @@ public abstract class RosAppActivity extends RosActivity {
 			intent.putExtra("ChooserURI", uri.toString());
             intent.putExtra("RobotType",robotDescription.getRobotType());
             intent.putExtra("RobotName",robotDescription.getRobotName());
-            intent.setAction("org.ros.android.android_app_chooser.AppChooser");
+            intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
 			onDestroy();
