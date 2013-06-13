@@ -51,7 +51,7 @@ public class AppManager extends AbstractNodeMain {
 	static public final String PACKAGE = "org.ros.android";
 	private static final String startTopic = "start_app";
 	private static final String stopTopic = "stop_app";
-	private static final String listTopic = "list_apps";
+	private static final String listService = "list_apps";
 
 	private String appName;
 	private NameResolver resolver;
@@ -141,19 +141,20 @@ public class AppManager extends AbstractNodeMain {
 	}
 
 	public void listApps() {
-		String listTopic = resolver.resolve(this.listTopic).toString();
+		String listService = resolver.resolve(this.listService).toString();
 		
 		ServiceClient<GetAppListRequest, GetAppListResponse> listAppsClient;
 		try {
-			Log.i("ApplicationManagement", "List app service client created" + listTopic);
-			listAppsClient = connectedNode.newServiceClient(listTopic,
+			Log.i("ApplicationManagement", "List app service client created [" + listService + "]");
+			listAppsClient = connectedNode.newServiceClient(listService,
 					GetAppList._TYPE);
 		} catch (ServiceNotFoundException e) {
+            Log.w("ApplicationManagement", "List app service not found [" + listService + "]");
 			throw new RosRuntimeException(e);
 		}
 		final GetAppListRequest request = listAppsClient.newMessage();
 		listAppsClient.call(request, listServiceResponseListener);
-		Log.i("ApplicationManagement", "Done call");
+		Log.i("ApplicationManagement", "List apps service call done [" + listService + "]");
 	}
 
 	@Override

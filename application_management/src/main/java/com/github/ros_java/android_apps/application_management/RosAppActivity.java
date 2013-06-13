@@ -52,7 +52,14 @@ public abstract class RosAppActivity extends RosActivity {
 	private String defaultAppName = null;
 	private String defaultRobotName = null;
 	private boolean startApplication = true;
-	private boolean fromAppChooser = false;
+    /*
+      By default we assume the rosappactivity is simply a ros app's activity.
+      The following two variables influence behaviour when it has been called
+      varying conditions.
+     */
+    private boolean fromAppChooser = false;  // it is an app launched by one of the remocons
+    protected boolean fromApplication = false;  // it is an application returning control to a remocon (this activity)
+
 	private boolean keyBackTouched = false;
 	private int dashboardResourceId = 0;
 	private int mainWindowId = 0;
@@ -63,7 +70,6 @@ public abstract class RosAppActivity extends RosActivity {
 	private ProgressDialog startingDialog;
 	protected RobotNameResolver robotNameResolver;
 	protected RobotDescription robotDescription;
-	protected boolean fromApplication = false;
 
 	protected void setDashboardResource(int resource) {
 		dashboardResourceId = resource;
@@ -122,13 +128,13 @@ public abstract class RosAppActivity extends RosActivity {
 				AppManager.PACKAGE + ".robot_app_name");
 		if (robotAppName == null) {
 			robotAppName = defaultAppName;
-		} else if (robotAppName.equals("AppChooser")) {
-			fromApplication = true;
+        } else if (robotAppName.equals("AppChooser")) {
+            fromApplication = true;
 		} else {
 			fromAppChooser = true;
-			startingDialog = ProgressDialog.show(this, "Starting Robot",
-					"starting robot...", true, false);
-			startingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//			startingDialog = ProgressDialog.show(this, "Starting Robot",
+//					"starting robot...", true, false);
+//			startingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		}
 
 		if (dashboard == null) {
@@ -176,15 +182,15 @@ public abstract class RosAppActivity extends RosActivity {
 				nodeConfiguration.setNodeName("dashboard"));
 
 	
-		if (fromAppChooser) { // && startApplication) {
+        if (fromAppChooser) { // && startApplication) {
 //			if (getIntent().getBooleanExtra("runningNodes", false)) {
 //				restartApp();
 //			} else
 //				startApp();
-		} else if (startApplication) {
-			startApp();
-		}
-	}
+        } else if (startApplication) {
+            startApp();
+        }
+    }
 
 	protected NameResolver getAppNameSpace() {
 		return robotNameResolver.getAppNameSpace();
@@ -268,6 +274,10 @@ public abstract class RosAppActivity extends RosActivity {
 
 	}
 
+    /**
+     * This is currently only used by apps that start themselves. Apps launched by an external
+     * program (e.g. remocons) will do their own handling of the appmanager.
+     */
 	private void startApp() {
 		Log.i("ApplicationManagement", "Starting application [" + robotAppName + "]");
 
