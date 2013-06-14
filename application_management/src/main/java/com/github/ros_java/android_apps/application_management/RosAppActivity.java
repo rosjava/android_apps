@@ -49,18 +49,16 @@ public abstract class RosAppActivity extends RosActivity {
 
 	public static final String ROBOT_DESCRIPTION_EXTRA = "com.github.ros_java.android_apps.application_management.RobotDescription";
 	private String robotAppName = null;
-	private String defaultAppName = null;
+	private String defaultRobotAppName = null;
 	private String defaultRobotName = null;
-	private boolean startApplication = true;
     /*
       By default we assume the rosappactivity is simply a ros app's activity.
       The following two variables influence behaviour when it has been called
       varying conditions.
      */
     private boolean fromAppChooser = false;  // it is an app launched by one of the remocons
-    protected boolean fromApplication = false;  // it is an application returning control to a remocon (this activity)
+    protected boolean fromApplication = false;  // it is an remocon activity getting control from a closing application
 
-	private boolean keyBackTouched = false;
 	private int dashboardResourceId = 0;
 	private int mainWindowId = 0;
 	private Dashboard dashboard = null;
@@ -84,10 +82,7 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	protected void setDefaultAppName(String name) {
-		if (name == null) {
-			startApplication = false;
-		}
-		defaultAppName = name;
+        defaultRobotAppName = name;
 	}
 
 	protected void setCustomDashboardPath(String path) {
@@ -103,12 +98,12 @@ public abstract class RosAppActivity extends RosActivity {
 		super.onCreate(savedInstanceState);
 
 		if (mainWindowId == 0) {
-			Log.e("RosAndroid",
+			Log.e("ApplicationManagement",
 					"You must set the dashboard resource ID in your RosAppActivity");
 			return;
 		}
 		if (dashboardResourceId == 0) {
-			Log.e("RosAndroid",
+			Log.e("ApplicationManagement",
 					"You must set the dashboard resource ID in your RosAppActivity");
 			return;
 		}
@@ -127,7 +122,7 @@ public abstract class RosAppActivity extends RosActivity {
 		robotAppName = getIntent().getStringExtra(
 				AppManager.PACKAGE + ".robot_app_name");
 		if (robotAppName == null) {
-			robotAppName = defaultAppName;
+			robotAppName = defaultRobotAppName;
         } else if (robotAppName.equals("AppChooser")) {
             fromApplication = true;
 		} else {
@@ -181,13 +176,13 @@ public abstract class RosAppActivity extends RosActivity {
         nodeMainExecutor.execute(dashboard,
 				nodeConfiguration.setNodeName("dashboard"));
 
-	
-        if (fromAppChooser) { // && startApplication) {
+
+        // probably need to reintegrate this restart mechanism
+//        if (fromAppChooser && startRobotApplication) {
 //			if (getIntent().getBooleanExtra("runningNodes", false)) {
 //				restartApp();
-//			} else
-//				startApp();
-        } else if (startApplication) {
+        if ( managePairedRobotApplication() ) {
+            Log.w("ApplicationManagement", "starting a rapp");
             startApp();
         }
     }
@@ -279,7 +274,7 @@ public abstract class RosAppActivity extends RosActivity {
      * program (e.g. remocons) will do their own handling of the appmanager.
      */
 	private void startApp() {
-		Log.i("ApplicationManagement", "Starting application [" + robotAppName + "]");
+		Log.i("ApplicationManagement", "android application starting a rapp [" + robotAppName + "]");
 
 		AppManager appManager = new AppManager(robotAppName,
 				getRobotNameSpace());
@@ -293,15 +288,15 @@ public abstract class RosAppActivity extends RosActivity {
 							if (fromAppChooser == true) {
 								startingDialog.dismiss();
 							}
-							Log.i("ApplicationManagement", "Rapp started successfully [" + robotAppName + "]");
+							Log.i("ApplicationManagement", "rapp started successfully [" + robotAppName + "]");
 						} else {
-							Log.e("ApplicationManagement", "Rapp failed to start! [" + message.getMessage() + "]");
+							Log.e("ApplicationManagement", "rapp failed to start! [" + message.getMessage() + "]");
                         }
 					}
 
 					@Override
 					public void onFailure(RemoteException e) {
-						Log.e("ApplicationManagement", "App failed to start - no response!");
+						Log.e("ApplicationManagement", "rapp failed to start - no response!");
 					}
 				});
 
@@ -319,7 +314,11 @@ public abstract class RosAppActivity extends RosActivity {
 				.setStopService(new ServiceResponseListener<StopAppResponse>() {
 					@Override
 					public void onSuccess(StopAppResponse message) {
-						Log.i("ApplicationManagement", "App stopped successfully");
+                        if ( message.getStopped() ) {
+						    Log.i("ApplicationManagement", "App stopped successfully");
+                        } else {
+                            Log.i("ApplicationManagement", "Stop app request rejected [" + message.getMessage() + "]");
+                        }
 					}
 
 					@Override
@@ -328,7 +327,7 @@ public abstract class RosAppActivity extends RosActivity {
 					}
 				});
 		nodeMainExecutor.execute(appManager,
-				nodeConfiguration.setNodeName("start_app"));
+				nodeConfiguration.setNodeName("stop_app"));
 	}
 
 	protected void releaseRobotNameResolver() {
@@ -339,9 +338,24 @@ public abstract class RosAppActivity extends RosActivity {
 		nodeMainExecutor.shutdownNodeMain(dashboard);
 	}
 
+    /**
+     * Whether this ros app activity should be responsible for
+     * starting and stopping a paired robot application.
+     *
+     * This reponsibility is relinquished if the application
+     * is controlled from a remocon, but required if the
+     * android application is connecting and running directly.
+     *
+     * @return boolean : true if it needs to be managed.
+     */
+    private boolean managePairedRobotApplication() {
+        return (!fromApplication && !fromAppChooser && (robotAppName != null));
+    }
+
 	@Override
 	protected void onDestroy() {
-		if (startApplication && !keyBackTouched) {
+        Log.i("ApplicationManagement", "destroying RosAppActivity");
+        if ( managePairedRobotApplication() ) {
 			stopApp();
 		}
 		super.onDestroy();
@@ -350,7 +364,8 @@ public abstract class RosAppActivity extends RosActivity {
 	@Override
 	public void onBackPressed() {
 		if (fromAppChooser) {
-			keyBackTouched = true;
+            Log.i("ApplicationManagement", "app terminating and returning control to the remocon.");
+            // Restart the remocon, supply it with the necessary information and stop this activity
 			Intent intent = new Intent();
 			intent.putExtra(AppManager.PACKAGE + ".robot_app_name",
 					"AppChooser");
@@ -360,7 +375,7 @@ public abstract class RosAppActivity extends RosActivity {
             intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
-			onDestroy();
+			finish();
 		}
 		super.onBackPressed();
 	}

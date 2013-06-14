@@ -111,7 +111,7 @@ public class AppManager extends AbstractNodeMain {
 
 		ServiceClient<StartAppRequest, StartAppResponse> startAppClient;
 		try {
-			Log.i("ApplicationManagement", "Start app service client created");
+			Log.i("ApplicationManagement", "start app service client created [" + startTopic + "]");
 			startAppClient = connectedNode.newServiceClient(startTopic,
 					StartApp._TYPE);
 		} catch (ServiceNotFoundException e) {
@@ -120,7 +120,7 @@ public class AppManager extends AbstractNodeMain {
 		final StartAppRequest request = startAppClient.newMessage();
 		request.setName(appName);
 		startAppClient.call(request, startServiceResponseListener);
-		Log.i("ApplicationManagement", "Start app service call done");
+		Log.i("ApplicationManagement", "start app service call done [" + startTopic + "]");
 	}
 
 	public void stopApp() {
