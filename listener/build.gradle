@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2013 Daniel Stonier.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,9 +14,16 @@
  * the License.
  */
 
-include 'application_management'
-include 'android_teleop'
-include 'android_make_a_map'
-include 'android_map_manager'
-include 'android_map_nav'
-include 'listener'
+dependencies {
+  compile 'ros.android_core:android_gingerbread_mr1:0.0.0-SNAPSHOT'
+  compile 'ros.rosjava_core:rosjava:0.0.0-SNAPSHOT'
+  compile project(':application_management')
+}
+
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 10
+    buildToolsVersion androidBuildToolsVersion
+}
+ 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application Management -->
+    <string name="app_name">Listener</string>
+    <string name="paired_app_name">rocon_apps/talker</string>
+    <string name="default_robot">turtlebot</string>
+
+    <!-- Menu options -->
+    <string name="stop_app">Stop Application</string>
+</resources>
