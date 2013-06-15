@@ -39,11 +39,11 @@ public class RobotNameResolver extends AbstractNodeMain {
 	}
 
 
-	protected NameResolver getAppNameSpace() {
+	public NameResolver getAppNameSpace() {
 		return appNameResolver;
 	}
 
-	protected NameResolver getRobotNameSpace() {
+    public NameResolver getRobotNameSpace() {
 		return robotNameResolver;
 	}
 
