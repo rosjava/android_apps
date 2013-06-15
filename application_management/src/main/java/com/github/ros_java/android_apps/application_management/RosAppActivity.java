@@ -208,7 +208,7 @@ public abstract class RosAppActivity extends RosActivity {
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int which) {
-										RosAppActivity.this.finish();
+                                        RosAppActivity.this.finish();
 									}
 								}).create().show();
 			}
@@ -305,7 +305,7 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	protected void stopApp() {
-		Log.i("ApplicationManagement", "Stopping application");
+		Log.i("ApplicationManagement", "android application stopping a rapp [" + robotAppName + "]");
 		AppManager appManager = new AppManager(robotAppName,
 				getRobotNameSpace());
 		appManager.setFunction("stop");
@@ -342,7 +342,7 @@ public abstract class RosAppActivity extends RosActivity {
      * Whether this ros app activity should be responsible for
      * starting and stopping a paired robot application.
      *
-     * This reponsibility is relinquished if the application
+     * This responsibility is relinquished if the application
      * is controlled from a remocon, but required if the
      * android application is connecting and running directly.
      *
@@ -354,8 +354,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 	@Override
 	protected void onDestroy() {
-        Log.i("ApplicationManagement", "destroying RosAppActivity");
-        if ( managePairedRobotApplication() ) {
+        if ( ( getRobotNameSpace() != null ) && managePairedRobotApplication() ) {
 			stopApp();
 		}
 		super.onDestroy();
@@ -376,7 +375,9 @@ public abstract class RosAppActivity extends RosActivity {
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
 			finish();
-		}
+		} else {
+            Log.i("ApplicationManagement", "backpress processing for RosAppActivity");
+        }
 		super.onBackPressed();
 	}
 }
