@@ -52,12 +52,11 @@ public abstract class RosAppActivity extends RosActivity {
 	private String defaultRobotAppName = null;
 	private String defaultRobotName = null;
     /*
-      By default we assume the rosappactivity is simply a ros app's activity.
-      The following two variables influence behaviour when it has been called
-      varying conditions.
+      By default we assume the rosappactivity is launched independantly.
+      The following flag is used to identify when it has instead been
+      launched by a controlling application (e.g. remocons).
      */
-    private boolean fromAppChooser = false;  // it is an app launched by one of the remocons
-    protected boolean fromApplication = false;  // it is an remocon activity getting control from a closing application
+    private boolean managedApplication = false;
 
 	private int dashboardResourceId = 0;
 	private int mainWindowId = 0;
@@ -65,7 +64,6 @@ public abstract class RosAppActivity extends RosActivity {
 	private NodeConfiguration nodeConfiguration;
 	private NodeMainExecutor nodeMainExecutor;
 	private URI uri;
-	private ProgressDialog startingDialog;
 	protected RobotNameResolver robotNameResolver;
 	protected RobotDescription robotDescription;
 
@@ -119,17 +117,11 @@ public abstract class RosAppActivity extends RosActivity {
 			robotNameResolver.setRobotName(defaultRobotName);
 		}
 
-		robotAppName = getIntent().getStringExtra(
-				AppManager.PACKAGE + ".robot_app_name");
+		robotAppName = getIntent().getStringExtra(AppManager.PACKAGE + ".robot_app_name");
 		if (robotAppName == null) {
 			robotAppName = defaultRobotAppName;
-        } else if (robotAppName.equals("AppChooser")) {
-            fromApplication = true;
 		} else {
-			fromAppChooser = true;
-//			startingDialog = ProgressDialog.show(this, "Starting Robot",
-//					"starting robot...", true, false);
-//			startingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			managedApplication = true;
 		}
 
 		if (dashboard == null) {
@@ -148,17 +140,15 @@ public abstract class RosAppActivity extends RosActivity {
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
-        // ROBOT_DESCRIPTION_EXTRA is ever only set by the remocons.
-		if (getIntent().hasExtra(ROBOT_DESCRIPTION_EXTRA)) {
-			robotDescription = (RobotDescription) getIntent()
-					.getSerializableExtra(ROBOT_DESCRIPTION_EXTRA);
-		}
+        if ( managedApplication ) {
+            if (getIntent().hasExtra(ROBOT_DESCRIPTION_EXTRA)) {
+                robotDescription = (RobotDescription) getIntent()
+                        .getSerializableExtra(ROBOT_DESCRIPTION_EXTRA);
+            }
+        }
 		if (robotDescription != null) {
             robotNameResolver.setRobot(robotDescription);
 			dashboard.setRobotName(robotDescription.getRobotType());
-		} else if (fromApplication) {
-            robotNameResolver.setRobotName(getIntent().getStringExtra("RobotName"));
-            dashboard.setRobotName(getIntent().getStringExtra("RobotType"));
 		}
 		nodeMainExecutor.execute(robotNameResolver,
 				nodeConfiguration.setNodeName("robotNameResolver"));
@@ -178,7 +168,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 
         // probably need to reintegrate this restart mechanism
-//        if (fromAppChooser && startRobotApplication) {
+//        if (managedApplication && startRobotApplication) {
 //			if (getIntent().getBooleanExtra("runningNodes", false)) {
 //				restartApp();
         if ( managePairedRobotApplication() ) {
@@ -217,7 +207,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 	@Override
 	public void startMasterChooser() {
-		if (!fromAppChooser && !fromApplication) {
+		if (!managedApplication) {
 			super.startMasterChooser();
 		} else {
 			Intent intent = new Intent();
@@ -285,9 +275,6 @@ public abstract class RosAppActivity extends RosActivity {
 					@Override
 					public void onSuccess(StartAppResponse message) {
 						if (message.getStarted()) {
-							if (fromAppChooser == true) {
-								startingDialog.dismiss();
-							}
 							Log.i("ApplicationManagement", "rapp started successfully [" + robotAppName + "]");
 						} else {
 							Log.e("ApplicationManagement", "rapp failed to start! [" + message.getMessage() + "]");
@@ -349,7 +336,7 @@ public abstract class RosAppActivity extends RosActivity {
      * @return boolean : true if it needs to be managed.
      */
     private boolean managePairedRobotApplication() {
-        return (!fromApplication && !fromAppChooser && (robotAppName != null));
+        return (!managedApplication && (robotAppName != null));
     }
 
 	@Override
@@ -362,7 +349,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (fromAppChooser) {
+		if (managedApplication) {
             Log.i("ApplicationManagement", "app terminating and returning control to the remocon.");
             // Restart the remocon, supply it with the necessary information and stop this activity
 			Intent intent = new Intent();
