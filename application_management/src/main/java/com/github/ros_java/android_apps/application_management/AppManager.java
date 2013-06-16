@@ -58,7 +58,8 @@ public class AppManager extends AbstractNodeMain {
 	private ServiceResponseListener<StartAppResponse> startServiceResponseListener;
 	private ServiceResponseListener<StopAppResponse> stopServiceResponseListener;
 	private ServiceResponseListener<GetAppListResponse> listServiceResponseListener;
-	private ArrayList<Subscriber<AppList>> subscriptions;
+    private MessageListener<AppList> appListListener;
+    //private ArrayList<Subscriber<AppList>> subscriptions;
 	private Subscriber<AppList> subscriber;
 	
 	private ConnectedNode connectedNode;
@@ -77,12 +78,6 @@ public class AppManager extends AbstractNodeMain {
 
 	}
 
-	public void addAppListCallback(MessageListener<AppList> callback)
-			throws RosException {
-		subscriber = connectedNode.newSubscriber(resolver.resolve("app_list"),"rocon_app_manager_msgs/AppList");
-		subscriber.addMessageListener(callback);
-	}
-
 	public void setFunction(String function) {
 		this.function = function;
 	}
@@ -91,7 +86,11 @@ public class AppManager extends AbstractNodeMain {
 		this.appName = appName;
 	}
 
-	public void setStartService(
+    public void setAppListSubscriber(MessageListener<AppList> appListListener) {
+        this.appListListener = appListListener;
+    }
+
+    public void setStartService(
 			ServiceResponseListener<StartAppResponse> startServiceResponseListener) {
 		this.startServiceResponseListener = startServiceResponseListener;
 	}
@@ -105,6 +104,11 @@ public class AppManager extends AbstractNodeMain {
 			ServiceResponseListener<GetAppListResponse> listServiceResponseListener) {
 		this.listServiceResponseListener = listServiceResponseListener;
 	}
+
+    public void continuouslyListApps() {
+        subscriber = connectedNode.newSubscriber(resolver.resolve("app_list"),"rocon_app_manager_msgs/AppList");
+        subscriber.addMessageListener(this.appListListener);
+    }
 
 	public void startApp() {
 		String startTopic = resolver.resolve(this.startTopic).toString();
@@ -162,6 +166,15 @@ public class AppManager extends AbstractNodeMain {
 		return null;
 	}
 
+    /**
+     * This provides a few ways to manage apps with an app manager object.
+     *
+     * - manage : usually called by the remocons to set up a listener that
+     *   continuously updates with app list status changes from a publisher.
+     * - start, stop :
+     *
+     * @param connectedNode
+     */
 	@Override
 	public void onStart(final ConnectedNode connectedNode) {
 		this.connectedNode = connectedNode;
@@ -171,6 +184,8 @@ public class AppManager extends AbstractNodeMain {
 			stopApp();
 		} else if (function.equals("list")) {
 			listApps();
-		}
+		} else if (function.equals("manage")) {
+            continuouslyListApps();
+        }
 	}
 }
