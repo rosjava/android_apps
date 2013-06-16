@@ -12,11 +12,12 @@ import org.ros.exception.ParameterClassCastException;
 public class RobotNameResolver extends AbstractNodeMain {
 
 	private RobotDescription currentRobot;
-	private NameResolver appNameResolver;
+	private NameResolver applicationNamespaceResolver;
 	private NameResolver robotNameResolver;
 	private GraphName name;
-	private GraphName app;
+	private GraphName applicationNamespace;
 	private ConnectedNode connectedNode;
+    private boolean resolved = false;
 
 	public RobotNameResolver() {
 	}
@@ -40,18 +41,34 @@ public class RobotNameResolver extends AbstractNodeMain {
 
 
 	public NameResolver getAppNameSpace() {
-		return appNameResolver;
+		return applicationNamespaceResolver;
 	}
 
     public NameResolver getRobotNameSpace() {
 		return robotNameResolver;
 	}
 
+    /**
+     * Call this to block until the resolver finishes its job.
+     * i.e. after an execute is called to run the onStart method
+     * below.
+     *
+     * Note - BLOCKING call!
+     */
+    public void waitForResolver() {
+        while (!resolved) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+            }
+        }
+    }
+
 	@Override
     /**
      * Resolves the namespace under which robot apps can be started
      * and stopped. Sometimes this will already have been provided
-     * via setRobot(), for example by appchooser or remocons which
+     * via setRobot() by managing applications (e.g. remocons) which
      * use the MasterChecker.
      *
      * In other cases, such as when the
@@ -63,16 +80,20 @@ public class RobotNameResolver extends AbstractNodeMain {
 		if (currentRobot != null) {
 			name = GraphName.of(currentRobot.getRobotName());
 		} else {
-            // Could actually construct a RobotDescription here if we wished.
+            // Could simple scan the master graph looking for the set of app manager services,
+            // validating that and pulling the name from the first name in the tree.
+            // Everything else would then come from platform info.
+            // Would save a parameter, but maybe just easier all around with a parameter.
             ParameterTree parameterTree = this.connectedNode.getParameterTree();
             try {
                 name = GraphName.of(parameterTree.getString("/robot/name"));
             } catch (ParameterClassCastException e) {
-                Log.i("RosApplicationManagement", "Couldn't find the robot name on the parameter server, falling back to defaults.");
+                Log.w("ApplicationManagement", "Couldn't find the robot name on the parameter server, falling back to defaults.");
             }
         }
-		app = name.join(GraphName.of("application"));
-		appNameResolver = connectedNode.getResolver().newChild(app);
+        applicationNamespace = name.join(GraphName.of("application"));  // hard coded, might we need to change this?
+        applicationNamespaceResolver = connectedNode.getResolver().newChild(applicationNamespace);
 		robotNameResolver = connectedNode.getResolver().newChild(name);
+        resolved = true;
 	}
 }

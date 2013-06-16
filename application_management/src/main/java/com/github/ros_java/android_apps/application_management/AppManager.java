@@ -16,11 +16,8 @@
 
 package com.github.ros_java.android_apps.application_management;
 
-import java.util.ArrayList;
-
 import android.util.Log;
 
-import org.ros.exception.RosException;
 import org.ros.exception.RosRuntimeException;
 import org.ros.exception.ServiceNotFoundException;
 import org.ros.message.MessageListener;
@@ -34,6 +31,9 @@ import org.ros.node.topic.Subscriber;
 
 import rocon_app_manager_msgs.AppList;
 import rocon_app_manager_msgs.GetAppList;
+import rocon_app_manager_msgs.GetPlatformInfo;
+import rocon_app_manager_msgs.GetPlatformInfoRequest;
+import rocon_app_manager_msgs.GetPlatformInfoResponse;
 import rocon_app_manager_msgs.GetAppListRequest;
 import rocon_app_manager_msgs.GetAppListResponse;
 import rocon_app_manager_msgs.StartApp;
@@ -44,13 +44,29 @@ import rocon_app_manager_msgs.StopAppRequest;
 import rocon_app_manager_msgs.StopAppResponse;
 
 /**
- * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
+ * This class implements the services and topics required to communicate
+ * with the robot app manager. Typically to use this class its a three
+ * step process:
+ *
+ * 1) provide a callback via one of the setXXX methods
+ * 2) set the function type you want to call (e.g. start_app, platform_info)
+ * 3) execute the app manager instance.
+ *
+ * INSTANCES MAY ONLY EVER BE EXECUTED ONCE!
+ *
+ * Essentially you are creating a node when creating an instance, and
+ * rosjava isolates each service/topic to each 'node'.
+ *
+ * See the RosAppActivity or RobotActivity (in android_remocons) for
+ * examples.
  */
 public class AppManager extends AbstractNodeMain {
 
-	static public final String PACKAGE = "org.ros.android";
+    // unique identifier to key string variables between activities.
+	static public final String PACKAGE = "com.github.ros_java.android_apps.application_management.AppManager";
 	private static final String startTopic = "start_app";
 	private static final String stopTopic = "stop_app";
+    private static final String platformInfoService = "platform_info";
 	private static final String listService = "list_apps";
 
 	private String appName;
@@ -58,8 +74,8 @@ public class AppManager extends AbstractNodeMain {
 	private ServiceResponseListener<StartAppResponse> startServiceResponseListener;
 	private ServiceResponseListener<StopAppResponse> stopServiceResponseListener;
 	private ServiceResponseListener<GetAppListResponse> listServiceResponseListener;
+    private ServiceResponseListener<GetPlatformInfoResponse> platformInfoServiceResponseListener;
     private MessageListener<AppList> appListListener;
-    //private ArrayList<Subscriber<AppList>> subscriptions;
 	private Subscriber<AppList> subscriber;
 	
 	private ConnectedNode connectedNode;
@@ -90,6 +106,11 @@ public class AppManager extends AbstractNodeMain {
         this.appListListener = appListListener;
     }
 
+    public void setPlatformInfoService(
+            ServiceResponseListener<GetPlatformInfoResponse> platformInfoServiceResponseListener) {
+        this.platformInfoServiceResponseListener = platformInfoServiceResponseListener;
+    }
+
     public void setStartService(
 			ServiceResponseListener<StartAppResponse> startServiceResponseListener) {
 		this.startServiceResponseListener = startServiceResponseListener;
@@ -110,21 +131,39 @@ public class AppManager extends AbstractNodeMain {
         subscriber.addMessageListener(this.appListListener);
     }
 
-	public void startApp() {
+    public void platformInfo() {
+        String serviceName = resolver.resolve(this.platformInfoService).toString();
+
+        ServiceClient<GetPlatformInfoRequest, GetPlatformInfoResponse> platformInfoClient;
+        try {
+            Log.d("ApplicationManagement", "platform info service client created [" + serviceName + "]");
+            platformInfoClient = connectedNode.newServiceClient(serviceName,
+                    GetPlatformInfo._TYPE);
+        } catch (ServiceNotFoundException e) {
+            Log.w("ApplicationManagement", "platform_info service not found [" + serviceName + "]");
+            throw new RosRuntimeException(e);
+        }
+        final GetPlatformInfoRequest request = platformInfoClient.newMessage();
+        platformInfoClient.call(request, platformInfoServiceResponseListener);
+        Log.d("ApplicationManagement", "platform info service call done [" + serviceName + "]");
+    }
+
+    public void startApp() {
 		String startTopic = resolver.resolve(this.startTopic).toString();
 
 		ServiceClient<StartAppRequest, StartAppResponse> startAppClient;
 		try {
-			Log.i("ApplicationManagement", "start app service client created [" + startTopic + "]");
+			Log.d("ApplicationManagement", "start app service client created [" + startTopic + "]");
 			startAppClient = connectedNode.newServiceClient(startTopic,
 					StartApp._TYPE);
 		} catch (ServiceNotFoundException e) {
+            Log.w("ApplicationManagement", "start app service not found [" + startTopic + "]");
 			throw new RosRuntimeException(e);
 		}
 		final StartAppRequest request = startAppClient.newMessage();
 		request.setName(appName);
 		startAppClient.call(request, startServiceResponseListener);
-		Log.i("ApplicationManagement", "start app service call done [" + startTopic + "]");
+		Log.d("ApplicationManagement", "start app service call done [" + startTopic + "]");
 	}
 
 	public void stopApp() {
@@ -132,16 +171,17 @@ public class AppManager extends AbstractNodeMain {
 
 		ServiceClient<StopAppRequest, StopAppResponse> stopAppClient;
 		try {
-			Log.i("ApplicationManagement", "Stop app service client created");
+			Log.d("ApplicationManagement", "Stop app service client created");
 			stopAppClient = connectedNode.newServiceClient(stopTopic,
 					StopApp._TYPE);
 		} catch (ServiceNotFoundException e) {
+            Log.w("ApplicationManagement", "Stop app service not found");
 			throw new RosRuntimeException(e);
 		}
 		final StopAppRequest request = stopAppClient.newMessage();
 		// request.setName(appName); // stop app name unused for now
 		stopAppClient.call(request, stopServiceResponseListener);
-		Log.i("ApplicationManagement", "Stop app service call done");
+		Log.d("ApplicationManagement", "Stop app service call done");
 	}
 
 	public void listApps() {
@@ -149,7 +189,7 @@ public class AppManager extends AbstractNodeMain {
 		
 		ServiceClient<GetAppListRequest, GetAppListResponse> listAppsClient;
 		try {
-			Log.i("ApplicationManagement", "List app service client created [" + listService + "]");
+			Log.d("ApplicationManagement", "List app service client created [" + listService + "]");
 			listAppsClient = connectedNode.newServiceClient(listService,
 					GetAppList._TYPE);
 		} catch (ServiceNotFoundException e) {
@@ -158,33 +198,38 @@ public class AppManager extends AbstractNodeMain {
 		}
 		final GetAppListRequest request = listAppsClient.newMessage();
 		listAppsClient.call(request, listServiceResponseListener);
-		Log.i("ApplicationManagement", "List apps service call done [" + listService + "]");
+		Log.d("ApplicationManagement", "List apps service call done [" + listService + "]");
 	}
 
-	@Override
+    @Override
 	public GraphName getDefaultNodeName() {
 		return null;
 	}
 
     /**
-     * This provides a few ways to manage apps with an app manager object.
+     * This provides a few ways to create and execute service/topic nodes with an app manager object.
      *
-     * - manage : usually called by the remocons to set up a listener that
-     *   continuously updates with app list status changes from a publisher.
-     * - start, stop :
+     * Note - you should only ever call (via NodeMainExecutor.execute() this once! It will fail
+     * due to this instance being non-unique in the set of rosjava nodemains for this activity.
      *
      * @param connectedNode
      */
 	@Override
 	public void onStart(final ConnectedNode connectedNode) {
-		this.connectedNode = connectedNode;
+        if (this.connectedNode != null) {
+            Log.e("ApplicationManagement", "app manager instances may only ever be executed once [" + function + "].");
+            return;
+        }
+        this.connectedNode = connectedNode;
 		if (function.equals("start")) {
 			startApp();
 		} else if (function.equals("stop")) {
 			stopApp();
+        } else if (function.equals("platform_info")) {
+            platformInfo();
 		} else if (function.equals("list")) {
 			listApps();
-		} else if (function.equals("manage")) {
+		} else if (function.equals("list_apps")) {
             continuouslyListApps();
         }
 	}

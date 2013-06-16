@@ -20,7 +20,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -152,12 +151,8 @@ public abstract class RosAppActivity extends RosActivity {
 		}
 		nodeMainExecutor.execute(robotNameResolver,
 				nodeConfiguration.setNodeName("robotNameResolver"));
-		while (getAppNameSpace() == null) {
-			try {
-				Thread.sleep(100);
-			} catch (Exception e) {
-			}
-		}
+        robotNameResolver.waitForResolver();
+
         if (robotDescription == null) {
             dashboard.setRobotName(getRobotNameSpace().getNamespace()
                 .toString());
