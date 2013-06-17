@@ -37,6 +37,8 @@ import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+import rocon_app_manager_msgs.Icon;
+
 public class RobotDescription implements java.io.Serializable {
         public static final String CONNECTING = "connecting...";
         public static final String OK = "ok";
@@ -49,6 +51,7 @@ public class RobotDescription implements java.io.Serializable {
         private RobotId robotId;
         private String robotName;
         private String robotType;
+        private Icon robotIcon;
         private String connectionStatus;
         private Date timeLastSeen;
         
@@ -130,6 +133,12 @@ public class RobotDescription implements java.io.Serializable {
         }
         public void setRobotType(String robotType) {
                 this.robotType = robotType;
+        }
+        public Icon getRobotIcon() {
+            return robotIcon;
+        }
+        public void setRobotIcon(Icon robotIcon) {
+            this.robotIcon = robotIcon;
         }
         public String getConnectionStatus() {
                 return connectionStatus;
