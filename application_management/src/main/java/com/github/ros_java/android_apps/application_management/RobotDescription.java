@@ -33,10 +33,13 @@
 
 package com.github.ros_java.android_apps.application_management;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
 import rocon_app_manager_msgs.Icon;
 
 public class RobotDescription implements java.io.Serializable {
@@ -51,7 +54,13 @@ public class RobotDescription implements java.io.Serializable {
         private RobotId robotId;
         private String robotName;
         private String robotType;
-        private Icon robotIcon;
+        // Icon stored piecemeal because msg arrays (stored as jboss ChannelBuffers) can't
+        // be dumped and reloaded by the snakeyaml library.
+        private String robotIconFormat;
+        private byte[] robotIconData;
+        private int robotIconDataOffset;
+        private int robotIconDataLength;
+
         private String connectionStatus;
         private Date timeLastSeen;
         
@@ -59,17 +68,27 @@ public class RobotDescription implements java.io.Serializable {
         public RobotDescription() {
         }
         
-        public RobotDescription(RobotId robotId, String robotName, String robotType, Date timeLastSeen) {
+        public RobotDescription(RobotId robotId, String robotName, String robotType, Icon robotIcon, Date timeLastSeen) {
                 setRobotName(robotName);
                 setRobotId(robotId);
                 this.robotName = robotName;
                 this.robotType = robotType;
+                if ( robotIcon != null ) {
+                    this.robotIconFormat = robotIcon.getFormat();
+                    this.robotIconData = robotIcon.getData().array();
+                    this.robotIconDataOffset = robotIcon.getData().arrayOffset();
+                    this.robotIconDataLength = robotIcon.getData().readableBytes();
+                }
                 this.timeLastSeen = timeLastSeen;
         }
         public void copyFrom(RobotDescription other) {
                 robotId = other.robotId;
                 robotName = other.robotName;
                 robotType = other.robotType;
+                robotIconFormat = other.robotIconFormat;
+                robotIconData = other.robotIconData;
+                robotIconDataOffset = other.robotIconDataOffset;
+                robotIconDataLength = other.robotIconDataLength;
                 connectionStatus = other.connectionStatus;
                 timeLastSeen = other.timeLastSeen;
         }
@@ -134,12 +153,25 @@ public class RobotDescription implements java.io.Serializable {
         public void setRobotType(String robotType) {
                 this.robotType = robotType;
         }
-        public Icon getRobotIcon() {
-            return robotIcon;
+
+        public String getRobotIconFormat() {
+            return robotIconFormat;
         }
+
+        public ChannelBuffer getRobotIconData() {
+            if ( robotIconData == null ) {
+                return null;
+            } else {
+                ChannelBuffer channelBuffer = ChannelBuffers.copiedBuffer(robotIconData, robotIconDataOffset, robotIconDataLength);
+                return channelBuffer;
+            }
+        }
+
         public void setRobotIcon(Icon robotIcon) {
-            this.robotIcon = robotIcon;
+            this.robotIconFormat = robotIcon.getFormat();
+            this.robotIconData = robotIcon.getData().array();
         }
+
         public String getConnectionStatus() {
                 return connectionStatus;
         }
@@ -156,7 +188,7 @@ public class RobotDescription implements java.io.Serializable {
                 return this.robotName.equals(NAME_UNKNOWN);
         }
         public static RobotDescription createUnknown(RobotId robotId)  {
-                return new RobotDescription(robotId, NAME_UNKNOWN, TYPE_UNKNOWN, new Date());
+                return new RobotDescription(robotId, NAME_UNKNOWN, TYPE_UNKNOWN, null, new Date());
         }
         @Override
         public boolean equals(Object o) {

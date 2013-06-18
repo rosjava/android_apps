@@ -35,12 +35,18 @@
 package com.github.ros_java.android_apps.application_management;
 
 import android.util.Log;
-import org.ros.internal.node.client.ParameterClient;
-import org.ros.internal.node.server.NodeIdentifier;
-import org.ros.namespace.GraphName;
+
+import com.github.ros_java.android_apps.application_management.rapp_manager.PlatformInfoServiceClient;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
+
+import org.ros.address.InetAddressFactory;
+import org.ros.node.NodeConfiguration;
+import org.ros.android.NodeMainExecutorService;
+import rocon_app_manager_msgs.Icon;
+
 /**
  * Threaded ROS-master checker. Runs a thread which checks for a valid ROS
  * master and sends back a {@link RobotDescription} (with robot name and type)
@@ -113,12 +119,20 @@ public class MasterChecker {
     @Override
     public void run() {
       try {
-        ParameterClient paramClient = new ParameterClient(
-                  NodeIdentifier.forNameAndUri("/master_checker", masterUri.toString()), masterUri);
-        String robotName = (String) paramClient.getParam(GraphName.of("robot/name")).getResult();
-        String robotType = (String) paramClient.getParam(GraphName.of("robot/type")).getResult();
+        NodeMainExecutorService nodeMainExecutorService  = new NodeMainExecutorService();
+        NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
+                InetAddressFactory.newNonLoopback().getHostAddress(),
+                masterUri);
+        PlatformInfoServiceClient client = new PlatformInfoServiceClient();
+        nodeMainExecutorService.execute(client, nodeConfiguration.setNodeName("platform_info_client_node"));
+        client.waitForResponse();
+        String robotName = client.getRobotUniqueName();
+        String robotType = client.getRobotType();
+        Icon robotIcon = client.getRobotIcon();
+        nodeMainExecutorService.shutdownNodeMain(client);
+
         Date timeLastSeen = new Date();
-        RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType,
+        RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType, robotIcon,
                                                                  timeLastSeen);
         foundMasterCallback.receive(robotDescription);
         return;
