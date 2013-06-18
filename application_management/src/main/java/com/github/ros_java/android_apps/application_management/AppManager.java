@@ -31,9 +31,6 @@ import org.ros.node.topic.Subscriber;
 
 import rocon_app_manager_msgs.AppList;
 import rocon_app_manager_msgs.GetAppList;
-import rocon_app_manager_msgs.GetPlatformInfo;
-import rocon_app_manager_msgs.GetPlatformInfoRequest;
-import rocon_app_manager_msgs.GetPlatformInfoResponse;
 import rocon_app_manager_msgs.GetAppListRequest;
 import rocon_app_manager_msgs.GetAppListResponse;
 import rocon_app_manager_msgs.StartApp;
@@ -74,7 +71,6 @@ public class AppManager extends AbstractNodeMain {
 	private ServiceResponseListener<StartAppResponse> startServiceResponseListener;
 	private ServiceResponseListener<StopAppResponse> stopServiceResponseListener;
 	private ServiceResponseListener<GetAppListResponse> listServiceResponseListener;
-    private ServiceResponseListener<GetPlatformInfoResponse> platformInfoServiceResponseListener;
     private MessageListener<AppList> appListListener;
 	private Subscriber<AppList> subscriber;
 	
@@ -106,11 +102,6 @@ public class AppManager extends AbstractNodeMain {
         this.appListListener = appListListener;
     }
 
-    public void setPlatformInfoService(
-            ServiceResponseListener<GetPlatformInfoResponse> platformInfoServiceResponseListener) {
-        this.platformInfoServiceResponseListener = platformInfoServiceResponseListener;
-    }
-
     public void setStartService(
 			ServiceResponseListener<StartAppResponse> startServiceResponseListener) {
 		this.startServiceResponseListener = startServiceResponseListener;
@@ -129,23 +120,6 @@ public class AppManager extends AbstractNodeMain {
     public void continuouslyListApps() {
         subscriber = connectedNode.newSubscriber(resolver.resolve("app_list"),"rocon_app_manager_msgs/AppList");
         subscriber.addMessageListener(this.appListListener);
-    }
-
-    public void platformInfo() {
-        String serviceName = resolver.resolve(this.platformInfoService).toString();
-
-        ServiceClient<GetPlatformInfoRequest, GetPlatformInfoResponse> platformInfoClient;
-        try {
-            Log.d("ApplicationManagement", "platform info service client created [" + serviceName + "]");
-            platformInfoClient = connectedNode.newServiceClient(serviceName,
-                    GetPlatformInfo._TYPE);
-        } catch (ServiceNotFoundException e) {
-            Log.w("ApplicationManagement", "platform_info service not found [" + serviceName + "]");
-            throw new RosRuntimeException(e);
-        }
-        final GetPlatformInfoRequest request = platformInfoClient.newMessage();
-        platformInfoClient.call(request, platformInfoServiceResponseListener);
-        Log.d("ApplicationManagement", "platform info service call done [" + serviceName + "]");
     }
 
     public void startApp() {
@@ -225,8 +199,6 @@ public class AppManager extends AbstractNodeMain {
 			startApp();
 		} else if (function.equals("stop")) {
 			stopApp();
-        } else if (function.equals("platform_info")) {
-            platformInfo();
 		} else if (function.equals("list")) {
 			listApps();
 		} else if (function.equals("list_apps")) {
