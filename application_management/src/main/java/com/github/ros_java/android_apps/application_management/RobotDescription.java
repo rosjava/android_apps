@@ -36,7 +36,6 @@ package com.github.ros_java.android_apps.application_management;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;

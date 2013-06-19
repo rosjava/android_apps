@@ -2,12 +2,13 @@ package com.github.ros_java.android_apps.application_management;
 
 import android.util.Log;
 
+import org.ros.master.client.MasterStateClient;
+import org.ros.master.client.SystemState;
+import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
-import org.ros.node.parameter.ParameterTree;
-import org.ros.exception.ParameterClassCastException;
 
 public class RobotNameResolver extends AbstractNodeMain {
 
@@ -80,15 +81,17 @@ public class RobotNameResolver extends AbstractNodeMain {
 		if (currentRobot != null) {
 			name = GraphName.of(currentRobot.getRobotName());
 		} else {
-            // Could simple scan the master graph looking for the set of app manager services,
-            // validating that and pulling the name from the first name in the tree.
-            // Everything else would then come from platform info.
-            // Would save a parameter, but maybe just easier all around with a parameter.
-            ParameterTree parameterTree = this.connectedNode.getParameterTree();
-            try {
-                name = GraphName.of(parameterTree.getString("/robot/name"));
-            } catch (ParameterClassCastException e) {
-                Log.w("ApplicationManagement", "Couldn't find the robot name on the parameter server, falling back to defaults.");
+            // This is duplicated in PlatformInfoServiceClient and could be better stored somewhere, but it's not much.
+            MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());
+            SystemState systemState = masterClient.getSystemState();
+            for (TopicSystemState topic : systemState.getTopics()) {
+                String name = topic.getTopicName();
+                GraphName graph_name = GraphName.of(name);
+                if ( graph_name.getBasename().toString().equals("app_list") ) {
+                    this.name = graph_name.getParent().toRelative();
+                    Log.i("ApplicationManagement", "configuring a robot namespace resolver [" + this.name + "]");
+                    break;
+                }
             }
         }
         applicationNamespace = name.join(GraphName.of("application"));  // hard coded, might we need to change this?

@@ -23,7 +23,11 @@ import rocon_app_manager_msgs.GetPlatformInfoRequest;
 import rocon_app_manager_msgs.GetPlatformInfoResponse;
 
 /**
- * Communicates with the robot app manager's platform info service.
+ * Communicates with the robot app manager and determines various facets of
+ * the platform information.
+ *
+ * - Determines the robot app manager's namespace
+ * - Retrieves details from the PlatformInfo service.
  */
 public class PlatformInfoServiceClient extends AbstractNodeMain {
     private String namespace; // this is the namespace under which all app manager services reside.
@@ -104,7 +108,7 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
         this.connectedNode = connectedNode;
 
         if ( this.namespace == null ) {
-            // Find the app manager namespace
+            // Find the rapp manager namespace
             MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());
             SystemState systemState = masterClient.getSystemState();
             for (TopicSystemState topic : systemState.getTopics()) {
