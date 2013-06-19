@@ -30,16 +30,16 @@ import rocon_app_manager_msgs.GetPlatformInfoResponse;
  * - Retrieves details from the PlatformInfo service.
  */
 public class PlatformInfoServiceClient extends AbstractNodeMain {
-    private String namespace; // this is the namespace under which all app manager services reside.
+    private String namespace; // this is the namespace under which all rapp manager services reside.
     private String robotUniqueName; // unique robot name, simply the above with stripped '/''s.
     private ServiceResponseListener<GetPlatformInfoResponse> listener;
     private PlatformInfo platformInfo;
     private ConnectedNode connectedNode;
 
     /**
-     * Configures a platform info service client.
+     * Configures the service client.
      *
-     * @param namespace : configured with the namespace for the app manager
+     * @param namespace : namespace for the app manager's services
      */
     public PlatformInfoServiceClient(String namespace) {
         this.namespace = namespace;
@@ -128,19 +128,19 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
         String serviceName = resolver.resolve("platform_info").toString();
         ServiceClient<GetPlatformInfoRequest, GetPlatformInfoResponse> client;
         try {
-            Log.d("ApplicationManagement", "platform info service client created [" + serviceName + "]");
+            Log.d("ApplicationManagement", "service client created [" + serviceName + "]");
             client = connectedNode.newServiceClient(serviceName,
                     GetPlatformInfo._TYPE);
         } catch (ServiceNotFoundException e) {
-            Log.w("ApplicationManagement", "platform_info service not found [" + serviceName + "]");
+            Log.w("ApplicationManagement", "service not found [" + serviceName + "]");
             throw new RosRuntimeException(e);
         } catch (RosRuntimeException e) {
-            Log.e("ApplicationManagement", "failed to create platform info client [" + e.getMessage() + "]");
+            Log.e("ApplicationManagement", "failed to create client [" + e.getMessage() + "]");
             throw e;
         }
         final GetPlatformInfoRequest request = client.newMessage();
         client.call(request, listener);
-        Log.d("ApplicationManagement", "platform info service call done [" + serviceName + "]");
+        Log.d("ApplicationManagement", "service call done [" + serviceName + "]");
     }
 
     /**

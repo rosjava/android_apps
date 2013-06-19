@@ -46,6 +46,7 @@ public class RobotDescription implements java.io.Serializable {
         public static final String OK = "ok";
         public static final String ERROR = "exception";
         public static final String WIFI = "invalid wifi";
+        public static final String UNAVAILABLE = "unavailable";  // when the robot app manager is busy serving another remote controller
         public static final String CONTROL = "not started";
         private static final String NAME_UNKNOWN = "Unknown";
         private static final String TYPE_UNKNOWN = "Unknown";
