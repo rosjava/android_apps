@@ -56,6 +56,7 @@ public abstract class RosAppActivity extends RosActivity {
       launched by a controlling application (e.g. remocons).
      */
     private boolean managedApplication = false;
+    private String managedApplicationActivity = null; // e.g. com.github.ros_java.android_remocons.robot_remocon.RobotRemocon
 
 	private int dashboardResourceId = 0;
 	private int mainWindowId = 0;
@@ -120,6 +121,7 @@ public abstract class RosAppActivity extends RosActivity {
 		if (robotAppName == null) {
 			robotAppName = defaultRobotAppName;
 		} else {
+            managedApplicationActivity = getIntent().getStringExtra("PairedManagerActivity");
 			managedApplication = true;
 		}
 
@@ -353,7 +355,8 @@ public abstract class RosAppActivity extends RosActivity {
 			intent.putExtra("ChooserURI", uri.toString());
             intent.putExtra("RobotType",robotDescription.getRobotType());
             intent.putExtra("RobotName",robotDescription.getRobotName());
-            intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
+            intent.setAction(managedApplicationActivity);
+            //intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
 			finish();
