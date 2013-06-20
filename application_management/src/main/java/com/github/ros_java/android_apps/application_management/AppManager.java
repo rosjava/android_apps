@@ -63,7 +63,6 @@ public class AppManager extends AbstractNodeMain {
 	static public final String PACKAGE = "com.github.ros_java.android_apps.application_management.AppManager";
 	private static final String startTopic = "start_app";
 	private static final String stopTopic = "stop_app";
-    private static final String platformInfoService = "platform_info";
 	private static final String listService = "list_apps";
 
 	private String appName;
