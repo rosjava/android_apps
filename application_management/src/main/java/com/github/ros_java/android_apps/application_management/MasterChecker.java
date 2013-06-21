@@ -159,7 +159,6 @@ public class MasterChecker {
                 } else {
                     robotDescription.setConnectionStatus(RobotDescription.UNAVAILABLE);
                 }
-
                 foundMasterCallback.receive(robotDescription);
                 return;
             } catch (Throwable ex) {

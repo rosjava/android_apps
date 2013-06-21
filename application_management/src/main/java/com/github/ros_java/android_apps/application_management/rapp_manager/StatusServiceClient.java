@@ -41,7 +41,7 @@ public class StatusServiceClient extends AbstractNodeMain {
             @Override
             public void onSuccess(StatusResponse message) {
                 //isAvailable = ( message.getRemoteController() == Constants.NO_REMOTE_CONNECTION) ? Boolean.TRUE : Boolean.FALSE;
-                if ( message.getRemoteController() == Constants.NO_REMOTE_CONNECTION) {
+                if ( message.getRemoteController().equals(Constants.NO_REMOTE_CONNECTION)) {
                     Log.i("ApplicationManagement", "rapp manager is available");
                     isAvailable = Boolean.TRUE;
                 } else {

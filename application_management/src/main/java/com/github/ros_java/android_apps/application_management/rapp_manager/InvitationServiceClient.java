@@ -54,13 +54,22 @@ public class InvitationServiceClient extends AbstractNodeMain {
 
     /**
      * Utility function to block until the callback gets processed.
+     *
+     * It returns an error if it's timed out.
      */
-    public void waitForResponse() {
-        while (invitationAccepted == null) {
+    public Boolean waitForResponse() {
+        int count = 0;
+        while ( (invitationAccepted == null) && (count < 20) ) {
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
             }
+            count = count + 1;
+        }
+        if ( count < 20 ) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
         }
     }
 
@@ -76,7 +85,7 @@ public class InvitationServiceClient extends AbstractNodeMain {
         }
         this.connectedNode = connectedNode;
         NameResolver resolver = this.connectedNode.getResolver().newChild(this.namespace);
-        String serviceName = resolver.resolve("invite").toString();
+        String serviceName = resolver.resolve("pairing_mode_invite").toString();
         ServiceClient<InviteRequest, InviteResponse> client;
         try {
             Log.d("ApplicationManagement", "service client created [" + serviceName + "]");

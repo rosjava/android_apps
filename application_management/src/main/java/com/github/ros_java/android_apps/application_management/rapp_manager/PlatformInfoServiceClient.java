@@ -18,32 +18,25 @@ import org.ros.node.service.ServiceClient;
 import org.ros.node.service.ServiceResponseListener;
 import org.ros.node.topic.Subscriber;
 
-import java.util.ArrayList;
-
 import rocon_app_manager_msgs.Icon;
 import rocon_app_manager_msgs.PlatformInfo;
 import rocon_app_manager_msgs.GetPlatformInfo;
 import rocon_app_manager_msgs.GetPlatformInfoRequest;
 import rocon_app_manager_msgs.GetPlatformInfoResponse;
-import gateway_msgs.GatewayInfo;
 
 /**
  * Communicates with the robot app manager and determines various facets of
  * the platform information. Actually does a bit more than platform info.
  *
- * - Determines the local gateway name belonging to this master.
  * - Determines the robot app manager's namespace.
  * - Retrieves details from the PlatformInfo service.
  */
 public class PlatformInfoServiceClient extends AbstractNodeMain {
     private String namespace; // this is the namespace under which all rapp manager services reside.
     private String robotUniqueName; // unique robot name, simply the above with stripped '/''s.
-    private String localGatewayName = null;
     private ServiceResponseListener<GetPlatformInfoResponse> platformInfoListener;
     private PlatformInfo platformInfo;
     private ConnectedNode connectedNode;
-    private MessageListener<GatewayInfo> gatewayInfoListener;
-    private Subscriber<GatewayInfo> gatewayInfoSubscriber;
 
     /**
      * Configures the service client.
@@ -70,19 +63,13 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
                 Log.e("ApplicationManagement", "failed to get platform information!");
             }
         };
-        this.gatewayInfoListener = new MessageListener<GatewayInfo>() {
-            @Override
-            public void onNewMessage(GatewayInfo message) {
-                localGatewayName = (String) message.getName();
-            }
-        };
     }
 
     /**
      * Utility function to block until platform info's callback gets processed.
      */
     public void waitForResponse() {
-        while( (platformInfo == null) || (localGatewayName == null) ) {
+        while( platformInfo == null ) {
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
@@ -138,12 +125,8 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
             }
         }
 
-        // Find the gateway information
-        NameResolver resolver = this.connectedNode.getResolver().newChild(this.namespace);
-        gatewayInfoSubscriber = this.connectedNode.newSubscriber(resolver.resolve("gateway_info"),"gateway_msgs/GatewaqyInfo");
-        gatewayInfoSubscriber.addMessageListener(gatewayInfoListener);
-
         // Find the platform information
+        NameResolver resolver = this.connectedNode.getResolver().newChild(this.namespace);
         String serviceName = resolver.resolve("platform_info").toString();
         ServiceClient<GetPlatformInfoRequest, GetPlatformInfoResponse> client;
         try {

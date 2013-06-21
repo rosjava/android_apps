@@ -95,6 +95,15 @@ public class RobotDescription implements java.io.Serializable {
         public RobotId getRobotId() {
                 return robotId;
         }
+
+    /**
+     * Convenience accessor to dig into the master uri for this robot.
+     * @return String : the ros master uri for this robot.
+     */
+        public String getMasterUri() {
+            return robotId.getMasterUri();
+        }
+
         public void setRobotId(RobotId robotId) {
                 // TODO: ensure the robot id is sane.
 //              if(false) {
