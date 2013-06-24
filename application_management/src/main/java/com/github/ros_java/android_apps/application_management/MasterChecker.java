@@ -43,7 +43,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
+import org.ros.exception.RemoteException;
+import org.ros.internal.node.client.ParameterClient;
+import org.ros.internal.node.server.NodeIdentifier;
 import org.ros.address.InetAddressFactory;
+import org.ros.exception.ServiceNotFoundException;
+import org.ros.namespace.GraphName;
 import org.ros.node.NodeConfiguration;
 import org.ros.android.NodeMainExecutorService;
 
@@ -135,6 +140,14 @@ public class MasterChecker {
         @Override
         public void run() {
             try {
+                // Check if the master exists - no really good way in rosjava except by checking a standard parameter.
+                ParameterClient paramClient = new ParameterClient(
+                        NodeIdentifier.forNameAndUri("/master_checker", masterUri.toString()), masterUri);
+                // getParam throws when it can't find the parameter.
+                String unused_rosversion = (String) paramClient.getParam(GraphName.of("rosversion")).getResult();
+
+                // Check for the platform information - be sure to check that master exists first otherwise you'll
+                // start a thread which perpetually crashes and triest to re-register in .execute()
                 NodeMainExecutorService nodeMainExecutorService = new NodeMainExecutorService();
                 NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
                         InetAddressFactory.newNonLoopback().getHostAddress(),
@@ -151,6 +164,7 @@ public class MasterChecker {
                 nodeMainExecutorService.shutdownNodeMain(client);
                 nodeMainExecutorService.shutdownNodeMain(statusClient);
 
+                // configure robot description
                 Date timeLastSeen = new Date();
                 RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType, robotIcon,
                         timeLastSeen);
@@ -161,10 +175,18 @@ public class MasterChecker {
                 }
                 foundMasterCallback.receive(robotDescription);
                 return;
-            } catch (Throwable ex) {
-                Log.w("ApplicationManagement", "Exception while creating node in MasterChecker for master URI "
-                        + masterUri, ex);
-                failureCallback.handleFailure(ex.toString());
+            } catch ( java.lang.RuntimeException e) {
+                // thrown if master could not be found in the getParam call (from java.net.ConnectException)
+                Log.w("ApplicationManagement", "could not find the master [" + masterUri + "]");
+                failureCallback.handleFailure(e.toString());
+            } catch (ServiceNotFoundException e) {
+                // thrown by client.waitForResponse() if it times out
+                Log.w("ApplicationManagement", "timed out waiting for the platform info service [" + masterUri + "]");
+                failureCallback.handleFailure(e.toString());
+            } catch (Throwable e) {
+                Log.w("ApplicationManagement", "exception while creating node in masterchecker for master URI "
+                        + masterUri, e);
+                failureCallback.handleFailure(e.toString());
             }
         }
     }

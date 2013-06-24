@@ -1,22 +1,19 @@
 package com.github.ros_java.android_apps.application_management.rapp_manager;
 
 import android.util.Log;
-import android.widget.Toast;
 
+import org.ros.exception.ServiceNotFoundException;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosRuntimeException;
-import org.ros.exception.ServiceNotFoundException;
 import org.ros.master.client.TopicSystemState;
 import org.ros.master.client.SystemState;
 import org.ros.master.client.MasterStateClient;
-import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.service.ServiceClient;
 import org.ros.node.service.ServiceResponseListener;
-import org.ros.node.topic.Subscriber;
 
 import rocon_app_manager_msgs.Icon;
 import rocon_app_manager_msgs.PlatformInfo;
@@ -67,13 +64,21 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
 
     /**
      * Utility function to block until platform info's callback gets processed.
+     *
+     * @throws ServiceNotFoundException : when it times out waiting for the service.
      */
-    public void waitForResponse() {
-        while( platformInfo == null ) {
+    public void waitForResponse() throws ServiceNotFoundException {
+        int count = 0;
+        while ( platformInfo == null ) {
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
+                throw new RosRuntimeException(e);
             }
+            if ( count == 20 ) {  // timeout.
+                throw new ServiceNotFoundException("timed out waiting for a platform_info service response.");
+            }
+            count = count + 1;
         }
     }
 
