@@ -46,7 +46,6 @@ import rocon_app_manager_msgs.StopAppResponse;
  */
 public abstract class RosAppActivity extends RosActivity {
 
-	public static final String ROBOT_DESCRIPTION_EXTRA = "com.github.ros_java.android_apps.application_management.RobotDescription";
 	private String robotAppName = null;
 	private String defaultRobotAppName = null;
 	private String defaultRobotName = null;
@@ -142,9 +141,9 @@ public abstract class RosAppActivity extends RosActivity {
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
         if ( managedApplication ) {
-            if (getIntent().hasExtra(ROBOT_DESCRIPTION_EXTRA)) {
+            if (getIntent().hasExtra(RobotDescription.UNIQUE_KEY)) {
                 robotDescription = (RobotDescription) getIntent()
-                        .getSerializableExtra(ROBOT_DESCRIPTION_EXTRA);
+                        .getSerializableExtra(RobotDescription.UNIQUE_KEY);
             }
         }
 		if (robotDescription != null) {
