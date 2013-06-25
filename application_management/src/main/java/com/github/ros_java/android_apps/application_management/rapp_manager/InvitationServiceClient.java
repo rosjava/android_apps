@@ -84,8 +84,8 @@ public class InvitationServiceClient extends AbstractNodeMain {
             return;
         }
         this.connectedNode = connectedNode;
-        NameResolver resolver = this.connectedNode.getResolver().newChild(this.namespace);
-        String serviceName = resolver.resolve("pairing_mode_invite").toString();
+        NameResolver resolver = this.connectedNode.getResolver().newChild("pairing_master"); //.newChild(this.namespace);
+        String serviceName = resolver.resolve("invite").toString();
         ServiceClient<InviteRequest, InviteResponse> client;
         try {
             Log.d("ApplicationManagement", "service client created [" + serviceName + "]");

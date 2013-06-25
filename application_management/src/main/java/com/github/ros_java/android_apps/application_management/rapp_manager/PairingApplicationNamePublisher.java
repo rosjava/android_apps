@@ -15,7 +15,7 @@ import org.ros.node.topic.Publisher;
  */
 public class PairingApplicationNamePublisher extends AbstractNodeMain {
     private String name;
-    private static final String TOPIC_NAME = "/pairing/android_app_name";
+    private static final String TOPIC_NAME = "/pairing_master/android_app_name";
     private Publisher<std_msgs.String> publisher;
 
     public PairingApplicationNamePublisher(String name) {
