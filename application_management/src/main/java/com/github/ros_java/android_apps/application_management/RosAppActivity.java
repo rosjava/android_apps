@@ -38,6 +38,8 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import com.github.ros_java.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
+
 import rocon_app_manager_msgs.StartAppResponse;
 import rocon_app_manager_msgs.StopAppResponse;
 
@@ -49,6 +51,7 @@ public abstract class RosAppActivity extends RosActivity {
 	private String robotAppName = null;
 	private String defaultRobotAppName = null;
 	private String defaultRobotName = null;
+    private String androidApplicationName; // descriptive helper only
     /*
       By default we assume the rosappactivity is launched independantly.
       The following flag is used to identify when it has instead been
@@ -56,6 +59,7 @@ public abstract class RosAppActivity extends RosActivity {
      */
     private boolean managedApplication = false;
     private String managedApplicationActivity = null; // e.g. com.github.ros_java.android_remocons.robot_remocon.RobotRemocon
+    private PairingApplicationNamePublisher managedPairingApplicationNamePublisher;
 
 	private int dashboardResourceId = 0;
 	private int mainWindowId = 0;
@@ -88,6 +92,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 	protected RosAppActivity(String notificationTicker, String notificationTitle) {
 		super(notificationTicker, notificationTitle);
+        this.androidApplicationName = notificationTitle;
 	}
 
 	@Override
@@ -121,6 +126,7 @@ public abstract class RosAppActivity extends RosActivity {
 			robotAppName = defaultRobotAppName;
 		} else {
             managedApplicationActivity = getIntent().getStringExtra("PairedManagerActivity");
+            managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
 			managedApplication = true;
 		}
 
@@ -145,6 +151,8 @@ public abstract class RosAppActivity extends RosActivity {
                 robotDescription = (RobotDescription) getIntent()
                         .getSerializableExtra(RobotDescription.UNIQUE_KEY);
             }
+            nodeMainExecutor.execute(managedPairingApplicationNamePublisher,
+                    nodeConfiguration.setNodeName("pairingApplicationNamePublisher"));
         }
 		if (robotDescription != null) {
             robotNameResolver.setRobot(robotDescription);
@@ -351,9 +359,10 @@ public abstract class RosAppActivity extends RosActivity {
 			Intent intent = new Intent();
 			intent.putExtra(AppManager.PACKAGE + ".robot_app_name",
 					"AppChooser");
+            intent.putExtra(RobotDescription.UNIQUE_KEY, robotDescription);
 			intent.putExtra("ChooserURI", uri.toString());
-            intent.putExtra("RobotType",robotDescription.getRobotType());
-            intent.putExtra("RobotName",robotDescription.getRobotName());
+//            intent.putExtra("RobotType",robotDescription.getRobotType());
+//            intent.putExtra("RobotName",robotDescription.getRobotName());
             intent.setAction(managedApplicationActivity);
             //intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");

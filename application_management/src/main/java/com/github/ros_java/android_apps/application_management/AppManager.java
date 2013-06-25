@@ -56,6 +56,10 @@ import rocon_app_manager_msgs.StopAppResponse;
  *
  * See the RosAppActivity or RobotActivity (in android_remocons) for
  * examples.
+ *
+ * TODO: (DJS) move these into the .rapp_manager module as separate classes.
+ * Since these can only be executed once, there is no real advantage to having
+ * them together and ultimately just makes it difficult to follow the code.
  */
 public class AppManager extends AbstractNodeMain {
 
