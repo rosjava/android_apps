@@ -55,7 +55,8 @@ public class Dashboard implements NodeMain {
 		public void onShutdown(Node node);
 	}
 
-	private static final String turtlebotDashboardPath = "com.github.ros_java.android_apps.application_management.dashboards.TurtlebotDashboard";
+    private static final String defaultDashboardPath = "com.github.ros_java.android_apps.application_management.dashboards.DefaultDashboard";
+	private static final String turtlebotDashboardPath = "com.github.turtlebot.turtlebot_android.turtlebot_core.dashboards.TurtlebotDashboard";
 	private static final String pr2DashboardPath = "com.ros.pr2.apps.core_components.Pr2Dashboard";
 
 	private DashboardInterface dashboard;
@@ -124,13 +125,13 @@ public class Dashboard implements NodeMain {
 	private static DashboardInterface createDashboard(Context context) {
 		if (customDashboardPath != null) {
 			return createDashboard(customDashboardPath, context);
-		} else if (robotName.equals("turtlebot")) {
-			return createDashboard(turtlebotDashboardPath, context);
-		} else if (robotName.equals("pr2")) {
-			return createDashboard(pr2DashboardPath, context);
-		}
-
-		return createDashboard(turtlebotDashboardPath, context); // Default
+//		} else if (robotName.equals("turtlebot")) {
+//			return createDashboard(turtlebotDashboardPath, context);
+//		} else if (robotName.equals("pr2")) {
+//			return createDashboard(pr2DashboardPath, context);
+		} else {
+		    return createDashboard(defaultDashboardPath, context);
+        }
 	}
 
 	@Override
