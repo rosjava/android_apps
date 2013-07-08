@@ -34,6 +34,7 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
     private ServiceResponseListener<GetPlatformInfoResponse> platformInfoListener;
     private PlatformInfo platformInfo;
     private ConnectedNode connectedNode;
+    private String errorMessage = "";
 
     /**
      * Configures the service client.
@@ -70,13 +71,16 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
     public void waitForResponse() throws ServiceNotFoundException {
         int count = 0;
         while ( platformInfo == null ) {
+            if ( errorMessage != "" ) {  // errorMessage gets set by an exception in the run method
+                throw new ServiceNotFoundException(errorMessage);
+            }
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
                 throw new RosRuntimeException(e);
             }
             if ( count == 20 ) {  // timeout.
-                throw new ServiceNotFoundException("timed out waiting for a platform_info service response.");
+                throw new ServiceNotFoundException("timed out waiting for a platform_info service response");
             }
             count = count + 1;
         }
@@ -106,6 +110,12 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
         return this.platformInfo.getIcon();
     }
 
+    /**
+     * This gets executed by the nodeMainExecutor. Note that any exception handling here will set an error
+     * message that can be picked up when calling the waitForResponse() method.
+     *
+     * @param connectedNode
+     */
     @Override
     public void onStart(final ConnectedNode connectedNode) {
         if (this.connectedNode != null) {
@@ -135,15 +145,17 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
         String serviceName = resolver.resolve("platform_info").toString();
         ServiceClient<GetPlatformInfoRequest, GetPlatformInfoResponse> client;
         try {
-            Log.d("ApplicationManagement", "service client created [" + serviceName + "]");
             client = connectedNode.newServiceClient(serviceName,
                     GetPlatformInfo._TYPE);
+            Log.d("ApplicationManagement", "service client created [" + serviceName + "]");
         } catch (ServiceNotFoundException e) {
             Log.w("ApplicationManagement", "service not found [" + serviceName + "]");
-            throw new RosRuntimeException(e);
+            errorMessage = "service not found [" + serviceName + "]";
+            return;
         } catch (RosRuntimeException e) {
-            Log.e("ApplicationManagement", "failed to create client [" + e.getMessage() + "]");
-            throw e;
+            errorMessage = "couldn't connect to the platform_info service [is ROS_IP set?][" + e.getMessage() + "]";
+            Log.e("ApplicationManagement", "couldn't connect to the platform_info service [is ROS_IP set?][" + e.getMessage() + "]");
+            return;
         }
         final GetPlatformInfoRequest request = client.newMessage();
         client.call(request, platformInfoListener);
