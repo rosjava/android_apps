@@ -119,14 +119,16 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
     @Override
     public void onStart(final ConnectedNode connectedNode) {
         if (this.connectedNode != null) {
-            Log.e("ApplicationManagement", "service client instances may only ever be executed once.");
+            errorMessage = "service client instances may only ever be executed once";
+            Log.e("ApplicationManagement", errorMessage + ".");
             return;
         }
         this.connectedNode = connectedNode;
 
         // Find the rapp manager namespace
-        if ( this.namespace == null ) {
-            MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());
+        int count = 0;
+        MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());
+        while ( this.namespace == null ) {
             SystemState systemState = masterClient.getSystemState();
             for (TopicSystemState topic : systemState.getTopics()) {
                 String name = topic.getTopicName();
@@ -138,6 +140,19 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
                     break;
                 }
             }
+            try {
+                Thread.sleep(200);
+            } catch (Exception e) {
+                errorMessage = "interrupted while looking for the robot app manager.";
+                Log.w("ApplicationManagement", errorMessage);
+                return;
+            }
+            if ( count == 10 ) {  // timeout - 2s.
+                errorMessage = "Timed out waiting for the robot app manager to appear.";
+                Log.w("ApplicationManagement", errorMessage);
+                return;
+            }
+            count = count + 1;
         }
 
         // Find the platform information
@@ -149,12 +164,12 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
                     GetPlatformInfo._TYPE);
             Log.d("ApplicationManagement", "service client created [" + serviceName + "]");
         } catch (ServiceNotFoundException e) {
-            Log.w("ApplicationManagement", "service not found [" + serviceName + "]");
-            errorMessage = "service not found [" + serviceName + "]";
+            errorMessage = "Service not found [" + serviceName + "]";
+            Log.w("ApplicationManagement", errorMessage);
             return;
         } catch (RosRuntimeException e) {
-            errorMessage = "couldn't connect to the platform_info service [is ROS_IP set?][" + e.getMessage() + "]";
-            Log.e("ApplicationManagement", "couldn't connect to the platform_info service [is ROS_IP set?][" + e.getMessage() + "]");
+            errorMessage = "Couldn't connect to the platform_info service [is ROS_IP set?][" + e.getMessage() + "]";
+            Log.e("ApplicationManagement", errorMessage);
             return;
         }
         final GetPlatformInfoRequest request = client.newMessage();
