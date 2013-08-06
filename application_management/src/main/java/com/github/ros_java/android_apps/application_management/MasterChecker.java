@@ -43,7 +43,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
 
-import org.ros.exception.RemoteException;
+import org.ros.exception.RosRuntimeException;
 import org.ros.internal.node.client.ParameterClient;
 import org.ros.internal.node.server.NodeIdentifier;
 import org.ros.address.InetAddressFactory;
@@ -181,8 +181,8 @@ public class MasterChecker {
                 failureCallback.handleFailure(e.toString());
             } catch (ServiceNotFoundException e) {
                 // thrown by client.waitForResponse() if it times out
-                Log.w("ApplicationManagement", "timed out waiting for the platform info service [" + masterUri + "]");
-                failureCallback.handleFailure(e.toString());
+                Log.w("ApplicationManagement", e.getMessage()); // e.getMessage() is a little less verbose (no org.ros.exception.ServiceNotFoundException prefix)
+                failureCallback.handleFailure(e.getMessage());  // don't need the master uri, it's already shown above in the robot description from input method.
             } catch (Throwable e) {
                 Log.w("ApplicationManagement", "exception while creating node in masterchecker for master URI "
                         + masterUri, e);

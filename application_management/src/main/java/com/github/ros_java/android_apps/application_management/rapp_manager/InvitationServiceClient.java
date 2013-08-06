@@ -95,7 +95,7 @@ public class InvitationServiceClient extends AbstractNodeMain {
             Log.w("ApplicationManagement", "service not found [" + serviceName + "]");
             throw new RosRuntimeException(e);
         } catch (RosRuntimeException e) {
-            Log.e("ApplicationManagement", "failed to create client [" + e.getMessage() + "]");
+            Log.e("ApplicationManagement", "failed to create connection to the rapp manager's invite service [" + e.getMessage() + "]");
             throw e;
         }
         final InviteRequest request = client.newMessage();
