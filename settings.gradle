@@ -15,10 +15,8 @@
  */
 
 include 'application_management'
-/*
-include 'android_teleop'
-include 'android_make_a_map'
-include 'android_map_manager'
-include 'android_map_nav'
-*/
+include 'teleop'
+include 'make_a_map'
+include 'map_manager'
+include 'map_nav'
 include 'listener'
