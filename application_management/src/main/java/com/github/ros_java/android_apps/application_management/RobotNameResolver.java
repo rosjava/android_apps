@@ -9,6 +9,7 @@ import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
+import org.ros.exception.RosRuntimeException;
 
 public class RobotNameResolver extends AbstractNodeMain {
 
@@ -61,6 +62,7 @@ public class RobotNameResolver extends AbstractNodeMain {
             try {
                 Thread.sleep(100);
             } catch (Exception e) {
+                Log.w("RobotRemocon", "robot name waitForResolver caught an arbitrary exception");
             }
         }
     }
@@ -78,9 +80,9 @@ public class RobotNameResolver extends AbstractNodeMain {
      */
 	public void onStart(final ConnectedNode connectedNode) {
 		this.connectedNode = connectedNode;
-		if (currentRobot != null) {
-			name = GraphName.of(currentRobot.getRobotName());
-		} else {
+        if (currentRobot != null) {
+            name = GraphName.of(currentRobot.getRobotName());
+        } else {
             // This is duplicated in PlatformInfoServiceClient and could be better stored somewhere, but it's not much.
             MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());
             SystemState systemState = masterClient.getSystemState();
@@ -96,7 +98,7 @@ public class RobotNameResolver extends AbstractNodeMain {
         }
         applicationNamespace = name.join(GraphName.of("application"));  // hard coded, might we need to change this?
         applicationNamespaceResolver = connectedNode.getResolver().newChild(applicationNamespace);
-		robotNameResolver = connectedNode.getResolver().newChild(name);
+        robotNameResolver = connectedNode.getResolver().newChild(name);
         resolved = true;
 	}
 }

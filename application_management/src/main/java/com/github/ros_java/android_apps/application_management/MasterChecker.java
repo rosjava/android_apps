@@ -177,7 +177,7 @@ public class MasterChecker {
                 return;
             } catch ( java.lang.RuntimeException e) {
                 // thrown if master could not be found in the getParam call (from java.net.ConnectException)
-                Log.w("ApplicationManagement", "could not find the master [" + masterUri + "]");
+                Log.w("ApplicationManagement", "could not find the master [" + masterUri + "][" + e.toString() + "]");
                 failureCallback.handleFailure(e.toString());
             } catch (ServiceNotFoundException e) {
                 // thrown by client.waitForResponse() if it times out

@@ -28,6 +28,7 @@ public class InvitationServiceClient extends AbstractNodeMain {
     private ServiceResponseListener<InviteResponse> listener;
     private Boolean invitationAccepted = null;
     private ConnectedNode connectedNode;
+    private Boolean cancel;
 
     /**
      * Configures the service client.
@@ -35,7 +36,16 @@ public class InvitationServiceClient extends AbstractNodeMain {
      * @param namespace : namespace for the app manager's services
      */
     public InvitationServiceClient(String namespace) {
+        init(namespace, Boolean.FALSE);
+    }
+
+    public InvitationServiceClient(String namespace, Boolean cancel) {
+        init(namespace, cancel);
+    }
+
+    private void init(String namespace, Boolean cancel) {
         this.namespace = namespace;
+        this.cancel = cancel;
         this.listener = new ServiceResponseListener<InviteResponse>() {
             @Override
             public void onSuccess(InviteResponse message) {
@@ -99,6 +109,8 @@ public class InvitationServiceClient extends AbstractNodeMain {
             throw e;
         }
         final InviteRequest request = client.newMessage();
+        request.setApplicationNamespace(this.namespace);
+        request.setCancel(this.cancel);
         client.call(request, listener);
         Log.d("ApplicationManagement", "service call done [" + serviceName + "]");
     }
