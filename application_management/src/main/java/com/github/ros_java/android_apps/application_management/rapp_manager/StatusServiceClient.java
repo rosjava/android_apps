@@ -21,21 +21,24 @@ import rocon_app_manager_msgs.StatusResponse;
  * Service with which the android client can check the current status
  * of the robot app manager (whether it is currently controlled remotely
  * or not).
+ *
+ * Note: if we are the controller, we set the isAvailable result to TRUE.
  */
 public class StatusServiceClient extends AbstractNodeMain {
     private String namespace; // this is the namespace under which all rapp manager services reside.
     private ServiceResponseListener<StatusResponse> listener;
     private ConnectedNode connectedNode;
     // private String applicationNamespace; // namespace under which the rapp manager launches apps.
-    // private String remoteController;
-    private Boolean isAvailable = null;
+    private String remoteController = "";
+    private Boolean isAvailable = null; // set this to true if it is free OR we are already controlling it.
 
     /**
      * Configures the service client.
      *
      * @param namespace : namespace for the app manager's services
+     * @param ourControllerName : our gateway name (check off against the remote controller to see if its us controlling it)
      */
-    public StatusServiceClient(String namespace) {
+    public StatusServiceClient(String namespace, final String ourControllerName) {
         this.namespace = namespace;
         this.listener = new ServiceResponseListener<StatusResponse>() {
             @Override
@@ -45,8 +48,13 @@ public class StatusServiceClient extends AbstractNodeMain {
                     Log.i("ApplicationManagement", "rapp manager is available");
                     isAvailable = Boolean.TRUE;
                 } else {
-                    Log.i("ApplicationManagement", "rapp manager is being remote controlled [" + message.getRemoteController() + "]");
-                    isAvailable = Boolean.FALSE;
+                    if ( ourControllerName.equals(message.getRemoteController())) {
+                        Log.i("ApplicationManagement", "rapp manager is already being remote controlled by us");
+                        isAvailable = Boolean.TRUE;
+                    } else {
+                        Log.i("ApplicationManagement", "rapp manager is being remote controlled [" + message.getRemoteController() + "]");
+                        isAvailable = Boolean.FALSE;
+                    }
                 }
             }
             @Override
@@ -55,6 +63,8 @@ public class StatusServiceClient extends AbstractNodeMain {
             }
         };
     }
+
+    public String getRemoteControllerName() { return remoteController; }
 
     /**
      * Utility function to block until the callback gets processed.

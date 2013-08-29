@@ -5,9 +5,6 @@ import android.util.Log;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosRuntimeException;
 import org.ros.exception.ServiceNotFoundException;
-import org.ros.master.client.MasterStateClient;
-import org.ros.master.client.SystemState;
-import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
@@ -25,6 +22,7 @@ import rocon_app_manager_msgs.InviteResponse;
  */
 public class InvitationServiceClient extends AbstractNodeMain {
     private String namespace; // this is the namespace under which all rapp manager services reside.
+    private String gatewayName; // this is the name of our gateway controller
     private ServiceResponseListener<InviteResponse> listener;
     private Boolean invitationAccepted = null;
     private ConnectedNode connectedNode;
@@ -35,15 +33,16 @@ public class InvitationServiceClient extends AbstractNodeMain {
      *
      * @param namespace : namespace for the app manager's services
      */
-    public InvitationServiceClient(String namespace) {
-        init(namespace, Boolean.FALSE);
+    public InvitationServiceClient(String gatewayName, String namespace) {
+        init(gatewayName, namespace, Boolean.FALSE);
     }
 
-    public InvitationServiceClient(String namespace, Boolean cancel) {
-        init(namespace, cancel);
+    public InvitationServiceClient(String gatewayName, String namespace, Boolean cancel) {
+        init(gatewayName, namespace, cancel);
     }
 
-    private void init(String namespace, Boolean cancel) {
+    private void init(String gatewayName, String namespace, Boolean cancel) {
+        this.gatewayName = gatewayName;
         this.namespace = namespace;
         this.cancel = cancel;
         this.listener = new ServiceResponseListener<InviteResponse>() {
@@ -94,7 +93,8 @@ public class InvitationServiceClient extends AbstractNodeMain {
             return;
         }
         this.connectedNode = connectedNode;
-        NameResolver resolver = this.connectedNode.getResolver().newChild("pairing_master"); //.newChild(this.namespace);
+        NameResolver resolver = this.connectedNode.getResolver().newChild(this.namespace);
+        //NameResolver resolver = this.connectedNode.getResolver().newChild("pairing_master");
         String serviceName = resolver.resolve("invite").toString();
         ServiceClient<InviteRequest, InviteResponse> client;
         try {
@@ -109,6 +109,7 @@ public class InvitationServiceClient extends AbstractNodeMain {
             throw e;
         }
         final InviteRequest request = client.newMessage();
+        request.setRemoteTargetName(this.gatewayName);
         request.setApplicationNamespace(this.namespace);
         request.setCancel(this.cancel);
         client.call(request, listener);

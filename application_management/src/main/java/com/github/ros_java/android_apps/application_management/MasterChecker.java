@@ -36,6 +36,7 @@ package com.github.ros_java.android_apps.application_management;
 
 import android.util.Log;
 
+import com.github.ros_java.android_apps.application_management.rapp_manager.GatewayInfoSubscriber;
 import com.github.ros_java.android_apps.application_management.rapp_manager.PlatformInfoServiceClient;
 import com.github.ros_java.android_apps.application_management.rapp_manager.StatusServiceClient;
 
@@ -152,25 +153,32 @@ public class MasterChecker {
                 NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
                         InetAddressFactory.newNonLoopback().getHostAddress(),
                         masterUri);
+                GatewayInfoSubscriber gatewayInfoClient = new GatewayInfoSubscriber();
+                nodeMainExecutorService.execute(gatewayInfoClient, nodeConfiguration.setNodeName("gateway_info_client_node"));
+                gatewayInfoClient.waitForResponse();
+                String gatewayName = gatewayInfoClient.getGatewayName();
                 PlatformInfoServiceClient client = new PlatformInfoServiceClient();
                 nodeMainExecutorService.execute(client, nodeConfiguration.setNodeName("platform_info_client_node"));
                 client.waitForResponse();
                 String robotName = client.getRobotUniqueName();
                 String robotType = client.getRobotType();
                 Icon robotIcon = client.getRobotIcon();
-                StatusServiceClient statusClient = new StatusServiceClient(client.getRobotAppManagerNamespace());
+                StatusServiceClient statusClient = new StatusServiceClient(client.getRobotAppManagerNamespace(), gatewayName);
                 nodeMainExecutorService.execute(statusClient, nodeConfiguration.setNodeName("status_client_node"));
                 statusClient.waitForResponse();
                 nodeMainExecutorService.shutdownNodeMain(client);
+                nodeMainExecutorService.shutdownNodeMain(gatewayInfoClient);
                 nodeMainExecutorService.shutdownNodeMain(statusClient);
 
                 // configure robot description
                 Date timeLastSeen = new Date();
-                RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType, robotIcon,
+                RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType, robotIcon, gatewayName,
                         timeLastSeen);
                 if (statusClient.isAvailable()) {
+                    Log.i("ApplicationManagement", "rapp manager is available");
                     robotDescription.setConnectionStatus(RobotDescription.OK);
                 } else {
+                    Log.i("ApplicationManagement", "rapp manager is unavailable");
                     robotDescription.setConnectionStatus(RobotDescription.UNAVAILABLE);
                 }
                 foundMasterCallback.receive(robotDescription);
