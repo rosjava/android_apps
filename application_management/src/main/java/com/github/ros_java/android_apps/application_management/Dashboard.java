@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
@@ -55,7 +55,7 @@ public class Dashboard implements NodeMain {
 		public void onShutdown(Node node);
 	}
 
-    private static final String defaultDashboardPath = "com.github.ros_java.android_apps.application_management.dashboards.DefaultDashboard";
+    private static final String defaultDashboardPath = "com.github.rosjava.android_apps.application_management.dashboards.DefaultDashboard";
 	private static final String turtlebotDashboardPath = "com.github.turtlebot.turtlebot_android.turtlebot_core.dashboards.TurtlebotDashboard";
 	private static final String pr2DashboardPath = "com.ros.pr2.apps.core_components.Pr2Dashboard";
 

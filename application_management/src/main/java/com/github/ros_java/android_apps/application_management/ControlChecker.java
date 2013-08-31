@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import android.util.Log;
 import java.io.BufferedReader;

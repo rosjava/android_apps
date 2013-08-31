@@ -1,4 +1,4 @@
-package com.github.ros_java.android_apps.application_management.rapp_manager;
+package com.github.rosjava.android_apps.application_management.rapp_manager;
 
 import org.ros.namespace.GraphName;
 import org.ros.node.AbstractNodeMain;

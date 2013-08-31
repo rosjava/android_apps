@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.make_a_map;
+package com.github.rosjava.android_apps.make_a_map;
 
 
 

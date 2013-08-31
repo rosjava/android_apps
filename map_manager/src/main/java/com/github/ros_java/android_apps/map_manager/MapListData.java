@@ -1,4 +1,4 @@
-package com.github.ros_java.android_apps.map_manager;
+package com.github.rosjava.android_apps.map_manager;
 
 public class MapListData {
 

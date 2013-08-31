@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -65,7 +65,7 @@ public class RobotDescription implements java.io.Serializable {
     private String connectionStatus;
     private Date timeLastSeen;
     // Unique identifier for keys passed between android apps.
-    public static final String UNIQUE_KEY = "com.github.ros_java.android_apps.application_management.RobotDescription";
+    public static final String UNIQUE_KEY = "com.github.rosjava.android_apps.application_management.RobotDescription";
 
     // TODO(kwc): add in canonicalization of robotName
     public RobotDescription() {

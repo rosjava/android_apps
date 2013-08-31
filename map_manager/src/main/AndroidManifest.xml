@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.ros_java.android_apps.map_manager"
+    package="com.github.rosjava.android_apps.map_manager"
     android:versionCode="3"
     android:versionName="1.0" >
 
@@ -12,7 +12,7 @@
     <application android:icon="@drawable/map"
                  android:label="@string/app_name"
                  android:largeHeap="true" >
-        <activity android:name="com.github.ros_java.android_apps.map_manager.MainActivity"
+        <activity android:name="com.github.rosjava.android_apps.map_manager.MainActivity"
                   android:label="@string/app_name"
                   android:screenOrientation="portrait" >
             <intent-filter>
@@ -20,7 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.github.ros_java.android_apps.map_manager.MainActivity" />
+                <action android:name="com.github.rosjava.android_apps.map_manager.MainActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

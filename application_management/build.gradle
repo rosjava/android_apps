@@ -16,7 +16,7 @@
 
 dependencies {
   compile 'ros.android_core:android_gingerbread_mr1:0.0.0-SNAPSHOT'
-  compile 'com.github.ros_java.android_extras:gingerbread:0.1.0'
+  compile 'com.github.rosjava.android_extras:gingerbread:0.1.0'
   compile 'ros.rosjava_core:rosjava:0.0.0-SNAPSHOT'
 }
 

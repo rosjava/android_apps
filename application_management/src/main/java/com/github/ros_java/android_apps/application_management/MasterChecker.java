@@ -32,13 +32,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import android.util.Log;
 
-import com.github.ros_java.android_apps.application_management.rapp_manager.GatewayInfoSubscriber;
-import com.github.ros_java.android_apps.application_management.rapp_manager.PlatformInfoServiceClient;
-import com.github.ros_java.android_apps.application_management.rapp_manager.StatusServiceClient;
+import com.github.rosjava.android_apps.application_management.rapp_manager.GatewayInfoSubscriber;
+import com.github.rosjava.android_apps.application_management.rapp_manager.PlatformInfoServiceClient;
+import com.github.rosjava.android_apps.application_management.rapp_manager.StatusServiceClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
