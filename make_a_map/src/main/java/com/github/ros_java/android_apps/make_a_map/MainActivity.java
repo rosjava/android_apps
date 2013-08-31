@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.make_a_map;
+package com.github.rosjava.android_apps.make_a_map;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import map_store.SaveMapResponse;
 
-import com.github.ros_java.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_apps.application_management.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

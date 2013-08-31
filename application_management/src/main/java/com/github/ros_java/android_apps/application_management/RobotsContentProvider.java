@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -64,7 +64,7 @@ public class RobotsContentProvider extends ContentProvider {
     }
   }
 
-  public static final Uri CONTENT_URI = Uri.parse("content://com.github.ros_java.android_apps.application_management");
+  public static final Uri CONTENT_URI = Uri.parse("content://com.github.rosjava.android_apps.application_management");
   private static final int DATABASE_VERSION = 2;
   private static final String DATABASE_NAME = "robotlist_table";
   private static final String TABLE_NAME = "robotlist";

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.map_nav;
+package com.github.rosjava.android_apps.map_nav;
 
 import java.sql.Date;
 import java.text.DateFormat;
@@ -35,7 +35,7 @@ import map_store.ListMapsResponse;
 import map_store.MapListEntry;
 import map_store.PublishMapResponse;
 
-import com.github.ros_java.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_apps.application_management.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

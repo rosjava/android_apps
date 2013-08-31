@@ -1,4 +1,4 @@
-package com.github.ros_java.android_apps.listener;
+package com.github.rosjava.android_apps.listener;
 
 import java.net.URI;
 
@@ -23,7 +23,7 @@ import org.ros.android.MessageCallable;
 import org.ros.android.view.RosTextView;
 
 // Android App Imports
-import com.github.ros_java.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_apps.application_management.RosAppActivity;
 
 import std_msgs.*;
 

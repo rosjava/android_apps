@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import android.util.Log;
 
@@ -64,7 +64,7 @@ import rocon_app_manager_msgs.StopAppResponse;
 public class AppManager extends AbstractNodeMain {
 
     // unique identifier to key string variables between activities.
-	static public final String PACKAGE = "com.github.ros_java.android_apps.application_management.AppManager";
+	static public final String PACKAGE = "com.github.rosjava.android_apps.application_management.AppManager";
 	private static final String startTopic = "start_app";
 	private static final String stopTopic = "stop_app";
 	private static final String listService = "list_apps";

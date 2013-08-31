@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.application_management;
+package com.github.rosjava.android_apps.application_management;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,7 +38,7 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
-import com.github.ros_java.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
+import com.github.rosjava.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
 
 import rocon_app_manager_msgs.StartAppResponse;
 import rocon_app_manager_msgs.StopAppResponse;
@@ -58,7 +58,7 @@ public abstract class RosAppActivity extends RosActivity {
       launched by a controlling application (e.g. remocons).
      */
     private boolean managedApplication = false;
-    private String managedApplicationActivity = null; // e.g. com.github.ros_java.android_remocons.robot_remocon.RobotRemocon
+    private String managedApplicationActivity = null; // e.g. com.github.rosjava.android_remocons.robot_remocon.RobotRemocon
     private PairingApplicationNamePublisher managedPairingApplicationNamePublisher;
 
 	private int dashboardResourceId = 0;

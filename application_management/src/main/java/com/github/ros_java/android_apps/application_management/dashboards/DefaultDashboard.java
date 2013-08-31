@@ -32,16 +32,16 @@
  */
 
 
-package com.github.ros_java.android_apps.application_management.dashboards;
+package com.github.rosjava.android_apps.application_management.dashboards;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 
-import com.github.ros_java.android_apps.application_management.Dashboard.DashboardInterface;
-import com.github.ros_java.android_apps.application_management.R;
-import com.github.ros_java.android_extras.gingerbread.view.BatteryLevelView;
+import com.github.rosjava.android_apps.application_management.Dashboard.DashboardInterface;
+import com.github.rosjava.android_apps.application_management.R;
+import com.github.rosjava.android_extras.gingerbread.view.BatteryLevelView;
 
 import org.ros.exception.RosException;
 import org.ros.message.MessageListener;

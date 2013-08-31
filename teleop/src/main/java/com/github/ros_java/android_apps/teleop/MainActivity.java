@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.teleop;
+package com.github.rosjava.android_apps.teleop;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,7 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.github.ros_java.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_apps.application_management.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

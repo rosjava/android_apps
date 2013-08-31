@@ -14,7 +14,7 @@
  * the License.
  */
 
-package com.github.ros_java.android_apps.map_manager;
+package com.github.rosjava.android_apps.map_manager;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.github.ros_java.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_apps.application_management.RosAppActivity;
 
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

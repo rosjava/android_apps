@@ -1,4 +1,4 @@
-package com.github.ros_java.android_apps.map_nav;
+package com.github.rosjava.android_apps.map_nav;
 
 import javax.microedition.khronos.opengles.GL10;
 
