@@ -10,6 +10,7 @@ import org.ros.android.view.visualization.shape.Shape;
 import org.ros.message.MessageListener;
 import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
+import org.ros.rosjava_geometry.FrameName;
 import org.ros.rosjava_geometry.FrameTransform;
 import org.ros.rosjava_geometry.FrameTransformTree;
 import org.ros.rosjava_geometry.Transform;
@@ -20,7 +21,7 @@ public class InitialPoseSubscriberLayer extends
 		SubscriberLayer<geometry_msgs.PoseStamped> implements TfLayer {
 
 	private static final String ROBOT_FRAME = "base_link";
-	private final GraphName targetFrame;
+	private final FrameName targetFrame;
 
 	private Shape shape;
 
@@ -30,7 +31,7 @@ public class InitialPoseSubscriberLayer extends
 
 	public InitialPoseSubscriberLayer(GraphName topic) {
 		super(topic, "geometry_msgs/PoseStamped");
-		targetFrame = GraphName.of(ROBOT_FRAME);
+		targetFrame = FrameName.of(ROBOT_FRAME);
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class InitialPoseSubscriberLayer extends
 				new MessageListener<geometry_msgs.PoseStamped>() {
 					@Override
 					public void onNewMessage(geometry_msgs.PoseStamped pose) {
-						GraphName source = GraphName.of(pose.getHeader()
+						FrameName source = FrameName.of(pose.getHeader()
 								.getFrameId());
 						FrameTransform frameTransform = frameTransformTree
 								.transform(source, targetFrame);
@@ -62,7 +63,7 @@ public class InitialPoseSubscriberLayer extends
 	}
 
 	@Override
-	public GraphName getFrame() {
+	public FrameName getFrame() {
 		return targetFrame;
 	}
 }

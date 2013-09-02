@@ -21,6 +21,7 @@ import org.ros.namespace.NameResolver;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.topic.Publisher;
+import org.ros.rosjava_geometry.FrameName;
 import org.ros.rosjava_geometry.FrameTransformTree;
 import org.ros.rosjava_geometry.Transform;
 import org.ros.rosjava_geometry.Vector3;
@@ -117,7 +118,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 							Transform.zRotation(angle2));
 					camera.setFrame(ROBOT_FRAME);
 					poseStamped = fixedPose.toPoseStampedMessage(
-							GraphName.of(ROBOT_FRAME),
+							FrameName.of(ROBOT_FRAME),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 
@@ -133,7 +134,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 					break;
 				case GOAL_MODE:
 					poseStamped = pose.toPoseStampedMessage(
-							GraphName.of(ROBOT_FRAME),
+							FrameName.of(ROBOT_FRAME),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 					androidGoalPublisher.publish(poseStamped);
