@@ -37,6 +37,7 @@ import map_store.PublishMapResponse;
 
 import com.github.rosjava.android_apps.application_management.RosAppActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.visualization.layer.RobotLayer;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -47,6 +48,7 @@ import org.ros.android.view.VirtualJoystickView;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.android.view.visualization.layer.OccupancyGridLayer;
+import org.ros.android.view.visualization.layer.LaserScanLayer;
 import org.ros.android.view.visualization.layer.PathLayer;
 import org.ros.android.view.visualization.layer.PoseSubscriberLayer;
 import org.ros.exception.RemoteException;
@@ -62,8 +64,8 @@ public class MainActivity extends RosAppActivity {
 	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
     private static final String virtualJoystickTopic = "android/virtual_joystick/cmd_vel";
     private static final String mapTopic = "map";
+    private static final String scanTopic = "scan";
     private static final String pathLayerTopic = "move_base/TrajectoryPlannerROS/global_plan";
-    private static final String poseSubTopic = "amcl_pose";
     private static final String initialPoseTopic = "initialpose";
 
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
@@ -149,30 +151,30 @@ public class MainActivity extends RosAppActivity {
 				mapView, mainLayout, sideLayout);
 
 		viewControlLayer.addListener(new CameraControlListener() {
-			@Override
-			public void onZoom(double focusX, double focusY, double factor) {
+            @Override
+            public void onZoom(double focusX, double focusY, double factor) {
 
-			}
+            }
 
-			@Override
-			public void onTranslate(float distanceX, float distanceY) {
+            @Override
+            public void onTranslate(float distanceX, float distanceY) {
 
-			}
+            }
 
-			@Override
-			public void onRotate(double focusX, double focusY, double deltaAngle) {
+            @Override
+            public void onRotate(double focusX, double focusY, double deltaAngle) {
 
-			}
-		});
+            }
+        });
 
 		mapView.addLayer(viewControlLayer);
 		mapView.addLayer(new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString()));
+        mapView.addLayer(new LaserScanLayer(appNameSpace.resolve(scanTopic).toString()));
         mapView.addLayer(new PathLayer(appNameSpace.resolve(pathLayerTopic).toString()));
         mapPosePublisherLayer = new MapPosePublisherLayer(appNameSpace, this);
 		mapView.addLayer(mapPosePublisherLayer);
 		mapView.addLayer(new InitialPoseSubscriberLayer(
                 appNameSpace.resolve(initialPoseTopic).toString()));
-		mapView.addLayer(new PoseSubscriberLayer(appNameSpace.resolve(poseSubTopic).toString()));
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
