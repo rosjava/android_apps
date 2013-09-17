@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="application_management/src/main/java"/>
+	<classpathentry kind="src" path="listener/src/main/java"/>
+	<classpathentry kind="src" path="make_a_map/src/main/java"/>
+	<classpathentry kind="src" path="map_manager/src/main/java"/>
+	<classpathentry kind="src" path="map_nav/src/main/java"/>
+	<classpathentry kind="src" path="teleop/src/main/java"/>
+	<classpathentry kind="lib" path="gradle/wrapper/gradle-wrapper.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -6,8 +6,6 @@ local.properties
 proguard-project.txt
 .gradle
 build
-.project
-.classpath
 
 # These are Android Studio files, might be worth including these later.
 .idea

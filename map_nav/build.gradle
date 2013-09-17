@@ -15,14 +15,15 @@
  */
 dependencies {
   compile project(':application_management')
-  compile 'ros.android_core:android_honeycomb_mr2:0.0.0-SNAPSHOT'
-  compile 'ros.rosjava_core:rosjava_geometry:0.0.0-SNAPSHOT'
+  compile 'org.ros.android_core:android_honeycomb_mr2:0.1.+'
+  compile 'org.ros.rosjava_core:rosjava_geometry:0.1.+'
+  compile 'org.ros.rosjava_messages:map_store:0.3.+'
+  compile 'org.ros.rosjava_messages:move_base_msgs:1.11.+'
 }
 
 apply plugin: 'android'
 
 android {
     compileSdkVersion 13
-    buildToolsVersion androidBuildToolsVersion
 }
 
