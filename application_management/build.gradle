@@ -15,12 +15,12 @@
  */
 
 dependencies {
-  compile 'org.ros.android_core:android_gingerbread_mr1:0.1.+'
-  compile 'com.github.rosjava.android_extras:gingerbread:0.1.+'
-  compile 'org.ros.rosjava_core:rosjava:0.1.+'
-  compile 'org.ros.rosjava_messages:rocon_app_manager_msgs:0.6.+'
-  compile 'org.ros.rosjava_messages:gateway_msgs:0.6.+'
-  compile 'org.ros.rosjava_messages:diagnostic_msgs:1.10.+'
+  compile 'org.ros.android_core:android_gingerbread_mr1:[0.2,)'
+  compile 'com.github.rosjava.android_extras:gingerbread:[0.2,)'
+  compile 'org.ros.rosjava_core:rosjava:[0.2,)'
+  compile 'org.ros.rosjava_messages:rocon_app_manager_msgs:[0.6,)'
+  compile 'org.ros.rosjava_messages:gateway_msgs:[0.6,)'
+  compile 'org.ros.rosjava_messages:diagnostic_msgs:[1.10,)'
 }
 
 apply plugin: 'android-library'
