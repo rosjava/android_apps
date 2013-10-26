@@ -15,7 +15,7 @@
  */
 dependencies {
   compile project(':application_management')
-  compile 'org.ros.android_core:android_honeycomb_mr2:[0.2,)'
+  compile 'org.ros.android_core:android_15:[0.2,)'
   compile 'org.ros.rosjava_core:rosjava_geometry:[0.2,)'
   compile 'org.ros.rosjava_messages:map_store:[0.3,)'
   compile 'org.ros.rosjava_messages:move_base_msgs:[1.11,)'
