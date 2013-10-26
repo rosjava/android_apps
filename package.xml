@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>android_apps</name>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
   <description>
     Applications for robot-android pairing..
   </description>
