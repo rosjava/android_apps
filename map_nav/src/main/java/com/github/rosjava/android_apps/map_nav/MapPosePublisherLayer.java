@@ -11,7 +11,7 @@ import move_base_msgs.MoveBaseActionGoal;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import org.ros.android.view.visualization.Camera;
+import org.ros.android.view.visualization.XYOrthographicCamera;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.DefaultLayer;
 import org.ros.android.view.visualization.shape.PoseShape;
@@ -46,7 +46,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 	private GestureDetector gestureDetector;
 	private Transform pose;
 	private Transform fixedPose;
-	private Camera camera;
+	private XYOrthographicCamera camera;
 	private ConnectedNode connectedNode;
 	private int mode;
 	private static final int POSE_MODE = 0;
@@ -158,7 +158,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 
 	@Override
 	public void onStart(ConnectedNode connectedNode, Handler handler,
-			FrameTransformTree frameTransformTree, final Camera camera) {
+			FrameTransformTree frameTransformTree, final XYOrthographicCamera camera) {
 		this.connectedNode = connectedNode;
 		this.camera = camera;
 		shape = new PoseShape(camera);

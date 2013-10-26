@@ -2,7 +2,7 @@ package com.github.rosjava.android_apps.map_nav;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import org.ros.android.view.visualization.Camera;
+import org.ros.android.view.visualization.XYOrthographicCamera;
 import org.ros.android.view.visualization.layer.SubscriberLayer;
 import org.ros.android.view.visualization.layer.TfLayer;
 import org.ros.android.view.visualization.shape.RobotShape;
@@ -41,7 +41,7 @@ public class InitialPoseSubscriberLayer extends
 
 	@Override
 	public void onStart(ConnectedNode connectedNode, Handler handler,
-			final FrameTransformTree frameTransformTree, Camera camera) {
+			final FrameTransformTree frameTransformTree, XYOrthographicCamera camera) {
 		super.onStart(connectedNode, handler, frameTransformTree, camera);
 	    shape = new RobotShape();
 		getSubscriber().addMessageListener(

@@ -27,7 +27,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import org.ros.android.view.RosImageView;
-import org.ros.android.view.visualization.Camera;
+import org.ros.android.view.visualization.XYOrthographicCamera;
 import org.ros.android.view.visualization.RotateGestureDetector;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.CameraControlLayer;
@@ -159,7 +159,7 @@ public class ViewControlLayer extends CameraControlLayer {
 
     @Override
 	public void onStart(ConnectedNode connectedNode, Handler handler,
-			    FrameTransformTree frameTransformTree, final Camera camera) {
+			    FrameTransformTree frameTransformTree, final XYOrthographicCamera camera) {
 	handler.post(new Runnable() {
 		@Override
 		    public void run() {
