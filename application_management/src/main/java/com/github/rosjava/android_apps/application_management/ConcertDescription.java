@@ -50,7 +50,7 @@ public class ConcertDescription implements java.io.Serializable {
     private static final String NAME_UNKNOWN = "Unknown";
     private static final String TYPE_UNKNOWN = "Unknown";
     private static final long serialVersionUID = 1L;
-    private ConcertId concertId;
+    private MasterId masterId;
     private String concertName;
     private String description;
     private String[] userRoles;
@@ -71,11 +71,11 @@ public class ConcertDescription implements java.io.Serializable {
     public ConcertDescription() {
     }
 
-    public ConcertDescription(ConcertId concertId, String concertName, String description,
+    public ConcertDescription(MasterId masterId, String concertName, String description,
                               rocon_std_msgs.Icon concertIcon, Date timeLastSeen) {
             setConcertName(concertName);
             setDescription(description);
-            setConcertId(concertId);
+            setMasterId(masterId);
             this.concertName = concertName;
             if ( concertIcon != null ) {
                 this.concertIconFormat = concertIcon.getFormat();
@@ -86,7 +86,7 @@ public class ConcertDescription implements java.io.Serializable {
             this.timeLastSeen = timeLastSeen;
     }
     public void copyFrom(ConcertDescription other) {
-            concertId = other.concertId;
+            masterId = other.masterId;
             userRoles = other.userRoles.clone();
             concertName = other.concertName;
             description = other.description;
@@ -97,7 +97,7 @@ public class ConcertDescription implements java.io.Serializable {
             connectionStatus = other.connectionStatus;
             timeLastSeen = other.timeLastSeen;
     }
-    public ConcertId getConcertId() { return concertId; }
+    public MasterId getMasterId() { return masterId; }
     public String getDescription()  { return description; }
     public String getConcertName()  { return concertName; }
     public String[] getUserRoles()  { return userRoles;}
@@ -113,16 +113,16 @@ public class ConcertDescription implements java.io.Serializable {
      * @return String : the ros master uri for this concert.
      */
     public String getMasterUri() {
-        return concertId.getMasterUri();
+        return masterId.getMasterUri();
     }
 
-    public void setConcertId(ConcertId concertId) {
+    public void setMasterId(MasterId masterId) {
             // TODO: ensure the concert id is sane.
 //              if(false) {
 //                      throw new InvalidConcertDescriptionException("Empty Master URI");
 //              }
             // TODO: validate
-            this.concertId = concertId;
+            this.masterId = masterId;
     }
     public void setUserRoles(concert_msgs.Roles roles)
     {
@@ -201,8 +201,8 @@ public class ConcertDescription implements java.io.Serializable {
     public boolean isUnknown() {
             return this.concertName.equals(NAME_UNKNOWN);
     }
-    public static ConcertDescription createUnknown(ConcertId concertId)  {
-            return new ConcertDescription(concertId, NAME_UNKNOWN, TYPE_UNKNOWN, null, new Date());
+    public static ConcertDescription createUnknown(MasterId masterId)  {
+            return new ConcertDescription(masterId, NAME_UNKNOWN, TYPE_UNKNOWN, null, new Date());
     }
     @Override
     public boolean equals(Object o) {
@@ -222,7 +222,7 @@ public class ConcertDescription implements java.io.Serializable {
             ConcertDescription lhs = (ConcertDescription) o;
             // Check each field. Primitive fields, reference fields, and nullable reference
             // fields are all treated differently.
-            return (concertId == null ? lhs.concertId == null : concertId.equals(lhs.concertId));
+            return (masterId == null ? lhs.masterId == null : masterId.equals(lhs.masterId));
     }
     // I need to override equals() so I'm also overriding hashCode() to match.
     @Override
@@ -230,7 +230,7 @@ public class ConcertDescription implements java.io.Serializable {
             // Start with a non-zero constant.
             int result = 17;
             // Include a hash for each field checked by equals().
-            result = 31 * result + (concertId == null ? 0 : concertId.hashCode());
+            result = 31 * result + (masterId == null ? 0 : masterId.hashCode());
             return result;
     }
 }

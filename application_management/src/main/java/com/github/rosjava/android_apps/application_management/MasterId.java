@@ -35,17 +35,17 @@ package com.github.rosjava.android_apps.application_management;
 
 import java.util.Map;
 
-public class ConcertId implements java.io.Serializable {
+public class MasterId implements java.io.Serializable {
   private String masterUri;
   private String controlUri;
   private String wifi;
   private String wifiEncryption;
   private String wifiPassword;
  
-  public ConcertId() {
+  public MasterId() {
   }
  
-  public ConcertId(Map<String, Object> map) {
+  public MasterId(Map<String, Object> map) {
     if (map.containsKey("URL")) {
       this.masterUri = map.get("URL").toString();
     }
@@ -62,7 +62,7 @@ public class ConcertId implements java.io.Serializable {
       this.wifiPassword = map.get("WIFIPW").toString();
     }
   }
-  public ConcertId(String masterUri) {
+  public MasterId(String masterUri) {
     this.masterUri = masterUri;
   }
   public String getMasterUri() {
@@ -112,12 +112,12 @@ public class ConcertId implements java.io.Serializable {
     }
     // Return false if the other object has the wrong type.
     // This type may be an interface depending on the interface's specification.
-    if (!(o instanceof ConcertId)) {
+    if (!(o instanceof MasterId)) {
       return false;
     }
     // Cast to the appropriate type.
     // This will succeed because of the instanceof, and lets us access private fields.
-    ConcertId lhs = (ConcertId) o;
+    MasterId lhs = (MasterId) o;
     return nullSafeEquals(this.masterUri, lhs.masterUri) 
                              && nullSafeEquals(this.controlUri, lhs.controlUri) 
                              && nullSafeEquals(this.wifi, lhs.wifi)
