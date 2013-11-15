@@ -41,10 +41,18 @@ public class MasterId implements java.io.Serializable {
   private String wifi;
   private String wifiEncryption;
   private String wifiPassword;
- 
+
   public MasterId() {
   }
- 
+
+  public MasterId(String masterUri, String controlUri, String wifi, String wifiEncryption, String wifiPassword) {
+    this.masterUri = masterUri;
+    this.controlUri = controlUri;
+    this.wifi = wifi;
+    this.wifiEncryption = wifiEncryption;
+    this.wifiPassword = wifiPassword;
+  }
+
   public MasterId(Map<String, Object> map) {
     if (map.containsKey("URL")) {
       this.masterUri = map.get("URL").toString();
