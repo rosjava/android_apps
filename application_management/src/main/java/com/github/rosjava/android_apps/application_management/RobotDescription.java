@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import rocon_app_manager_msgs.Icon;
 
-public class RobotDescription implements java.io.Serializable {
+public class RobotDescription extends MasterDescription implements java.io.Serializable {
     public static final String CONNECTING = "connecting...";
     public static final String OK = "ok";
     public static final String ERROR = "exception";
