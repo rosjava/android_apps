@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.github.rosjava.android_apps.application_management.ConcertAppActivity;
 import com.github.rosjava.android_apps.application_management.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
@@ -34,19 +35,16 @@ import org.ros.android.view.VirtualJoystickView;
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
-public class MainActivity extends RosAppActivity {
+public class MainActivity extends ConcertAppActivity {
+    private static final String JOYSTICK_TOPIC = "cmd_vel";
+    private static final String CAMERA_TOPIC = "image_color";
 
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
 	private Button backButton;
-    private static final String virtualJoystickTopic = "android/virtual_joystick/cmd_vel";
-	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
-
 
 	public MainActivity() {
-		// The RosActivity constructor configures the notification title and
-		// ticker
-		// messages.
+		// The RosActivity constructor configures the notification title and ticker messages.
 		super("android teleop", "android teleop");
 	}
 
@@ -56,13 +54,13 @@ public class MainActivity extends RosAppActivity {
 		
 		String defaultRobotName = getString(R.string.default_robot);
 		String defaultAppName = getString(R.string.default_app);
-		setDefaultRobotName(defaultRobotName);
+//		setDefaultRobotName(defaultRobotName);
 		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
-		
+
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
 		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
@@ -85,9 +83,15 @@ public class MainActivity extends RosAppActivity {
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
 
-		NameResolver appNameSpace = getAppNameSpace();
-		cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
-        virtualJoystickView.setTopicName(appNameSpace.resolve(virtualJoystickTopic).toString());
+        String joyTopic = remaps.containsKey(JOYSTICK_TOPIC) ?
+                remaps.get(JOYSTICK_TOPIC) : getString(R.string.default_joystick_topic);
+
+        String camTopic = remaps.containsKey(CAMERA_TOPIC) ?
+                remaps.get(CAMERA_TOPIC) : getString(R.string.default_camera_topic);
+
+        NameResolver appNameSpace = getAppNameSpace();
+		cameraView.setTopicName(appNameSpace.resolve(camTopic).toString());
+        virtualJoystickView.setTopicName(appNameSpace.resolve(joyTopic).toString());
 		
 		nodeMainExecutor.execute(cameraView, nodeConfiguration
 				.setNodeName("android/camera_view"));
