@@ -15,11 +15,11 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.service.ServiceClient;
 import org.ros.node.service.ServiceResponseListener;
 
-import rocon_app_manager_msgs.Icon;
-import rocon_app_manager_msgs.PlatformInfo;
-import rocon_app_manager_msgs.GetPlatformInfo;
-import rocon_app_manager_msgs.GetPlatformInfoRequest;
-import rocon_app_manager_msgs.GetPlatformInfoResponse;
+import rocon_std_msgs.Icon;
+import rocon_std_msgs.PlatformInfo;
+import rocon_std_msgs.GetPlatformInfo;
+import rocon_std_msgs.GetPlatformInfoRequest;
+import rocon_std_msgs.GetPlatformInfoResponse;
 
 /**
  * Communicates with the robot app manager and determines various facets of
@@ -103,7 +103,7 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
     }
 
     public String getRobotType() {
-        return this.platformInfo.getRobot();
+        return this.platformInfo.getName();
     }
 
     public Icon getRobotIcon() {
