@@ -16,6 +16,7 @@
 
 package com.github.rosjava.android_apps.application_management;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
@@ -71,7 +72,9 @@ public abstract class ConcertAppActivity extends RosActivity {
 	private String defaultMasterName = "";
     private String androidApplicationName; // descriptive helper only
 //    private boolean managedApplication = false;
-    private String managedApplicationActivity = null; // e.g. com.github.rosjava.android_remocons.robot_remocon.RobotRemocon
+    private String remoconActivity = null;  // The remocon activity to start when finishing this app
+                                            // e.g. com.github.rosjava.android_remocons.robot_remocon.RobotRemocon
+    private Serializable remoconExtraData = null; // Extra data for remocon (something inheriting from MasterDescription)
     private PairingApplicationNamePublisher managedPairingApplicationNamePublisher;
 
 	private int dashboardResourceId = 0;
@@ -138,11 +141,14 @@ public abstract class ConcertAppActivity extends RosActivity {
 			masterNameResolver.setMasterName(defaultMasterName);
 		}
 
+//        MasterId mid = new MasterId("http://192.168.10.129:11311", "http://192.168.10.129:11311", "DesertStorm3", "WEP2", "yujin0610");
+//        MasterDescription  md = MasterDescription.createUnknown(mid);
+//        getIntent().putExtra(MasterDescription.UNIQUE_KEY, md);
 //        getIntent().putExtra(AppManager.PACKAGE + ".concert_app_name", "KKKK");
 //        getIntent().putExtra("PairedManagerActivity", "com.github.rosjava.android_remocons.concert_remocon.ConcertRemocon");
-//        getIntent().putExtra("ChooserURI", "http://192.168.10.124:11311");
+//        getIntent().putExtra("ChooserURI", "http://192.168.10.129:11311");
 //        getIntent().putExtra("Parameters", "{pickup_point: pickup}");
-//        getIntent().putExtra("Remappings", "{map: map_store/map,list_maps: map_store/list_maps,publish_map: map_store/publish_map,save_annotations: annotations/save_annotations,markers: annotations/markers,tables: annotations/tables,columns: annotations/columns,walls: annotations/walls}");
+//        getIntent().putExtra("Remappings", "{ 'cmd_vel':'/robot_teleop/cmd_vel', 'image_color':'/robot_teleop/image_color/compressed_throttle' }");
 
         for (AppMode mode : AppMode.values()) {
             // The remocon specifies its type in the app name extra content string, useful information for the app
@@ -160,6 +166,7 @@ public abstract class ConcertAppActivity extends RosActivity {
 		}
         else {
             // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
+            // We create empty maps if the strings are missing to avoid continuous if ! null checks
             Yaml yaml = new Yaml();
 
             String paramsStr = getIntent().getStringExtra("Parameters");
@@ -167,16 +174,23 @@ public abstract class ConcertAppActivity extends RosActivity {
                 params = (LinkedHashMap<String, Object>) yaml.load(paramsStr);
                 Log.d("ApplicationManagement", "Parameters: " + paramsStr);
             }
+            else {
+                params = new LinkedHashMap<String, Object>();
+            }
 
             String remapsStr = getIntent().getStringExtra("Remappings");
             if (remapsStr != null) {
                 remaps = (LinkedHashMap<String, String>) yaml.load(remapsStr);
                 Log.d("ApplicationManagement", "Remappings: " + remapsStr);
             }
+            else {
+                remaps = new LinkedHashMap<String, String>();
+            }
+
+            remoconActivity = getIntent().getStringExtra("RemoconActivity");
 
             // Only on paired mode
             if (appMode == AppMode.PAIRED) {
-                managedApplicationActivity = getIntent().getStringExtra("PairedManagerActivity");
                 managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
             }
         }
@@ -205,10 +219,11 @@ public abstract class ConcertAppActivity extends RosActivity {
             dashboard.setRobotName(getMasterNameSpace().getNamespace().toString());
         }
         else if (getIntent().hasExtra(MasterDescription.UNIQUE_KEY)) {
+            remoconExtraData = getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
             if (appMode == AppMode.CONCERT) {
                 try {
-                    masterDescription =
-                        (ConcertDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+                    masterDescription =  // TODO can I do the object type transparent? when switching back to the remocon cannot
+                            (ConcertDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
                 } catch (ClassCastException e) {
                     Log.e("ApplicationManagement", "Concert description expected on intent on " + appMode + " mode");
                     throw new RosRuntimeException("Concert description expected on intent on " + appMode + " mode");
@@ -217,7 +232,7 @@ public abstract class ConcertAppActivity extends RosActivity {
             else if (appMode == AppMode.PAIRED) {
                 try {
                     masterDescription =
-                        (RobotDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+                            (RobotDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
                 } catch (ClassCastException e) {
                     Log.e("ApplicationManagement", "Robot description expected on intent on " + appMode + " mode");
                     throw new RosRuntimeException("Robot description expected on intent on " + appMode + " mode");
@@ -283,7 +298,7 @@ public abstract class ConcertAppActivity extends RosActivity {
 			Intent intent = new Intent();
 			intent.putExtra(AppManager.PACKAGE + ".app_name", "AppChooser");
 			try {
-				uri = new URI(getIntent().getStringExtra("ChooserURI"));
+				uri = new URI(getIntent().getStringExtra("RemoconURI"));
 			} catch (URISyntaxException e) {
 				throw new RosRuntimeException(e);
 			}
@@ -422,12 +437,16 @@ public abstract class ConcertAppActivity extends RosActivity {
             Log.i("ApplicationManagement", "app terminating and returning control to the remocon.");
             // Restart the remocon, supply it with the necessary information and stop this activity
 			Intent intent = new Intent();
-			intent.putExtra(AppManager.PACKAGE + ".app_name", "AppChooser");
-            intent.putExtra(MasterDescription.UNIQUE_KEY, masterDescription);
-			intent.putExtra("ChooserURI", uri.toString());
+			intent.putExtra(AppManager.PACKAGE + "." + appMode + "_app_name", "AppChooser");
+            intent.putExtra(MasterDescription.UNIQUE_KEY, remoconExtraData);
+//            if (appMode == AppMode.CONCERT)
+//                intent.putExtra(MasterDescription.UNIQUE_KEY, (ConcertDescription)masterDescription);
+//            if (appMode == AppMode.PAIRED)
+//                intent.putExtra(MasterDescription.UNIQUE_KEY, (RobotDescription)masterDescription);
+            intent.putExtra("RemoconURI", uri.toString());
 //            intent.putExtra("RobotType",concertDescription.getRobotType());
 //            intent.putExtra("RobotName",concertDescription.getRobotName());
-            intent.setAction(managedApplicationActivity);
+            intent.setAction(remoconActivity);
             //intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);

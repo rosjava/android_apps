@@ -44,31 +44,33 @@ import java.util.regex.Pattern;
 import rocon_std_msgs.Icon;
 
 public class MasterDescription implements java.io.Serializable {
+    // Unique identifier for keys passed between android apps.
+    public static final String UNIQUE_KEY = "com.github.rosjava.android_apps.application_management.MasterDescription";
+    private static final long serialVersionUID = 1L;
+
     public static final String CONNECTING = "connecting...";
     public static final String OK = "ok";
     public static final String ERROR = "exception";
     public static final String WIFI = "invalid wifi";
     public static final String UNAVAILABLE = "unavailable";  // when the master app manager is busy serving another remote controller
     public static final String CONTROL = "not started";
-    protected static final String NAME_UNKNOWN = "Unknown";
-    protected static final String TYPE_UNKNOWN = "Unknown";
-    protected static final long serialVersionUID = 1L;
-    protected MasterId masterId;
-    protected String masterName;
-    protected String masterType; // TODO this contains robot type, son in concerts don't make a lot of sense; move to RobotDescription?
+    public static final String NAME_UNKNOWN = "Unknown";
+    public static final String TYPE_UNKNOWN = "Unknown";
+
+    private MasterId masterId;
+    private String masterName;
+    private String masterType; // TODO this contains robot type, but in concerts don't make a lot of sense; move to RobotDescription?
     // TODO same for gateway, no sense in concerts
-    protected String gatewayName; // unique id used as the signature of the remote app manager (used to check that the remote controller is us).
+    private String gatewayName; // unique id used as the signature of the remote app manager (used to check that the remote controller is us).
     // Icon stored piecemeal because msg arrays (stored as jboss ChannelBuffers) can't
     // be dumped and reloaded by the snakeyaml library.
-    protected String masterIconFormat;
-    protected byte[] masterIconData;
-    protected int masterIconDataOffset;
-    protected int masterIconDataLength;
+    private String masterIconFormat;
+    private byte[] masterIconData;
+    private int masterIconDataOffset;
+    private int masterIconDataLength;
 
-    protected String connectionStatus;
-    protected Date timeLastSeen;
-    // Unique identifier for keys passed between android apps.
-    public static final String UNIQUE_KEY = "com.github.rosjava.android_apps.application_management.MasterDescription";
+    private String connectionStatus;
+    private Date timeLastSeen;
 
     // TODO(kwc): add in canonicalization of masterName
     public MasterDescription() {
@@ -193,6 +195,14 @@ public class MasterDescription implements java.io.Serializable {
             ChannelBuffer channelBuffer = ChannelBuffers.copiedBuffer(masterIconData, masterIconDataOffset, masterIconDataLength);
             return channelBuffer;
         }
+    }
+
+    public void setMasterIconFormat(String iconFormat) {
+        this.masterIconFormat = iconFormat;
+    }
+
+    public void setMasterIconData(ChannelBuffer iconData) {
+        this.masterIconData = iconData.array();
     }
 
     public void setMasterIcon(Icon masterIcon) {

@@ -53,7 +53,7 @@ import org.ros.namespace.GraphName;
 import org.ros.node.NodeConfiguration;
 import org.ros.android.NodeMainExecutorService;
 
-import rocon_app_manager_msgs.Icon;
+import rocon_std_msgs.Icon;
 
 /**
  * Threaded ROS-master checker. Runs a thread which checks for a valid ROS
