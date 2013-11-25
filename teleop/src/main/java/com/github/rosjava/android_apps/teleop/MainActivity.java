@@ -90,8 +90,15 @@ public class MainActivity extends ConcertAppActivity {
                 remaps.get(CAMERA_TOPIC) : getString(R.string.default_camera_topic);
 
         NameResolver appNameSpace = getAppNameSpace();
-		cameraView.setTopicName(appNameSpace.resolve(camTopic).toString());
-        virtualJoystickView.setTopicName(appNameSpace.resolve(joyTopic).toString());
+        if (appNameSpace != null) {
+            // Resolve app namespace; if we are not in paired mode, appNameSpace will be null
+            // TODO: make a dummy appNameSpace that do this transparent to avoid the if ! null everywhere
+            joyTopic = appNameSpace.resolve(joyTopic).toString();
+            camTopic = appNameSpace.resolve(camTopic).toString();
+        }
+
+		cameraView.setTopicName(camTopic);
+        virtualJoystickView.setTopicName(joyTopic);
 		
 		nodeMainExecutor.execute(cameraView, nodeConfiguration
 				.setNodeName("android/camera_view"));
