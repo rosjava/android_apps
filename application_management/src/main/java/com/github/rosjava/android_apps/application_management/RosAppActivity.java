@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 OSRF.
+ * Copyright (c) 2013, Yujin Robot.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,8 +17,10 @@
 
 package com.github.rosjava.android_apps.application_management;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.LinkedHashMap;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -43,22 +46,37 @@ import com.github.rosjava.android_apps.application_management.rapp_manager.Pairi
 import rocon_app_manager_msgs.StartAppResponse;
 import rocon_app_manager_msgs.StopAppResponse;
 
+import org.yaml.snakeyaml.Yaml;
+
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
+ * @author jorge@yujinrobot.com (Jorge Santos Simon)
+ * 
+ * Modified to work in standalone, paired (robot) and concert modes.
+ * Also now handles parameters and remappings.
  */
 public abstract class RosAppActivity extends RosActivity {
 
-	private String robotAppName = null;
-	private String defaultRobotAppName = null;
-	private String defaultRobotName = null;
-    private String androidApplicationName; // descriptive helper only
+    public enum AppMode {
+        STANDALONE, // unmanaged app
+        PAIRED,     // paired with master, normally a robot
+        CONCERT;    // running inside a concert
+
+        public String toString() { return name().toLowerCase(); }
+    }
     /*
-      By default we assume the rosappactivity is launched independantly.
-      The following flag is used to identify when it has instead been
-      launched by a controlling application (e.g. remocons).
+      By default we assume the ros app activity is launched independently. The following attribute is
+      used to identify when it has instead been launched by a controlling application (e.g. remocons)
+      in paired, one-to-one, or concert mode.
      */
-    private boolean managedApplication = false;
-    private String managedApplicationActivity = null; // e.g. com.github.rosjava.android_remocons.robot_remocon.RobotRemocon
+    private AppMode appMode = AppMode.STANDALONE;
+	private String masterAppName = null;
+	private String defaultMasterAppName = null;
+	private String defaultMasterName = "";
+    private String androidApplicationName; // descriptive helper only
+    private String remoconActivity = null;  // The remocon activity to start when finishing this app
+                                            // e.g. com.github.rosjava.android_remocons.robot_remocon.RobotRemocon
+    private Serializable remoconExtraData = null; // Extra data for remocon (something inheriting from MasterDescription)
     private PairingApplicationNamePublisher managedPairingApplicationNamePublisher;
 
 	private int dashboardResourceId = 0;
@@ -67,8 +85,12 @@ public abstract class RosAppActivity extends RosActivity {
 	private NodeConfiguration nodeConfiguration;
 	private NodeMainExecutor nodeMainExecutor;
 	private URI uri;
-	protected RobotNameResolver robotNameResolver;
-	protected RobotDescription robotDescription;
+	protected MasterNameResolver masterNameResolver;
+    protected MasterDescription masterDescription;
+
+    // By now params and remaps are only available for concert apps; that is, appMode must be CONCERT
+    protected LinkedHashMap<String, Object> params = new LinkedHashMap<String, Object>();
+    protected LinkedHashMap<String, String> remaps = new LinkedHashMap<String, String>();
 
 	protected void setDashboardResource(int resource) {
 		dashboardResourceId = resource;
@@ -78,12 +100,12 @@ public abstract class RosAppActivity extends RosActivity {
 		mainWindowId = resource;
 	}
 
-	protected void setDefaultRobotName(String name) {
-		defaultRobotName = name;
+	protected void setDefaultMasterName(String name) {
+		defaultMasterName = name;
 	}
 
 	protected void setDefaultAppName(String name) {
-        defaultRobotAppName = name;
+        defaultMasterAppName = name;
 	}
 
 	protected void setCustomDashboardPath(String path) {
@@ -115,64 +137,119 @@ public abstract class RosAppActivity extends RosActivity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(mainWindowId);
 
-		robotNameResolver = new RobotNameResolver();
+		masterNameResolver = new MasterNameResolver();
 
-		if (defaultRobotName != null) {
-			robotNameResolver.setRobotName(defaultRobotName);
+		if (defaultMasterName != null) {
+			masterNameResolver.setMasterName(defaultMasterName);
 		}
 
-		robotAppName = getIntent().getStringExtra(AppManager.PACKAGE + ".robot_app_name");
-		if (robotAppName == null) {
-			robotAppName = defaultRobotAppName;
-		} else {
-            managedApplicationActivity = getIntent().getStringExtra("PairedManagerActivity");
-            managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
-			managedApplication = true;
-		}
+//        MasterId mid = new MasterId("http://192.168.10.129:11311", "http://192.168.10.129:11311", "DesertStorm3", "WEP2", "yujin0610");
+//        MasterDescription  md = MasterDescription.createUnknown(mid);
+//        getIntent().putExtra(MasterDescription.UNIQUE_KEY, md);
+//        getIntent().putExtra(AppManager.PACKAGE + ".concert_app_name", "KKKK");
+//        getIntent().putExtra("PairedManagerActivity", "com.github.rosjava.android_remocons.concert_remocon.ConcertRemocon");
+//        getIntent().putExtra("ChooserURI", "http://192.168.10.129:11311");
+//        getIntent().putExtra("Parameters", "{pickup_point: pickup}");
+//        getIntent().putExtra("Remappings", "{ 'cmd_vel':'/robot_teleop/cmd_vel', 'image_color':'/robot_teleop/image_color/compressed_throttle' }");
 
-		if (dashboard == null) {
+        for (AppMode mode : AppMode.values()) {
+            // The remocon specifies its type in the app name extra content string, useful information for the app
+            masterAppName = getIntent().getStringExtra(AppManager.PACKAGE + "." + mode + "_app_name");
+            if (masterAppName != null) {
+                appMode = mode;
+                break;
+            }
+        }
+
+        if (masterAppName == null) {
+            // App name extra content key not present on intent; no remocon started the app, so we are standalone app
+            masterAppName = defaultMasterAppName;
+            appMode = AppMode.STANDALONE;
+		}
+        else {
+            // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
+            // We create empty maps if the strings are missing to avoid continuous if ! null checks
+            Yaml yaml = new Yaml();
+
+            String paramsStr = getIntent().getStringExtra("Parameters");
+            if (paramsStr != null) {
+                params = (LinkedHashMap<String, Object>) yaml.load(paramsStr);
+                Log.d("ApplicationManagement", "Parameters: " + paramsStr);
+            }
+            else {
+                params = new LinkedHashMap<String, Object>();
+            }
+
+            String remapsStr = getIntent().getStringExtra("Remappings");
+            if (remapsStr != null) {
+                remaps = (LinkedHashMap<String, String>) yaml.load(remapsStr);
+                Log.d("ApplicationManagement", "Remappings: " + remapsStr);
+            }
+            else {
+                remaps = new LinkedHashMap<String, String>();
+            }
+
+            remoconActivity = getIntent().getStringExtra("RemoconActivity");
+
+            // Only on paired mode
+            if (appMode == AppMode.PAIRED) {
+                managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
+            }
+        }
+
+        if (dashboard == null) {
 			dashboard = new Dashboard(this);
 			dashboard.setView((LinearLayout) findViewById(dashboardResourceId),
 					new LinearLayout.LayoutParams(
 							LinearLayout.LayoutParams.WRAP_CONTENT,
 							LinearLayout.LayoutParams.WRAP_CONTENT));
 		}
-
 	}
 
 	@Override
 	protected void init(NodeMainExecutor nodeMainExecutor) {
 		this.nodeMainExecutor = nodeMainExecutor;
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
+                .newNonLoopback().getHostAddress(), getMasterUri());
 
-        if ( managedApplication ) {
-            if (getIntent().hasExtra(RobotDescription.UNIQUE_KEY)) {
-                robotDescription = (RobotDescription) getIntent()
-                        .getSerializableExtra(RobotDescription.UNIQUE_KEY);
+        if (appMode == AppMode.STANDALONE) {
+            // Unmanaged apps need a master namespace resolver  TODO paired do too????
+            nodeMainExecutor.execute(masterNameResolver,
+                    nodeConfiguration.setNodeName("masterNameResolver"));
+            masterNameResolver.waitForResolver();
+
+            dashboard.setRobotName(getMasterNameSpace().getNamespace().toString());
+        }
+        else if (getIntent().hasExtra(MasterDescription.UNIQUE_KEY)) {
+            // Keep a non-casted copy of the master description, so we don't lose the inheriting object
+            // when switching back to the remocon. Not fully sure why this works and not if casting
+            remoconExtraData = getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+
+            try {
+                masterDescription =
+                        (MasterDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+            } catch (ClassCastException e) {
+                Log.e("ApplicationManagement", "Master description expected on intent on " + appMode + " mode");
+                throw new RosRuntimeException("Master description expected on intent on " + appMode + " mode");
             }
-            nodeMainExecutor.execute(managedPairingApplicationNamePublisher,
-                    nodeConfiguration.setNodeName("pairingApplicationNamePublisher"));
-        }
-		if (robotDescription != null) {
-            robotNameResolver.setRobot(robotDescription);
-			dashboard.setRobotName(robotDescription.getRobotType());
-		}
-		nodeMainExecutor.execute(robotNameResolver,
-				nodeConfiguration.setNodeName("robotNameResolver"));
-        robotNameResolver.waitForResolver();
 
-        if (robotDescription == null) {
-            dashboard.setRobotName(getRobotNameSpace().getNamespace()
-                .toString());
+            if (appMode == AppMode.PAIRED) {
+                nodeMainExecutor.execute(managedPairingApplicationNamePublisher,
+                        nodeConfiguration.setNodeName("pairingApplicationNamePublisher"));
+
+                dashboard.setRobotName(masterDescription.getMasterType());
+            }
+            masterNameResolver.setMaster(masterDescription);
+        }
+        else {
+            Log.e("ApplicationManagement", "Master description missing on intent on " + appMode + " mode");
+            throw new RosRuntimeException("Master description missing on intent on " + appMode + " mode");
         }
 
-        nodeMainExecutor.execute(dashboard,
-				nodeConfiguration.setNodeName("dashboard"));
-
+        nodeMainExecutor.execute(dashboard, nodeConfiguration.setNodeName("dashboard"));
 
         // probably need to reintegrate this restart mechanism
-//        if (managedApplication && startRobotApplication) {
+//        if (managedApplication && startMasterApplication) {
 //			if (getIntent().getBooleanExtra("runningNodes", false)) {
 //				restartApp();
         if ( managePairedRobotApplication() ) {
@@ -182,11 +259,11 @@ public abstract class RosAppActivity extends RosActivity {
     }
 
 	protected NameResolver getAppNameSpace() {
-		return robotNameResolver.getAppNameSpace();
+		return masterNameResolver.getAppNameSpace();
 	}
 
-	protected NameResolver getRobotNameSpace() {
-		return robotNameResolver.getRobotNameSpace();
+	protected NameResolver getMasterNameSpace() {
+		return masterNameResolver.getMasterNameSpace();
 	}
 
 	protected void onAppTerminate() {
@@ -211,14 +288,13 @@ public abstract class RosAppActivity extends RosActivity {
 
 	@Override
 	public void startMasterChooser() {
-		if (!managedApplication) {
+		if (appMode == AppMode.STANDALONE) {
 			super.startMasterChooser();
 		} else {
 			Intent intent = new Intent();
-			intent.putExtra(AppManager.PACKAGE + ".robot_app_name",
-					"AppChooser");
+			intent.putExtra(AppManager.PACKAGE + ".app_name", "AppChooser");
 			try {
-				uri = new URI(getIntent().getStringExtra("ChooserURI"));
+				uri = new URI(getIntent().getStringExtra("RemoconURI"));
 			} catch (URISyntaxException e) {
 				throw new RosRuntimeException(e);
 			}
@@ -236,15 +312,15 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	private void restartApp() {
-		Log.i("RosAndroid", "Restarting application");
-		AppManager appManager = new AppManager("*", getRobotNameSpace());
+		Log.i("ApplicationManagement", "Restarting application");
+		AppManager appManager = new AppManager("*", getMasterNameSpace());
 		appManager.setFunction("stop");
 
 		appManager
 				.setStopService(new ServiceResponseListener<StopAppResponse>() {
 					@Override
 					public void onSuccess(StopAppResponse message) {
-						Log.i("RosAndroid", "App stopped successfully");
+						Log.i("ApplicationManagement", "App stopped successfully");
 						try {
 							Thread.sleep(1000);
 						} catch (Exception e) {
@@ -255,7 +331,7 @@ public abstract class RosAppActivity extends RosActivity {
 
 					@Override
 					public void onFailure(RemoteException e) {
-						Log.e("RosAndroid", "App failed to stop!");
+						Log.e("ApplicationManagement", "App failed to stop!");
 					}
 				});
 		nodeMainExecutor.execute(appManager,
@@ -268,10 +344,10 @@ public abstract class RosAppActivity extends RosActivity {
      * program (e.g. remocons) will do their own handling of the appmanager.
      */
 	private void startApp() {
-		Log.i("ApplicationManagement", "android application starting a rapp [" + robotAppName + "]");
+		Log.i("ApplicationManagement", "android application starting a rapp [" + masterAppName + "]");
 
-		AppManager appManager = new AppManager(robotAppName,
-				getRobotNameSpace());
+		AppManager appManager = new AppManager(masterAppName,
+				getMasterNameSpace());
 		appManager.setFunction("start");
 
 		appManager
@@ -279,7 +355,7 @@ public abstract class RosAppActivity extends RosActivity {
 					@Override
 					public void onSuccess(StartAppResponse message) {
 						if (message.getStarted()) {
-							Log.i("ApplicationManagement", "rapp started successfully [" + robotAppName + "]");
+							Log.i("ApplicationManagement", "rapp started successfully [" + masterAppName + "]");
 						} else {
 							Log.e("ApplicationManagement", "rapp failed to start! [" + message.getMessage() + "]");
                         }
@@ -296,9 +372,9 @@ public abstract class RosAppActivity extends RosActivity {
 	}
 
 	protected void stopApp() {
-		Log.i("ApplicationManagement", "android application stopping a rapp [" + robotAppName + "]");
-		AppManager appManager = new AppManager(robotAppName,
-				getRobotNameSpace());
+		Log.i("ApplicationManagement", "android application stopping a rapp [" + masterAppName + "]");
+		AppManager appManager = new AppManager(masterAppName,
+				getMasterNameSpace());
 		appManager.setFunction("stop");
 
 		appManager
@@ -321,8 +397,8 @@ public abstract class RosAppActivity extends RosActivity {
 				nodeConfiguration.setNodeName("stop_app"));
 	}
 
-	protected void releaseRobotNameResolver() {
-		nodeMainExecutor.shutdownNodeMain(robotNameResolver);
+	protected void releaseMasterNameResolver() {
+		nodeMainExecutor.shutdownNodeMain(masterNameResolver);
 	}
 
 	protected void releaseDashboardNode() {
@@ -331,7 +407,7 @@ public abstract class RosAppActivity extends RosActivity {
 
     /**
      * Whether this ros app activity should be responsible for
-     * starting and stopping a paired robot application.
+     * starting and stopping a paired master application.
      *
      * This responsibility is relinquished if the application
      * is controlled from a remocon, but required if the
@@ -340,12 +416,12 @@ public abstract class RosAppActivity extends RosActivity {
      * @return boolean : true if it needs to be managed.
      */
     private boolean managePairedRobotApplication() {
-        return (!managedApplication && (robotAppName != null));
+        return ((appMode == AppMode.STANDALONE) && (masterAppName != null));
     }
 
 	@Override
 	protected void onDestroy() {
-        if ( ( getRobotNameSpace() != null ) && managePairedRobotApplication() ) {
+        if ( ( getMasterNameSpace() != null ) && managePairedRobotApplication() ) {
 			stopApp();
 		}
 		super.onDestroy();
@@ -353,17 +429,16 @@ public abstract class RosAppActivity extends RosActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (managedApplication) {
+		if (appMode != AppMode.STANDALONE) {  // i.e. it's a managed app
             Log.i("ApplicationManagement", "app terminating and returning control to the remocon.");
             // Restart the remocon, supply it with the necessary information and stop this activity
 			Intent intent = new Intent();
-			intent.putExtra(AppManager.PACKAGE + ".robot_app_name",
-					"AppChooser");
-            intent.putExtra(RobotDescription.UNIQUE_KEY, robotDescription);
-			intent.putExtra("ChooserURI", uri.toString());
-//            intent.putExtra("RobotType",robotDescription.getRobotType());
-//            intent.putExtra("RobotName",robotDescription.getRobotName());
-            intent.setAction(managedApplicationActivity);
+			intent.putExtra(AppManager.PACKAGE + "." + appMode + "_app_name", "AppChooser");
+            intent.putExtra(MasterDescription.UNIQUE_KEY, remoconExtraData);
+            intent.putExtra("RemoconURI", uri.toString());
+//            intent.putExtra("RobotType",concertDescription.getRobotType());
+//            intent.putExtra("RobotName",concertDescription.getRobotName());
+            intent.setAction(remoconActivity);
             //intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
