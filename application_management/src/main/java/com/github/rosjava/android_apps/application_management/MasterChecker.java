@@ -92,23 +92,23 @@ public class MasterChecker {
     }
 
     /**
-     * Start the checker thread with the given robotId. If the thread is
+     * Start the checker thread with the given masterId. If the thread is
      * already running, kill it first and then start anew. Returns immediately.
      */
-    public void beginChecking(RobotId robotId) {
+    public void beginChecking(MasterId masterId) {
         stopChecking();
-        if (robotId.getMasterUri() == null) {
+        if (masterId.getMasterUri() == null) {
             failureCallback.handleFailure("empty master URI");
             return;
         }
         URI uri;
         try {
-            uri = new URI(robotId.getMasterUri());
+            uri = new URI(masterId.getMasterUri());
         } catch (URISyntaxException e) {
             failureCallback.handleFailure("invalid master URI");
             return;
         }
-        checkerThread = new CheckerThread(robotId, uri);
+        checkerThread = new CheckerThread(masterId, uri);
         checkerThread.start();
     }
 
@@ -123,11 +123,11 @@ public class MasterChecker {
 
     private class CheckerThread extends Thread {
         private URI masterUri;
-        private RobotId robotId;
+        private MasterId masterId;
 
-        public CheckerThread(RobotId robotId, URI masterUri) {
+        public CheckerThread(MasterId masterId, URI masterUri) {
             this.masterUri = masterUri;
-            this.robotId = robotId;
+            this.masterId = masterId;
             setDaemon(true);
             // don't require callers to explicitly kill all the old checker threads.
             setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -172,7 +172,7 @@ public class MasterChecker {
 
                 // configure robot description
                 Date timeLastSeen = new Date();
-                RobotDescription robotDescription = new RobotDescription(robotId, robotName, robotType, robotIcon, gatewayName,
+                RobotDescription robotDescription = new RobotDescription(masterId, robotName, robotType, robotIcon, gatewayName,
                         timeLastSeen);
                 if (statusClient.isAvailable()) {
                     Log.i("ApplicationManagement", "rapp manager is available");

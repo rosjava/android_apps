@@ -100,17 +100,17 @@ public class ControlChecker {
     this.doStart = true;
   }
   /**
-   * Start the checker thread with the given robotId. If the thread is
+   * Start the checker thread with the given masterId. If the thread is
    * already running, kill it first and then start anew. Returns immediately.
    */
-  public void beginChecking(RobotId robotId) {
+  public void beginChecking(MasterId masterId) {
     stopChecking();
     //If there's no wifi tag in the robot id, skip this step
-    if (robotId.getControlUri() == null) {
+    if (masterId.getControlUri() == null) {
       robotReadyCallback.handleSuccess();
       return;
     }
-    checkerThread = new CheckerThread(robotId);
+    checkerThread = new CheckerThread(masterId);
     checkerThread.start();
   }
   /** Stop the checker thread. */
@@ -120,9 +120,9 @@ public class ControlChecker {
     }
   }
   private class CheckerThread extends Thread {
-    private RobotId robotId;
-    public CheckerThread(RobotId robotId) {
-      this.robotId = robotId;
+    private MasterId masterId;
+    public CheckerThread(MasterId masterId) {
+      this.masterId = masterId;
       setDaemon(true);
       // don't require callers to explicitly kill all the old checker threads.
       setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -160,7 +160,7 @@ public class ControlChecker {
     final String VALID_USER = "applications";
     final String NO_USER = "None";
     private String getActiveUser() {
-        String page = getPage(robotId.getControlUri() + "?action=GET_STATE");
+        String page = getPage(masterId.getControlUri() + "?action=GET_STATE");
         if (page == null) {
           return null;
         }
@@ -196,7 +196,7 @@ public class ControlChecker {
           if (badUser) {
             if (evictionCallback.doEviction(activeUser)) { //Prompt
               Log.d("ControlChecker", "Stopping robot");
-              getPage(robotId.getControlUri() + "?action=STOP_ROBOT");
+              getPage(masterId.getControlUri() + "?action=STOP_ROBOT");
             } else {
               failureCallback.handleFailure("Need to evict current user inorder to connect");
               return;
@@ -207,7 +207,7 @@ public class ControlChecker {
               startCallback.handleStarting();
             }
             Log.d("ControlChecker", "Starting robot");
-            getPage(robotId.getControlUri() + "?action=START_ROBOT");
+            getPage(masterId.getControlUri() + "?action=START_ROBOT");
            
             int i = 0;
            
@@ -228,7 +228,7 @@ public class ControlChecker {
         }
       } catch (Throwable ex) {
         Log.e("ControlChecker", "Exception while checking control URI "
-              + robotId.getControlUri(), ex);
+              + masterId.getControlUri(), ex);
         failureCallback.handleFailure(ex.toString());
       }
     }

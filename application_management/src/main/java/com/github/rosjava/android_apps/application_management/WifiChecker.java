@@ -70,17 +70,17 @@ public class WifiChecker {
     this.reconnectionCallback = reconnectionCallback;
   }
   /**
-   * Start the checker thread with the given robotId. If the thread is
+   * Start the checker thread with the given masterId. If the thread is
    * already running, kill it first and then start anew. Returns immediately.
    */
-  public void beginChecking(RobotId robotId, WifiManager manager) {
+  public void beginChecking(MasterId masterId, WifiManager manager) {
     stopChecking();
     //If there's no wifi tag in the robot id, skip this step
-    if (robotId.getWifi() == null) {
+    if (masterId.getWifi() == null) {
       foundWiFiCallback.handleSuccess();
       return;
     }
-    checkerThread = new CheckerThread(robotId, manager);
+    checkerThread = new CheckerThread(masterId, manager);
     checkerThread.start();
   }
   /** Stop the checker thread. */
@@ -89,9 +89,9 @@ public class WifiChecker {
       checkerThread.interrupt();
     }
   }
-  public static boolean wifiValid(RobotId robotId, WifiManager wifiManager) {
+  public static boolean wifiValid(MasterId masterId, WifiManager wifiManager) {
     WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-    if (robotId.getWifi() == null) { //Does not matter what wifi network, always valid.
+    if (masterId.getWifi() == null) { //Does not matter what wifi network, always valid.
       return true;
     }
     if (wifiManager.isWifiEnabled()) {
@@ -99,7 +99,7 @@ public class WifiChecker {
         Log.d("WiFiChecker", "WiFi Info: " + wifiInfo.toString() + " IP " + wifiInfo.getIpAddress());
         if (wifiInfo.getSSID() != null && wifiInfo.getIpAddress() != 0
             && wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
-          if (wifiInfo.getSSID().equals(robotId.getWifi())) {
+          if (wifiInfo.getSSID().equals(masterId.getWifi())) {
             return true;
           }
         }
@@ -108,10 +108,10 @@ public class WifiChecker {
     return false;
   }
   private class CheckerThread extends Thread {
-    private RobotId robotId;
+    private MasterId masterId;
     private WifiManager wifiManager;
-    public CheckerThread(RobotId robotId, WifiManager wifi) {
-      this.robotId = robotId;
+    public CheckerThread(MasterId masterId, WifiManager wifi) {
+      this.masterId = masterId;
       this.wifiManager = wifi;
       setDaemon(true);
       // don't require callers to explicitly kill all the old checker threads.
@@ -123,14 +123,14 @@ public class WifiChecker {
       });
     }
     private boolean wifiValid() {
-      return WifiChecker.wifiValid(robotId, wifiManager);
+      return WifiChecker.wifiValid(masterId, wifiManager);
     }
     @Override
     public void run() {
       try {
         if (wifiValid()) {
           foundWiFiCallback.handleSuccess();
-        } else if (reconnectionCallback.doReconnection(wifiManager.getConnectionInfo().getSSID(), robotId.getWifi())) {
+        } else if (reconnectionCallback.doReconnection(wifiManager.getConnectionInfo().getSSID(), masterId.getWifi())) {
           Log.d("WiFiChecker", "Wait for networking");
           wifiManager.setWifiEnabled(true);
           int i = 0;
@@ -146,7 +146,7 @@ public class WifiChecker {
           int n = -1;
           int priority = -1;
           WifiConfiguration wc = null;
-          String SSID = "\"" + robotId.getWifi() + "\"";
+          String SSID = "\"" + masterId.getWifi() + "\"";
           for (WifiConfiguration test : wifiManager.getConfiguredNetworks()) {
             Log.d("WiFiChecker", "WIFI " + test.toString());
             if (test.priority > priority) {
@@ -169,9 +169,9 @@ public class WifiChecker {
           if (n == -1) {
             Log.d("WiFiChecker", "WIFI Unknown");
             wc = new WifiConfiguration();
-            wc.SSID = "\"" + robotId.getWifi() + "\"";
-            if (robotId.getWifiPassword() != null) {
-              wc.preSharedKey  = "\"" + robotId.getWifiPassword() + "\"";
+            wc.SSID = "\"" + masterId.getWifi() + "\"";
+            if (masterId.getWifiPassword() != null) {
+              wc.preSharedKey  = "\"" + masterId.getWifiPassword() + "\"";
             } else {
               wc.preSharedKey = null;
             }
@@ -223,7 +223,7 @@ public class WifiChecker {
         }
       } catch (Throwable ex) {
         Log.e("RosAndroid", "Exception while searching for WiFi for "
-              + robotId.getWifi(), ex);
+              + masterId.getWifi(), ex);
         failureCallback.handleFailure(ex.toString());
       }
     }
