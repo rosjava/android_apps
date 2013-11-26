@@ -22,8 +22,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.github.rosjava.android_apps.application_management.ConcertAppActivity;
 import com.github.rosjava.android_apps.application_management.RosAppActivity;
+
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
@@ -35,7 +35,7 @@ import org.ros.android.view.VirtualJoystickView;
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
-public class MainActivity extends ConcertAppActivity {
+public class MainActivity extends RosAppActivity {
     private static final String JOYSTICK_TOPIC = "cmd_vel";
     private static final String CAMERA_TOPIC = "image_color";
 
@@ -54,7 +54,7 @@ public class MainActivity extends ConcertAppActivity {
 		
 		String defaultRobotName = getString(R.string.default_robot);
 		String defaultAppName = getString(R.string.default_app);
-//		setDefaultRobotName(defaultRobotName);
+        setDefaultMasterName(defaultRobotName);
 		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);

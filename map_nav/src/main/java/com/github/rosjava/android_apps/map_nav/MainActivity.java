@@ -94,7 +94,7 @@ public class MainActivity extends RosAppActivity {
 
 		String defaultRobotName = getString(R.string.default_robot);
 		String defaultAppName = getString(R.string.default_app);
-		setDefaultRobotName(defaultRobotName);
+        setDefaultMasterName(defaultRobotName);
 		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);

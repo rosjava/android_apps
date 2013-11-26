@@ -42,7 +42,7 @@ public class Listener extends RosAppActivity
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        setDefaultRobotName(getString(R.string.default_robot));
+        setDefaultMasterName(getString(R.string.default_robot));
         setDefaultAppName(getString(R.string.paired_app_name));
         setDashboardResource(R.id.top_bar);
         setMainWindowResource(R.layout.main);
