@@ -36,6 +36,11 @@ package com.github.rosjava.android_apps.application_management;
 
 import java.util.Map;
 
+/**
+ * Mostly a clone of RobotId but generic enough to work also for concert apps.
+ *
+ * @author jorge@yujinrobot.com (Jorge Santos Simon)
+ */
 public class MasterId implements java.io.Serializable {
     private static final long serialVersionUID = -1185642483404745956L;
 
