@@ -9,4 +9,6 @@ core repositories (too much movement there to depend on master).
 
 ### Rosinstaller
 
-* https://raw.github.com/rosjava/rosjava/hydro/rosjava.rosinstall
+
+* Master: https://raw.github.com/rosjava/rosjava/master/android_apps.rosinstall
+* Hydro: https://raw.github.com/rosjava/rosjava/hydro/android_apps.rosinstall
