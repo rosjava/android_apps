@@ -43,6 +43,11 @@ import java.util.regex.Pattern;
 
 import rocon_std_msgs.Icon;
 
+/**
+ * Mostly a clone of RobotDescription but generic enough to work also for concert apps.
+ *
+ * @author jorge@yujinrobot.com (Jorge Santos Simon)
+ */
 public class MasterDescription implements java.io.Serializable {
     // Unique identifier for keys passed between android apps.
     public static final String UNIQUE_KEY = "com.github.rosjava.android_apps.application_management.MasterDescription";

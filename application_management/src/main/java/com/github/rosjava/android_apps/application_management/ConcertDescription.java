@@ -1,7 +1,8 @@
 /*
  * Software License Agreement (BSD License)
  *
- * Copyright (c) 2011, Willow Garage, Inc.
+ * Copyright (c) 2013, Yujin Robot.
+ *
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,13 +36,33 @@ package com.github.rosjava.android_apps.application_management;
 
 import java.util.Date;
 
+/**
+ * Extends MasterDescription with concert specific attributes.
+ *
+ * @author jorge@yujinrobot.com (Jorge Santos Simon)
+ */
 public class ConcertDescription extends MasterDescription implements java.io.Serializable {
+    private static final long serialVersionUID = -4705526306056241179L;
+
     private String description;
     private String[] userRoles;
     private int currentRole = -1;
 
+    public static ConcertDescription create(MasterDescription master) {
+        ConcertDescription cd = new ConcertDescription(master.getMasterId(), master.getMasterName(), null, null, new Date());
+        cd.setMasterIconFormat(master.getMasterIconFormat());
+        cd.setMasterIconData(master.getMasterIconData());
+        return cd;
+    }
+
     public static ConcertDescription createUnknown(MasterId masterId) {
         return new ConcertDescription(masterId, NAME_UNKNOWN, null, null, new Date());
+    }
+
+    /**
+     * Empty constructor required by snake yaml parsing
+     */
+    public ConcertDescription() {
     }
 
     public ConcertDescription(MasterId masterId, String concertName, String description,

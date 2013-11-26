@@ -2,6 +2,8 @@
  * Software License Agreement (BSD License)
  *
  * Copyright (c) 2011, Willow Garage, Inc.
+ * Copyright (c) 2013, Yujin Robot.
+ *
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -41,29 +43,35 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import rocon_std_msgs.Icon;
 
+/**
+ * Extends MasterDescription with robot/pairing specific attributes. Almost all the
+ * previous attributes and methods of this class are now on MasterDescription.
+ *
+ * @author jorge@yujinrobot.com (Jorge Santos Simon)
+ */
 public class RobotDescription extends MasterDescription implements java.io.Serializable {
+    private static final long serialVersionUID = -6338229744294822763L;
     private String robotType;
 //    private String gatewayName; // unique id used as the signature of the remote app manager (used to check that the remote controller is us).
 
-    // TODO(kwc): add in canonicalization of robotName
-//    public RobotDescription() {
-//    }
-//
-//    public RobotDescription(MasterId masterId, String robotName, String robotType, Icon robotIcon, String gatewayName, Date timeLastSeen) {
-//        super(masterId, robotName, robotType, robotIcon, gatewayName, timeLastSeen);
-//    }
-//    public void copyFrom(RobotDescription other) {
-//            robotId = other.robotId;
-//            robotName = other.robotName;
-//            robotType = other.robotType;
-//            gatewayName = other.gatewayName;
-//            robotIconFormat = other.robotIconFormat;
-//            robotIconData = other.robotIconData;
-//            robotIconDataOffset = other.robotIconDataOffset;
-//            robotIconDataLength = other.robotIconDataLength;
-//            connectionStatus = other.connectionStatus;
-//            timeLastSeen = other.timeLastSeen;
-//    }
+    /**
+     * Empty constructor required by snake yaml parsing
+     */
+    public RobotDescription() {
+    }
 
-//    public String getGatewayName() { return gatewayName; }
+    public static RobotDescription createUnknown(MasterId masterId)  {
+        return new RobotDescription(masterId, NAME_UNKNOWN, TYPE_UNKNOWN, null, NAME_UNKNOWN, new Date());
+    }
+
+    public RobotDescription(MasterId masterId, String robotName, String robotType, Icon robotIcon, String gatewayName, Date timeLastSeen) {
+        super(masterId, robotName, robotType, robotIcon, gatewayName, timeLastSeen);
+        this.robotType = robotType;
+    }
+
+    public String getRobotType() { return robotType; }
+
+    public void setRobotType(String robotType) {
+        this.robotType = robotType;
+    }
 }
