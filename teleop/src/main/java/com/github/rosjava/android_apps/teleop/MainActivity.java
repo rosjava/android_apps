@@ -36,9 +36,6 @@ import org.ros.android.view.VirtualJoystickView;
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
 public class MainActivity extends RosAppActivity {
-    private static final String JOYSTICK_TOPIC = "cmd_vel";
-    private static final String CAMERA_TOPIC = "image_color";
-
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
 	private Button backButton;
@@ -83,19 +80,12 @@ public class MainActivity extends RosAppActivity {
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
 
-        String joyTopic = remaps.containsKey(JOYSTICK_TOPIC) ?
-                remaps.get(JOYSTICK_TOPIC) : getString(R.string.default_joystick_topic);
-
-        String camTopic = remaps.containsKey(CAMERA_TOPIC) ?
-                remaps.get(CAMERA_TOPIC) : getString(R.string.default_camera_topic);
+        String joyTopic  = remaps.get(getString(R.string.joystick_topic));
+        String camTopic  = remaps.get(getString(R.string.camera_topic));
 
         NameResolver appNameSpace = getAppNameSpace();
-        if (appNameSpace != null) {
-            // Resolve app namespace; if we are not in paired mode, appNameSpace will be null
-            // TODO: make a dummy appNameSpace that do this transparent to avoid the if ! null everywhere
-            joyTopic = appNameSpace.resolve(joyTopic).toString();
-            camTopic = appNameSpace.resolve(camTopic).toString();
-        }
+        joyTopic = appNameSpace.resolve(joyTopic).toString();
+        camTopic = appNameSpace.resolve(camTopic).toString();
 
 		cameraView.setTopicName(camTopic);
         virtualJoystickView.setTopicName(joyTopic);
