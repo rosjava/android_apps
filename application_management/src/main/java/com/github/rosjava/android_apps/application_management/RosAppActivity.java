@@ -41,6 +41,8 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
 import com.github.rosjava.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
 
 import rocon_app_manager_msgs.StartAppResponse;
@@ -84,15 +86,14 @@ public abstract class RosAppActivity extends RosActivity {
 	private Dashboard dashboard = null;
 	private NodeConfiguration nodeConfiguration;
 	private NodeMainExecutor nodeMainExecutor;
-	private URI uri;
 	protected MasterNameResolver masterNameResolver;
     protected MasterDescription masterDescription;
 
     // By now params and remaps are only available for concert apps; that is, appMode must be CONCERT
-    protected LinkedHashMap<String, Object> params = new LinkedHashMap<String, Object>();
-    protected LinkedHashMap<String, String> remaps = new LinkedHashMap<String, String>();
+    protected AppParameters params = new AppParameters();
+    protected AppRemappings remaps = new AppRemappings();
 
-	protected void setDashboardResource(int resource) {
+    protected void setDashboardResource(int resource) {
 		dashboardResourceId = resource;
 	}
 
@@ -143,6 +144,7 @@ public abstract class RosAppActivity extends RosActivity {
 			masterNameResolver.setMasterName(defaultMasterName);
 		}
 
+// FAKE concert remocon invocation
 //        MasterId mid = new MasterId("http://192.168.10.129:11311", "http://192.168.10.129:11311", "DesertStorm3", "WEP2", "yujin0610");
 //        MasterDescription  md = MasterDescription.createUnknown(mid);
 //        getIntent().putExtra(MasterDescription.UNIQUE_KEY, md);
@@ -151,6 +153,19 @@ public abstract class RosAppActivity extends RosActivity {
 //        getIntent().putExtra("ChooserURI", "http://192.168.10.129:11311");
 //        getIntent().putExtra("Parameters", "{pickup_point: pickup}");
 //        getIntent().putExtra("Remappings", "{ 'cmd_vel':'/robot_teleop/cmd_vel', 'image_color':'/robot_teleop/image_color/compressed_throttle' }");
+
+// FAKE robot remocon invocation
+//        MasterId mid = new MasterId("http://192.168.10.211:11311", "http://192.168.10.167:11311", "DesertStorm3", "WEP2", "yujin0610");
+//        MasterDescription  md = MasterDescription.createUnknown(mid);
+//        md.setMasterName("grieg");
+//        md.setMasterType("turtlebot");
+//        getIntent().putExtra(MasterDescription.UNIQUE_KEY, md);
+//        getIntent().putExtra(AppManager.PACKAGE + ".paired_app_name", "KKKK");
+//        getIntent().putExtra("PairedManagerActivity", "com.github.rosjava.android_remocons.robot_remocon.RobotRemocon");
+////        getIntent().putExtra("RemoconURI", "http://192.168.10.129:11311");
+//        getIntent().putExtra("Parameters", "{pickup_point: pickup}");
+//        getIntent().putExtra("Remappings", "{ 'cmd_vel':'/robot_teleop/cmd_vel', 'image_color':'/robot_teleop/image_color/compressed_throttle' }");
+
 
         for (AppMode mode : AppMode.values()) {
             // The remocon specifies its type in the app name extra content string, useful information for the app
@@ -167,33 +182,44 @@ public abstract class RosAppActivity extends RosActivity {
             appMode = AppMode.STANDALONE;
 		}
         else {
+            // Managed app; take from the intent all the fancy stuff remocon put there for us
+
             // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
             // We create empty maps if the strings are missing to avoid continuous if ! null checks
             Yaml yaml = new Yaml();
 
             String paramsStr = getIntent().getStringExtra("Parameters");
             if (paramsStr != null) {
-                params = (LinkedHashMap<String, Object>) yaml.load(paramsStr);
+                params.putAll((LinkedHashMap)yaml.load(paramsStr));
                 Log.d("ApplicationManagement", "Parameters: " + paramsStr);
-            }
-            else {
-                params = new LinkedHashMap<String, Object>();
             }
 
             String remapsStr = getIntent().getStringExtra("Remappings");
             if (remapsStr != null) {
-                remaps = (LinkedHashMap<String, String>) yaml.load(remapsStr);
+                remaps.putAll((LinkedHashMap)yaml.load(remapsStr));
                 Log.d("ApplicationManagement", "Remappings: " + remapsStr);
-            }
-            else {
-                remaps = new LinkedHashMap<String, String>();
             }
 
             remoconActivity = getIntent().getStringExtra("RemoconActivity");
 
-            // Only on paired mode
-            if (appMode == AppMode.PAIRED) {
-                managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
+            // Master description is mandatory on managed apps, as it contains master URI
+            if (getIntent().hasExtra(MasterDescription.UNIQUE_KEY)) {
+                // Keep a non-casted copy of the master description, so we don't lose the inheriting object
+                // when switching back to the remocon. Not fully sure why this works and not if casting
+                remoconExtraData = getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+
+                try {
+                    masterDescription =
+                            (MasterDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
+                } catch (ClassCastException e) {
+                    Log.e("ApplicationManagement", "Master description expected on intent on " + appMode + " mode");
+                    throw new RosRuntimeException("Master description expected on intent on " + appMode + " mode");
+                }
+            }
+            else {
+                // TODO how should I handle these things? try to go back to remocon? Show a message?
+                Log.e("ApplicationManagement", "Master description missing on intent on " + appMode + " mode");
+                throw new RosRuntimeException("Master description missing on intent on " + appMode + " mode");
             }
         }
 
@@ -213,38 +239,24 @@ public abstract class RosAppActivity extends RosActivity {
                 .newNonLoopback().getHostAddress(), getMasterUri());
 
         if (appMode == AppMode.STANDALONE) {
-            // Unmanaged apps need a master namespace resolver  TODO paired do too????
-            nodeMainExecutor.execute(masterNameResolver,
-                    nodeConfiguration.setNodeName("masterNameResolver"));
-            masterNameResolver.waitForResolver();
-
             dashboard.setRobotName(getMasterNameSpace().getNamespace().toString());
         }
-        else if (getIntent().hasExtra(MasterDescription.UNIQUE_KEY)) {
-            // Keep a non-casted copy of the master description, so we don't lose the inheriting object
-            // when switching back to the remocon. Not fully sure why this works and not if casting
-            remoconExtraData = getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
-
-            try {
-                masterDescription =
-                        (MasterDescription) getIntent().getSerializableExtra(MasterDescription.UNIQUE_KEY);
-            } catch (ClassCastException e) {
-                Log.e("ApplicationManagement", "Master description expected on intent on " + appMode + " mode");
-                throw new RosRuntimeException("Master description expected on intent on " + appMode + " mode");
-            }
+        else {
+            masterNameResolver.setMaster(masterDescription);
+            dashboard.setRobotName(masterDescription.getMasterName());  // TODO will work?????
 
             if (appMode == AppMode.PAIRED) {
+                managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
                 nodeMainExecutor.execute(managedPairingApplicationNamePublisher,
                         nodeConfiguration.setNodeName("pairingApplicationNamePublisher"));
 
                 dashboard.setRobotName(masterDescription.getMasterType());
             }
-            masterNameResolver.setMaster(masterDescription);
         }
-        else {
-            Log.e("ApplicationManagement", "Master description missing on intent on " + appMode + " mode");
-            throw new RosRuntimeException("Master description missing on intent on " + appMode + " mode");
-        }
+
+        // Run master namespace resolver
+        nodeMainExecutor.execute(masterNameResolver, nodeConfiguration.setNodeName("masterNameResolver"));
+        masterNameResolver.waitForResolver();
 
         nodeMainExecutor.execute(dashboard, nodeConfiguration.setNodeName("dashboard"));
 
@@ -291,24 +303,20 @@ public abstract class RosAppActivity extends RosActivity {
 		if (appMode == AppMode.STANDALONE) {
 			super.startMasterChooser();
 		} else {
-			Intent intent = new Intent();
-			intent.putExtra(AppManager.PACKAGE + ".app_name", "AppChooser");
 			try {
-				uri = new URI(getIntent().getStringExtra("RemoconURI"));
+                nodeMainExecutorService.setMasterUri(new URI(masterDescription.getMasterUri()));
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        RosAppActivity.this.init(nodeMainExecutorService);
+                        return null;
+                    }
+                }.execute();
 			} catch (URISyntaxException e) {
+                // Remocon cannot be such a bastard to send as a wrong URI...
 				throw new RosRuntimeException(e);
 			}
-
-			nodeMainExecutorService.setMasterUri(uri);
-			new AsyncTask<Void, Void, Void>() {
-				@Override
-				protected Void doInBackground(Void... params) {
-					RosAppActivity.this.init(nodeMainExecutorService);
-					return null;
-				}
-			}.execute();
 		}
-
 	}
 
 	private void restartApp() {
@@ -435,11 +443,7 @@ public abstract class RosAppActivity extends RosActivity {
 			Intent intent = new Intent();
 			intent.putExtra(AppManager.PACKAGE + "." + appMode + "_app_name", "AppChooser");
             intent.putExtra(MasterDescription.UNIQUE_KEY, remoconExtraData);
-            intent.putExtra("RemoconURI", uri.toString());
-//            intent.putExtra("RobotType",concertDescription.getRobotType());
-//            intent.putExtra("RobotName",concertDescription.getRobotName());
             intent.setAction(remoconActivity);
-            //intent.setAction("com.github.robotics_in_concert.rocon_android.robot_remocon.RobotRemocon");
 			intent.addCategory("android.intent.category.DEFAULT");
 			startActivity(intent);
 			finish();
