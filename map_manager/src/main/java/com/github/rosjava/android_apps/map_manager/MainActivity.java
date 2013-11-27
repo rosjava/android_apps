@@ -65,8 +65,6 @@ import map_store.RenameMapResponse;
 @SuppressLint("NewApi")
 public class MainActivity extends RosAppActivity {
 
-	private static final String ROBOT_FRAME = "base_link";
-    private static final String mapTopic = "map";
 	private static final int NAME_MAP_DIALOG_ID = 0;
 
 	private NodeConfiguration nodeConfiguration;
@@ -189,8 +187,8 @@ public class MainActivity extends RosAppActivity {
 			
 		};
 
-		mapView.getCamera().jumpToFrame(ROBOT_FRAME);
 
+        mapView.getCamera().jumpToFrame((String) params.get("robot_frame", getString(R.string.robot_frame)));
 	}
 
 	@Override
@@ -220,6 +218,7 @@ public class MainActivity extends RosAppActivity {
 		});
 		mapView.addLayer(cameraControlLayer);
         NameResolver appNameSpace = getMasterNameSpace();
+        String mapTopic = remaps.get(getString(R.string.map_topic));
 		occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
 		mapView.addLayer(occupancyGridLayer);
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
