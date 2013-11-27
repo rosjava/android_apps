@@ -167,7 +167,7 @@ public class MainActivity extends RosAppActivity {
 							if (name != null) {
 								mapManager.setMapName(name);
 							}
-                            mapManager.setNameResolver(getAppNameSpace());
+                            mapManager.setNameResolver(getMasterNameSpace());
 							mapManager.setSaveService(new ServiceResponseListener<SaveMapResponse>()
                             {
                                 @Override
@@ -278,7 +278,7 @@ public class MainActivity extends RosAppActivity {
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
-		NameResolver appNameSpace = getAppNameSpace();
+		NameResolver appNameSpace = getMasterNameSpace();
 		cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
         virtualJoystickView.setTopicName(appNameSpace.resolve(virtualJoystickTopic).toString());
 

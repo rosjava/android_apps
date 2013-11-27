@@ -219,7 +219,7 @@ public class MainActivity extends RosAppActivity {
 
 		});
 		mapView.addLayer(cameraControlLayer);
-        NameResolver appNameSpace = getAppNameSpace();
+        NameResolver appNameSpace = getMasterNameSpace();
 		occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
 		mapView.addLayer(occupancyGridLayer);
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
@@ -235,7 +235,7 @@ public class MainActivity extends RosAppActivity {
 	private void updateMapView(MapListEntry map) {
 
 		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("publish");
 		mapManager.setMapId(map.getMapId());
 		safeShowWaitingDialog("Loading...");
@@ -311,7 +311,7 @@ public class MainActivity extends RosAppActivity {
 	private void updateMapList() {
 
 		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("list");
 		safeShowWaitingDialog("Waiting for maps...");
 
@@ -361,7 +361,7 @@ public class MainActivity extends RosAppActivity {
 				safeShowWaitingDialog("Deleting...");
 				try {
 					MapManager mapManager = new MapManager();
-                    mapManager.setNameResolver(getAppNameSpace());
+                    mapManager.setNameResolver(getMasterNameSpace());
 					mapManager.setFunction("delete");
 					mapManager.setMapId(id);
 
@@ -453,7 +453,7 @@ public class MainActivity extends RosAppActivity {
 							safeShowWaitingDialog("Waiting for rename...");
 							try {
 								MapManager mapManager = new MapManager();
-                                mapManager.setNameResolver(getAppNameSpace());
+                                mapManager.setNameResolver(getMasterNameSpace());
 								mapManager.setFunction("rename");
 								mapManager.setMapId(targetMapId);
 								mapManager.setMapName(newName);

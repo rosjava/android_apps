@@ -83,7 +83,7 @@ public class MainActivity extends RosAppActivity {
         String joyTopic  = remaps.get(getString(R.string.joystick_topic));
         String camTopic  = remaps.get(getString(R.string.camera_topic));
 
-        NameResolver appNameSpace = getAppNameSpace();
+        NameResolver appNameSpace = getMasterNameSpace();
         joyTopic = appNameSpace.resolve(joyTopic).toString();
         camTopic = appNameSpace.resolve(camTopic).toString();
 

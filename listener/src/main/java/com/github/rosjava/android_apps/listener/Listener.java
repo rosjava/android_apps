@@ -56,7 +56,7 @@ public class Listener extends RosAppActivity
         NodeConfiguration nodeConfiguration =
                 NodeConfiguration.newPublic(InetAddressFactory.newNonLoopback().getHostAddress(), getMasterUri());
         rosTextView = (RosTextView<std_msgs.String>) findViewById(R.id.text);
-        rosTextView.setTopicName(getAppNameSpace().resolve("chatter").toString());
+        rosTextView.setTopicName(getMasterNameSpace().resolve("chatter").toString());
         rosTextView.setMessageType(std_msgs.String._TYPE);
         rosTextView.setMessageToStringCallable(new MessageCallable<java.lang.String, String>() {
             @Override

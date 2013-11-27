@@ -270,10 +270,6 @@ public abstract class RosAppActivity extends RosActivity {
         }
     }
 
-	protected NameResolver getAppNameSpace() {
-		return masterNameResolver.getAppNameSpace();
-	}
-
 	protected NameResolver getMasterNameSpace() {
 		return masterNameResolver.getMasterNameSpace();
 	}

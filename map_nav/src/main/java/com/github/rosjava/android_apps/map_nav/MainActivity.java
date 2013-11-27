@@ -131,7 +131,7 @@ public class MainActivity extends RosAppActivity {
         String joyTopic = remaps.get(getString(R.string.joystick_topic));
         String camTopic = remaps.get(getString(R.string.camera_topic));
 
-		NameResolver appNameSpace = getAppNameSpace();
+		NameResolver appNameSpace = getMasterNameSpace();
         cameraView.setTopicName(appNameSpace.resolve(camTopic).toString());
         virtualJoystickView.setTopicName(appNameSpace.resolve(joyTopic).toString());
 
@@ -207,8 +207,8 @@ public class MainActivity extends RosAppActivity {
 	private void readAvailableMapList() {
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
 
-		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+        MapManager mapManager = new MapManager(this, remaps);
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("list");
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
 		mapManager.setListService(new ServiceResponseListener<ListMapsResponse>() {
@@ -272,8 +272,8 @@ public class MainActivity extends RosAppActivity {
 
 	private void loadMap(MapListEntry mapListEntry) {
 
-		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+		MapManager mapManager = new MapManager(this, remaps);
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("publish");
 		mapManager.setMapId(mapListEntry.getMapId());
 
