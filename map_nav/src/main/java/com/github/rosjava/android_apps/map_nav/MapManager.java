@@ -1,5 +1,9 @@
 package com.github.rosjava.android_apps.map_nav;
 
+import android.content.Context;
+
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
+
 import map_store.ListMaps;
 import map_store.ListMapsRequest;
 import map_store.ListMapsResponse;
@@ -24,10 +28,15 @@ public class MapManager extends AbstractNodeMain {
 	private ServiceResponseListener<PublishMapResponse> publishServiceResponseListener;
 
 	private String mapId;
+    private String listSrvName;
+    private String pubSrvName;
     private NameResolver nameResolver;
     private boolean nameResolverSet = false;
 	
-	public MapManager() {
+	public MapManager(final Context context, final AppRemappings remaps) {
+        // Apply remappings
+        listSrvName = remaps.get(context.getString(R.string.list_maps_srv));
+        pubSrvName = remaps.get(context.getString(R.string.publish_map_srv));
 	}
 	
 	public void setMapId(String mapId) {
@@ -57,12 +66,11 @@ public class MapManager extends AbstractNodeMain {
 		ServiceClient<ListMapsRequest, ListMapsResponse> listMapsClient;
 		try
         {
-            String srvName = "list_maps";
             if (nameResolverSet)
             {
-                srvName = nameResolver.resolve(srvName).toString();
+                listSrvName = nameResolver.resolve(listSrvName).toString();
             }
-			listMapsClient = connectedNode.newServiceClient(srvName, ListMaps._TYPE);
+			listMapsClient = connectedNode.newServiceClient(listSrvName, ListMaps._TYPE);
 		} catch (ServiceNotFoundException e) {
 		          try {
 		            Thread.sleep(1000L);
@@ -82,12 +90,11 @@ public class MapManager extends AbstractNodeMain {
 		
 		try
         {
-            String srvName = "publish_map";
             if (nameResolverSet)
             {
-                srvName = nameResolver.resolve(srvName).toString();
+                pubSrvName = nameResolver.resolve(pubSrvName).toString();
             }
-			publishMapClient = connectedNode.newServiceClient(srvName, PublishMap._TYPE);
+			publishMapClient = connectedNode.newServiceClient(pubSrvName, PublishMap._TYPE);
 		} catch (ServiceNotFoundException e) {
 			 try {
 		            Thread.sleep(1000L);

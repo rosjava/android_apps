@@ -20,18 +20,17 @@ import android.os.Handler;
 public class InitialPoseSubscriberLayer extends
 		SubscriberLayer<geometry_msgs.PoseStamped> implements TfLayer {
 
-	private static final String ROBOT_FRAME = "base_link";
 	private final FrameName targetFrame;
 
 	private Shape shape;
 
-	public InitialPoseSubscriberLayer(String topic) {
-		this(GraphName.of(topic));
+	public InitialPoseSubscriberLayer(String topic, String robotFrame) {
+		this(GraphName.of(topic), robotFrame);
 	}
 
-	public InitialPoseSubscriberLayer(GraphName topic) {
+	public InitialPoseSubscriberLayer(GraphName topic, String robotFrame) {
 		super(topic, "geometry_msgs/PoseStamped");
-		targetFrame = FrameName.of(ROBOT_FRAME);
+		targetFrame = FrameName.of(robotFrame);
 	}
 
 	@Override
