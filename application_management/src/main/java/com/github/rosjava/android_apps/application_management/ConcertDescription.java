@@ -38,6 +38,7 @@ import java.util.Date;
 
 /**
  * Extends MasterDescription with concert specific attributes.
+ * On concerts, where there's no gateway,gatewayName must be empty.
  *
  * @author jorge@yujinrobot.com (Jorge Santos Simon)
  */
@@ -49,7 +50,8 @@ public class ConcertDescription extends MasterDescription implements java.io.Ser
     private int currentRole = -1;
 
     public static ConcertDescription create(MasterDescription master) {
-        ConcertDescription cd = new ConcertDescription(master.getMasterId(), master.getMasterName(), null, null, new Date());
+        ConcertDescription cd = new ConcertDescription(master.getMasterId(), master.getMasterName(),
+                                                       null, null, new Date());
         cd.setMasterIconFormat(master.getMasterIconFormat());
         cd.setMasterIconData(master.getMasterIconData());
         return cd;
@@ -67,17 +69,17 @@ public class ConcertDescription extends MasterDescription implements java.io.Ser
 
     public ConcertDescription(MasterId masterId, String concertName, String description,
                               rocon_std_msgs.Icon concertIcon, Date timeLastSeen) {
-        super(masterId, concertName, "Rocon concert", concertIcon, null, timeLastSeen);
+        super(masterId, concertName, "Rocon concert", concertIcon, "", timeLastSeen);
+        // empty gatewayName on concerts
 
         this.description = description;
-
-        // no gatewayName on concerts
     }
 
     public void copyFrom(ConcertDescription other) {
-            super.copyFrom(other);
+        super.copyFrom(other);
 
-            userRoles = other.userRoles.clone();
+        this.userRoles = other.userRoles.clone();
+        this.description = other.description;
     }
 
     public String[] getUserRoles()  {

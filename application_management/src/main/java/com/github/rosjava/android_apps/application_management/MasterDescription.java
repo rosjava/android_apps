@@ -65,10 +65,13 @@ public class MasterDescription implements java.io.Serializable {
     private MasterId masterId;
     private String masterName;
     private String masterType; // TODO this contains robot type, but in concerts don't make a lot of sense; move to RobotDescription?
-    // TODO same for gateway, no sense in concerts
-    private String gatewayName; // unique id used as the signature of the remote app manager (used to check that the remote controller is us).
-    // Icon stored piecemeal because msg arrays (stored as jboss ChannelBuffers) can't
-    // be dumped and reloaded by the snakeyaml library.
+
+    /** Unique id used as the signature of the remote app manager (to check that the remote
+     *  controller is us). On concert mode, where there's no gateway, it should be empty */
+    private String gatewayName;
+
+    /** Icon stored piecemeal because msg arrays (stored as jboss ChannelBuffers) can't be
+     *  dumped and reloaded by the snakeyaml library. */
     private String masterIconFormat;
     private byte[] masterIconData;
     private int masterIconDataOffset;
