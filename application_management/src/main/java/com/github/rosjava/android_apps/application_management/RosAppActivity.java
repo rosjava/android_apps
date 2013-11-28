@@ -187,17 +187,35 @@ public abstract class RosAppActivity extends RosActivity {
             // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
             // We create empty maps if the strings are missing to avoid continuous if ! null checks
             Yaml yaml = new Yaml();
-
             String paramsStr = getIntent().getStringExtra("Parameters");
-            if (paramsStr != null) {
-                params.putAll((LinkedHashMap)yaml.load(paramsStr));
-                Log.d("ApplicationManagement", "Parameters: " + paramsStr);
+            String remapsStr = getIntent().getStringExtra("Remappings");
+
+            Log.e("ApplicationManagement", ">>>>>>>>>>>>>>>>>>>>>>>> (" + paramsStr + ")");
+            Log.e("ApplicationManagement", ">>>>>>>>>>>>>>>>>>>>>>>> (" + remapsStr + ")");
+            try {
+                if (paramsStr != null) {
+                    LinkedHashMap<String, Object> paramsList = (LinkedHashMap<String, Object>)yaml.load(paramsStr);
+                    if (paramsList != null) {
+                        params.putAll(paramsList);
+                        Log.d("ApplicationManagement", "Parameters: " + paramsStr);
+                    }
+                }
+            } catch (ClassCastException e) {
+                Log.e("ApplicationManagement", "Cannot cast parameters yaml string to a hash map (" + paramsStr + ")");
+                throw new RosRuntimeException("Cannot cast parameters yaml string to a hash map (" + paramsStr + ")");
             }
 
-            String remapsStr = getIntent().getStringExtra("Remappings");
-            if (remapsStr != null) {
-                remaps.putAll((LinkedHashMap)yaml.load(remapsStr));
-                Log.d("ApplicationManagement", "Remappings: " + remapsStr);
+            try {
+                if (remapsStr != null) {
+                    LinkedHashMap<String, String> remapsList = (LinkedHashMap<String, String>)yaml.load(remapsStr);
+                    if (remapsList != null) {
+                        remaps.putAll(remapsList);
+                        Log.d("ApplicationManagement", "Remappings: " + remapsStr);
+                    }
+                }
+            } catch (ClassCastException e) {
+                Log.e("ApplicationManagement", "Cannot cast parameters yaml string to a hash map (" + remapsStr + ")");
+                throw new RosRuntimeException("Cannot cast parameters yaml string to a hash map (" + remapsStr + ")");
             }
 
             remoconActivity = getIntent().getStringExtra("RemoconActivity");
