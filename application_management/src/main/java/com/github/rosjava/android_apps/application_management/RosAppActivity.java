@@ -187,13 +187,15 @@ public abstract class RosAppActivity extends RosActivity {
             // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
             // We create empty maps if the strings are missing to avoid continuous if ! null checks
             Yaml yaml = new Yaml();
+
             String paramsStr = getIntent().getStringExtra("Parameters");
             String remapsStr = getIntent().getStringExtra("Remappings");
 
-            Log.e("ApplicationManagement", ">>>>>>>>>>>>>>>>>>>>>>>> (" + paramsStr + ")");
-            Log.e("ApplicationManagement", ">>>>>>>>>>>>>>>>>>>>>>>> (" + remapsStr + ")");
+            Log.d("ApplicationManagement", "Parameters: " + paramsStr);
+            Log.d("ApplicationManagement", "Remappings: " + remapsStr);
+
             try {
-                if (paramsStr != null) {
+                if ((paramsStr != null) && (! paramsStr.isEmpty())) {
                     LinkedHashMap<String, Object> paramsList = (LinkedHashMap<String, Object>)yaml.load(paramsStr);
                     if (paramsList != null) {
                         params.putAll(paramsList);
@@ -206,7 +208,7 @@ public abstract class RosAppActivity extends RosActivity {
             }
 
             try {
-                if (remapsStr != null) {
+                if ((remapsStr != null) && (! remapsStr.isEmpty())) {
                     LinkedHashMap<String, String> remapsList = (LinkedHashMap<String, String>)yaml.load(remapsStr);
                     if (remapsList != null) {
                         remaps.putAll(remapsList);
@@ -261,7 +263,7 @@ public abstract class RosAppActivity extends RosActivity {
         }
         else {
             masterNameResolver.setMaster(masterDescription);
-            dashboard.setRobotName(masterDescription.getMasterName());  // TODO will work?????
+            dashboard.setRobotName(masterDescription.getMasterName());  // TODO dashboard not working for concerted apps (Issue #32)
 
             if (appMode == AppMode.PAIRED) {
                 managedPairingApplicationNamePublisher = new PairingApplicationNamePublisher(this.androidApplicationName);
