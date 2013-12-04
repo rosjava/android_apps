@@ -38,7 +38,7 @@ import java.util.Date;
 
 /**
  * Extends MasterDescription with concert specific attributes.
- * On concerts, where there's no gateway,gatewayName must be empty.
+ * On concerts, apps namespace must be empty.
  *
  * @author jorge@yujinrobot.com (Jorge Santos Simon)
  */
@@ -70,7 +70,7 @@ public class ConcertDescription extends MasterDescription implements java.io.Ser
     public ConcertDescription(MasterId masterId, String concertName, String description,
                               rocon_std_msgs.Icon concertIcon, Date timeLastSeen) {
         super(masterId, concertName, "Rocon concert", concertIcon, "", timeLastSeen);
-        // empty gatewayName on concerts
+        // empty apps namespace on concerts; allis handled by remappings
 
         this.description = description;
     }

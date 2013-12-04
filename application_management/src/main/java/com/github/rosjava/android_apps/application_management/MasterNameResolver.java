@@ -72,7 +72,7 @@ public class MasterNameResolver extends AbstractNodeMain {
 	public void onStart(final ConnectedNode connectedNode) {
 		this.connectedNode = connectedNode;
         if (currentMaster != null) {
-            masterName = GraphName.of(currentMaster.getGatewayName());
+            masterName = GraphName.of(currentMaster.getAppsNameSpace());
         } else {
             // This is duplicated in PlatformInfoServiceClient and could be better stored somewhere, but it's not much.
             MasterStateClient masterClient = new MasterStateClient(this.connectedNode, this.connectedNode.getMasterUri());

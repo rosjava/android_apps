@@ -65,10 +65,7 @@ public class MasterDescription implements java.io.Serializable {
     private MasterId masterId;
     private String masterName;
     private String masterType; // TODO this contains robot type, but in concerts don't make a lot of sense; move to RobotDescription?
-
-    /** Unique id used as the signature of the remote app manager (to check that the remote
-     *  controller is us). On concert mode, where there's no gateway, it should be empty */
-    private String gatewayName;
+    private String appsNameSpace;
 
     /** Icon stored piecemeal because msg arrays (stored as jboss ChannelBuffers) can't be
      *  dumped and reloaded by the snakeyaml library. */
@@ -85,12 +82,12 @@ public class MasterDescription implements java.io.Serializable {
     }
 
     public MasterDescription(MasterId masterId, String masterName, String masterType,
-                             Icon masterIcon, String gatewayName, Date timeLastSeen) {
+                             Icon masterIcon, String appsNameSpace, Date timeLastSeen) {
         setMasterName(masterName);
         setMasterId(masterId);
         this.masterName = masterName;
         this.masterType = masterType;
-        this.gatewayName = gatewayName;
+        this.appsNameSpace = appsNameSpace;
         if (masterIcon != null) {
             this.masterIconFormat = masterIcon.getFormat();
             this.masterIconData = masterIcon.getData().array();
@@ -104,7 +101,7 @@ public class MasterDescription implements java.io.Serializable {
         masterId = other.masterId;
         masterName = other.masterName;
         masterType = other.masterType;
-        gatewayName = other.gatewayName;
+        appsNameSpace = other.appsNameSpace;
         masterIconFormat = other.masterIconFormat;
         masterIconData = other.masterIconData;
         masterIconDataOffset = other.masterIconDataOffset;
@@ -117,8 +114,8 @@ public class MasterDescription implements java.io.Serializable {
         return masterId;
     }
 
-    public String getGatewayName() {
-        return gatewayName;
+    public String getAppsNameSpace() {
+        return appsNameSpace;
     }
 
     /**
@@ -238,9 +235,9 @@ public class MasterDescription implements java.io.Serializable {
         return this.masterName.equals(NAME_UNKNOWN);
     }
 
-    public static MasterDescription createUnknown(MasterId masterId) {
-        return new MasterDescription(masterId, NAME_UNKNOWN, TYPE_UNKNOWN, null, NAME_UNKNOWN, new Date());
-    }
+//    public static MasterDescription createUnknown(MasterId masterId) {
+//        return new MasterDescription(masterId, NAME_UNKNOWN, TYPE_UNKNOWN, null, NAME_UNKNOWN, new Date());
+//    }
 
     @Override
     public boolean equals(Object o) {

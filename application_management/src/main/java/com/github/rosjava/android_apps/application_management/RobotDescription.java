@@ -35,12 +35,7 @@
 
 package com.github.rosjava.android_apps.application_management;
 
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-
 import java.util.Date;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import rocon_std_msgs.Icon;
 
 /**
@@ -52,7 +47,8 @@ import rocon_std_msgs.Icon;
 public class RobotDescription extends MasterDescription implements java.io.Serializable {
     private static final long serialVersionUID = -6338229744294822763L;
     private String robotType;
-//    private String gatewayName; // unique id used as the signature of the remote app manager (used to check that the remote controller is us).
+    /** Unique id used as the signature of the remote app manager (to check that the remote controller is us) */
+    private String gatewayName;
 
     /**
      * Empty constructor required by snake yaml parsing
@@ -64,9 +60,17 @@ public class RobotDescription extends MasterDescription implements java.io.Seria
         return new RobotDescription(masterId, NAME_UNKNOWN, TYPE_UNKNOWN, null, NAME_UNKNOWN, new Date());
     }
 
-    public RobotDescription(MasterId masterId, String robotName, String robotType, Icon robotIcon, String gatewayName, Date timeLastSeen) {
-        super(masterId, robotName, robotType, robotIcon, gatewayName, timeLastSeen);
+    public RobotDescription(MasterId masterId, String robotName, String robotType,
+                            Icon robotIcon, String gatewayName, Date timeLastSeen) {
+        super(masterId, robotName, robotType, robotIcon, robotName, timeLastSeen);
         this.robotType = robotType;
+        this.gatewayName = gatewayName;
+
+        // apps namespace equals robotName on robot remocon
+    }
+
+    public String getGatewayName() {
+        return gatewayName;
     }
 
     public String getRobotType() { return robotType; }
