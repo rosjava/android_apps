@@ -118,7 +118,7 @@ public class WifiChecker {
                 Log.d("WiFiChecker", "WiFi Info: " + wifiInfo.toString() + " IP " + wifiInfo.getIpAddress());
                 if (wifiInfo.getSSID() != null && wifiInfo.getIpAddress() != 0
                         && wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
-                    String master_SSID = masterId.getWifi(); // TODO review    String master_SSID = "\"" + masterId.getWifi() + "\"";
+                    String master_SSID = "\"" + masterId.getWifi() + "\"";
                     if (wifiInfo.getSSID().equals(master_SSID)) {
                         return true;
                     }
