@@ -57,7 +57,6 @@ public class MainActivity extends RosAppActivity {
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
-
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
 		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
@@ -80,8 +79,8 @@ public class MainActivity extends RosAppActivity {
 				InetAddressFactory.newNonLoopback().getHostAddress(),
 				getMasterUri());
 
-        String joyTopic  = remaps.get(getString(R.string.joystick_topic));
-        String camTopic  = remaps.get(getString(R.string.camera_topic));
+        String joyTopic = remaps.get(getString(R.string.joystick_topic));
+        String camTopic = remaps.get(getString(R.string.camera_topic));
 
         NameResolver appNameSpace = getMasterNameSpace();
         joyTopic = appNameSpace.resolve(joyTopic).toString();
@@ -116,5 +115,4 @@ public class MainActivity extends RosAppActivity {
 		  }
 		  return true;
 	  }
-	
 }

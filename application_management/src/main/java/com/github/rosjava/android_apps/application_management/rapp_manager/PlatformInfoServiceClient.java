@@ -75,7 +75,7 @@ public class PlatformInfoServiceClient extends AbstractNodeMain {
                 throw new ServiceNotFoundException(errorMessage);
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (Exception e) {
                 throw new RosRuntimeException(e);
             }
