@@ -26,15 +26,11 @@ import org.ros.rosjava_geometry.FrameTransformTree;
 import org.ros.rosjava_geometry.Transform;
 import org.ros.rosjava_geometry.Vector3;
 
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
 import com.google.common.base.Preconditions;
 
 public class MapPosePublisherLayer extends DefaultLayer {
-
-	private static final String MAP_FRAME = "map";
-	private static final String ROBOT_FRAME = "base_link";
-    private static final String INITIAL_POSE_TOPIC = "initialpose";
-    private static final String POSE_GOAL_TOPIC = "move_base_simple/goal";
-    private static final String MOVE_BASE_GOAL_TOPIC = "move_base/goal";
 
 	private final Context context;
 	private Shape shape;
@@ -52,10 +48,24 @@ public class MapPosePublisherLayer extends DefaultLayer {
 	private static final int POSE_MODE = 0;
 	private static final int GOAL_MODE = 1;
 
-	public MapPosePublisherLayer(NameResolver newNameResolver, Context context) {
+    private String mapFrame;
+    private String robotFrame;
+    private String initialPoseTopic;
+    private String simpleGoalTopic;
+    private String moveBaseGoalTopic;
+
+	public MapPosePublisherLayer(final NameResolver newNameResolver, final Context context,
+                                 final AppParameters params, final AppRemappings remaps) {
 		this.nameResolver = newNameResolver;
 		this.context = context;
 		visible = false;
+
+        this.mapFrame = (String) params.get("map_frame", context.getString(R.string.map_frame));
+        this.robotFrame = (String) params.get("robot_frame", context.getString(R.string.robot_frame));
+
+        this.initialPoseTopic = remaps.get(context.getString(R.string.initial_pose_topic));
+        this.simpleGoalTopic = remaps.get(context.getString(R.string.simple_goal_topic));
+        this.moveBaseGoalTopic = remaps.get(context.getString(R.string.move_base_goal_topic));
 	}
 
 	public void setPoseMode() {
@@ -107,7 +117,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 				PoseStamped poseStamped;
 				switch (mode) {
 				case POSE_MODE:
-					camera.setFrame(MAP_FRAME);
+					camera.setFrame(mapFrame);
 					poseVector = fixedPose.apply(Vector3.zero());
 					pointerVector = camera.toMetricCoordinates(
 							(int) event.getX(), (int) event.getY());
@@ -116,14 +126,14 @@ public class MapPosePublisherLayer extends DefaultLayer {
 							poseVector.getY());
 					fixedPose = Transform.translation(poseVector).multiply(
 							Transform.zRotation(angle2));
-					camera.setFrame(ROBOT_FRAME);
+					camera.setFrame(robotFrame);
 					poseStamped = fixedPose.toPoseStampedMessage(
-							FrameName.of(ROBOT_FRAME),
+							FrameName.of(robotFrame),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 
 					PoseWithCovarianceStamped initialPose = initialPosePublisher.newMessage();
-					initialPose.getHeader().setFrameId(MAP_FRAME);
+					initialPose.getHeader().setFrameId(mapFrame);
 					initialPose.getPose().setPose(poseStamped.getPose());
 					double[] covariance = initialPose.getPose().getCovariance();
 					covariance[6 * 0 + 0] = 0.5 * 0.5;
@@ -134,7 +144,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 					break;
 				case GOAL_MODE:
 					poseStamped = pose.toPoseStampedMessage(
-							FrameName.of(ROBOT_FRAME),
+							FrameName.of(robotFrame),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 					androidGoalPublisher.publish(poseStamped);
@@ -163,15 +173,13 @@ public class MapPosePublisherLayer extends DefaultLayer {
 		this.camera = camera;
 		shape = new PoseShape(camera);
 		mode = POSE_MODE;
-		initialPosePublisher = connectedNode.newPublisher(
-                nameResolver.resolve(INITIAL_POSE_TOPIC).toString(),
-				"geometry_msgs/PoseWithCovarianceStamped");
-		androidGoalPublisher = connectedNode.newPublisher(
-                nameResolver.resolve(POSE_GOAL_TOPIC).toString(),
-				"geometry_msgs/PoseStamped");
-		goalPublisher = connectedNode.newPublisher(
-                nameResolver.resolve(MOVE_BASE_GOAL_TOPIC).toString(),
-				"move_base_msgs/MoveBaseActionGoal");
+
+		initialPosePublisher = connectedNode.newPublisher(nameResolver.resolve(initialPoseTopic).toString(),
+				                                          "geometry_msgs/PoseWithCovarianceStamped");
+		androidGoalPublisher = connectedNode.newPublisher(nameResolver.resolve(simpleGoalTopic).toString(),
+				                                          "geometry_msgs/PoseStamped");
+		goalPublisher = connectedNode.newPublisher(nameResolver.resolve(moveBaseGoalTopic).toString(),
+				                                   "move_base_msgs/MoveBaseActionGoal");
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -182,10 +190,10 @@ public class MapPosePublisherLayer extends DefaultLayer {
 								pose = Transform.translation(camera.toMetricCoordinates(
                                         (int) e.getX(), (int) e.getY()));
 								shape.setTransform(pose);
-								camera.setFrame(MAP_FRAME);
+								camera.setFrame(mapFrame);
 								fixedPose = Transform.translation(camera.toMetricCoordinates(
                                         (int) e.getX(),	(int) e.getY()));
-								camera.setFrame(ROBOT_FRAME);
+								camera.setFrame(robotFrame);
 								visible = true;
 							}
 						});

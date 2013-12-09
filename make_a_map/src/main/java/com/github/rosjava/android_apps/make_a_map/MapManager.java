@@ -1,5 +1,9 @@
 package com.github.rosjava.android_apps.make_a_map;
 
+import android.content.Context;
+
+import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
+
 import map_store.SaveMap;
 import map_store.SaveMapRequest;
 import map_store.SaveMapResponse;
@@ -19,10 +23,13 @@ public class MapManager extends AbstractNodeMain {
 	private ServiceResponseListener<SaveMapResponse> saveServiceResponseListener;
 
 	private String mapName;
+    private String saveSrvName;
     private NameResolver nameResolver;
     private boolean nameResolverSet = false;
 
-	public MapManager() {
+    public MapManager(final Context context, final AppRemappings remaps) {
+        // Apply remappings
+        saveSrvName = remaps.get(context.getString(R.string.save_map_srv));
 		mapName = "";
 	}
 	
@@ -45,12 +52,11 @@ public class MapManager extends AbstractNodeMain {
 		if (connectedNode != null) {
 			try
             {
-                String srvName = "save_map";
                 if (nameResolverSet)
                 {
-                    srvName = nameResolver.resolve(srvName).toString();
+                    saveSrvName = nameResolver.resolve(saveSrvName).toString();
                 }
-                saveMapClient = connectedNode.newServiceClient(srvName,	SaveMap._TYPE);
+                saveMapClient = connectedNode.newServiceClient(saveSrvName,	SaveMap._TYPE);
 			} catch (ServiceNotFoundException e) {
 				try {
 					Thread.sleep(1000L);

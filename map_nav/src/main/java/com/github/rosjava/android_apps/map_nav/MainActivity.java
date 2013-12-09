@@ -59,15 +59,6 @@ import org.ros.time.NtpTimeProvider;
  */
 public class MainActivity extends RosAppActivity {
 
-	private static final String MAP_FRAME = "map";
-	private static final String ROBOT_FRAME = "base_link";
-	private static final String cameraTopic = "camera/rgb/image_color/compressed_throttle";
-    private static final String virtualJoystickTopic = "android/virtual_joystick/cmd_vel";
-    private static final String mapTopic = "map";
-    private static final String scanTopic = "scan";
-    private static final String pathLayerTopic = "move_base/TrajectoryPlannerROS/global_plan";
-    private static final String initialPoseTopic = "initialpose";
-
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
 	private VisualizationView mapView;
@@ -94,7 +85,7 @@ public class MainActivity extends RosAppActivity {
 
 		String defaultRobotName = getString(R.string.default_robot);
 		String defaultAppName = getString(R.string.default_app);
-		setDefaultRobotName(defaultRobotName);
+        setDefaultMasterName(defaultRobotName);
 		setDefaultAppName(defaultAppName);
 		setDashboardResource(R.id.top_bar);
 		setMainWindowResource(R.layout.main);
@@ -122,7 +113,7 @@ public class MainActivity extends RosAppActivity {
 			}
 		});
 
-		mapView.getCamera().jumpToFrame(ROBOT_FRAME);
+		mapView.getCamera().jumpToFrame((String) params.get("map_frame", getString(R.string.map_frame)));
 		mainLayout = (ViewGroup) findViewById(R.id.main_layout);
 		sideLayout = (ViewGroup) findViewById(R.id.side_layout);
 
@@ -137,9 +128,12 @@ public class MainActivity extends RosAppActivity {
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
-		NameResolver appNameSpace = getAppNameSpace();
-        cameraView.setTopicName(appNameSpace.resolve(cameraTopic).toString());
-        virtualJoystickView.setTopicName(appNameSpace.resolve(virtualJoystickTopic).toString());
+        String joyTopic = remaps.get(getString(R.string.joystick_topic));
+        String camTopic = remaps.get(getString(R.string.camera_topic));
+
+		NameResolver appNameSpace = getMasterNameSpace();
+        cameraView.setTopicName(appNameSpace.resolve(camTopic).toString());
+        virtualJoystickView.setTopicName(appNameSpace.resolve(joyTopic).toString());
 
 		nodeMainExecutor.execute(cameraView,
 				nodeConfiguration.setNodeName("android/camera_view"));
@@ -148,7 +142,7 @@ public class MainActivity extends RosAppActivity {
 
 		ViewControlLayer viewControlLayer = new ViewControlLayer(this,
 				nodeMainExecutor.getScheduledExecutorService(), cameraView,
-				mapView, mainLayout, sideLayout);
+				mapView, mainLayout, sideLayout, params);
 
 		viewControlLayer.addListener(new CameraControlListener() {
             @Override
@@ -167,14 +161,19 @@ public class MainActivity extends RosAppActivity {
             }
         });
 
-		mapView.addLayer(viewControlLayer);
+        String mapTopic   = remaps.get(getString(R.string.map_topic));
+        String scanTopic  = remaps.get(getString(R.string.scan_topic));
+        String planTopic  = remaps.get(getString(R.string.global_plan_topic));
+        String initTopic  = remaps.get(getString(R.string.initial_pose_topic));
+        String robotFrame = (String) params.get("robot_frame", getString(R.string.robot_frame));
+
+        mapView.addLayer(viewControlLayer);
 		mapView.addLayer(new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString()));
         mapView.addLayer(new LaserScanLayer(appNameSpace.resolve(scanTopic).toString()));
-        mapView.addLayer(new PathLayer(appNameSpace.resolve(pathLayerTopic).toString()));
-        mapPosePublisherLayer = new MapPosePublisherLayer(appNameSpace, this);
+        mapView.addLayer(new PathLayer(appNameSpace.resolve(planTopic).toString()));
+        mapPosePublisherLayer = new MapPosePublisherLayer(appNameSpace, this, params, remaps);
 		mapView.addLayer(mapPosePublisherLayer);
-		mapView.addLayer(new InitialPoseSubscriberLayer(
-                appNameSpace.resolve(initialPoseTopic).toString()));
+		mapView.addLayer(new InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame));
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
@@ -208,8 +207,8 @@ public class MainActivity extends RosAppActivity {
 	private void readAvailableMapList() {
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
 
-		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+        MapManager mapManager = new MapManager(this, remaps);
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("list");
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
 		mapManager.setListService(new ServiceResponseListener<ListMapsResponse>() {
@@ -273,8 +272,8 @@ public class MainActivity extends RosAppActivity {
 
 	private void loadMap(MapListEntry mapListEntry) {
 
-		MapManager mapManager = new MapManager();
-        mapManager.setNameResolver(getAppNameSpace());
+		MapManager mapManager = new MapManager(this, remaps);
+        mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("publish");
 		mapManager.setMapId(mapListEntry.getMapId());
 

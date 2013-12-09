@@ -44,7 +44,7 @@ public class GatewayInfoSubscriber extends AbstractNodeMain {
                 throw new RosRuntimeException(errorMessage);
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (Exception e) {
                 throw new RosRuntimeException(e);
             }
