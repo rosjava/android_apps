@@ -1,9 +1,11 @@
 package com.github.rosjava.android_apps.listener;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+import java.net.URI;
 
 // RosJava Imports
 import org.ros.node.ConnectedNode;
@@ -58,6 +60,12 @@ public class Listener extends RosAppActivity
                 return message.getData();
             }
         });
+        // Really horrible hack till I work out exactly the root cause and fix for
+        // https://github.com/rosjava/android_remocons/issues/47
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+        }
         nodeMainExecutor.execute(rosTextView, nodeConfiguration);
     }
 
