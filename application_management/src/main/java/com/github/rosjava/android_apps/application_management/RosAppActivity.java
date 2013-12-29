@@ -36,6 +36,8 @@ import org.ros.address.InetAddressFactory;
 import org.ros.android.RosActivity;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosRuntimeException;
+import org.ros.exception.ServiceException;
+import org.ros.exception.ServiceNotFoundException;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -44,6 +46,7 @@ import org.ros.node.service.ServiceResponseListener;
 import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
 import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
 import com.github.rosjava.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
+import com.github.rosjava.android_apps.application_management.rapp_manager.StartAppServiceClient;
 
 import rocon_app_manager_msgs.StartAppResponse;
 import rocon_app_manager_msgs.StopAppResponse;
@@ -370,30 +373,49 @@ public abstract class RosAppActivity extends RosActivity {
      */
 	private void startApp() {
 		Log.i("ApplicationManagement", "android application starting a rapp [" + masterAppName + "]");
-
-		AppManager appManager = new AppManager(masterAppName,
-				getMasterNameSpace());
-		appManager.setFunction("start");
-
-		appManager
-				.setStartService(new ServiceResponseListener<StartAppResponse>() {
-					@Override
-					public void onSuccess(StartAppResponse message) {
-						if (message.getStarted()) {
-							Log.i("ApplicationManagement", "rapp started successfully [" + masterAppName + "]");
-						} else {
-							Log.e("ApplicationManagement", "rapp failed to start! [" + message.getMessage() + "]");
-                        }
-					}
-
-					@Override
-					public void onFailure(RemoteException e) {
-						Log.e("ApplicationManagement", "rapp failed to start - no response!");
-					}
-				});
-
-		nodeMainExecutor.execute(appManager,
-				nodeConfiguration.setNodeName("start_app"));
+        StartAppServiceClient startAppClient = new StartAppServiceClient(masterAppName, getMasterNameSpace());
+        nodeMainExecutor.execute(startAppClient,
+                nodeConfiguration.setNodeName("start_app"));
+        try {
+            startAppClient.waitForResponse();
+        } catch (ServiceNotFoundException e) {
+            RosAppActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(RosAppActivity.this)
+                            .setTitle("App Termination")
+                            .setMessage(
+                                    "The start_app service was not found. Are you trying to connect directly to a paired app manager? (use the robot remocon).")
+                            .setCancelable(false)
+                            .setNeutralButton("Exit",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            RosAppActivity.this.finish();
+                                        }
+                                    }).create().show();
+                }
+            });
+        } catch (ServiceException e) {
+            final String errorMessage = e.toString();
+            RosAppActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new AlertDialog.Builder(RosAppActivity.this)
+                            .setTitle("App Termination")
+                            .setMessage(
+                                    "Error calling the start_app service [" + errorMessage + "]")
+                            .setCancelable(false)
+                            .setNeutralButton("Exit",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            RosAppActivity.this.finish();
+                                        }
+                                    }).create().show();
+                }
+            });
+        }
 	}
 
 	protected void stopApp() {

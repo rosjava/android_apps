@@ -153,7 +153,8 @@ public class AppManager extends AbstractNodeMain {
 					StopApp._TYPE);
 		} catch (ServiceNotFoundException e) {
             Log.w("ApplicationManagement", "Stop app service not found");
-			throw new RosRuntimeException(e);
+            // not interested in handling this exception, just pass over it.
+            return;
 		}
 		final StopAppRequest request = stopAppClient.newMessage();
 		// request.setName(appName); // stop app name unused for now
