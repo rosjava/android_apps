@@ -181,7 +181,8 @@ public abstract class RosAppActivity extends RosActivity {
             masterAppName = defaultMasterAppName;
             appMode = AppMode.STANDALONE;
 		}
-        else {
+        else
+        {
             // Managed app; take from the intent all the fancy stuff remocon put there for us
 
             // Extract parameters and remappings from a YAML-formatted strings; translate into hash maps
@@ -259,7 +260,7 @@ public abstract class RosAppActivity extends RosActivity {
                 .newNonLoopback().getHostAddress(), getMasterUri());
 
         if (appMode == AppMode.STANDALONE) {
-            dashboard.setRobotName(getMasterNameSpace().getNamespace().toString());
+            dashboard.setRobotName(masterNameResolver.getMasterName());
         }
         else {
             masterNameResolver.setMaster(masterDescription);

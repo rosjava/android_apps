@@ -30,14 +30,34 @@ public class MasterNameResolver extends AbstractNodeMain {
 		return null;
 	}
 
-	public void setMasterName(String name) {
-		this.masterName = GraphName.of(name);
-	}
+    public void setMasterName(String name) {
+        this.masterName = GraphName.of(name);
+    }
+
+    /**
+     * Return the master name as is that will be resolved when actually
+     * connected to a node.
+     *
+     * @return the name,  e.g. 'turtlebot'.
+     */
+    public String getMasterName() {
+        return this.masterName.toString();
+    }
 	
 	public void resetMasterName(String name) {
 		masterNameResolver = connectedNode.getResolver().newChild(name);
 	}
 
+    /**
+     * The resolved master namespace (after connecting to a master).
+     *
+     * Warning: Do not call this before actually starting the resolver,
+     * or else it will return a null object.
+     *
+     * todo : get this to throw an exception if null
+     *
+     * @return the master name resolver
+     */
     public NameResolver getMasterNameSpace() {
 		return masterNameResolver;
 	}
