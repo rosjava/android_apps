@@ -19,4 +19,6 @@
   <build_depend>android_core</build_depend>
   <build_depend>android_extras</build_depend>
   <build_depend>zeroconf_jmdns_suite</build_depend>
+  <!-- While not officially released -->
+  <build_depend>rocon_rosjava_msgs</build_depend>
 </package>
