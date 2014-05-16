@@ -32,6 +32,8 @@ import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 
+import java.io.IOException;
+
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
@@ -71,9 +73,12 @@ public class MainActivity extends RosAppActivity {
 		
 		super.init(nodeMainExecutor);
 
-		NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(
-				InetAddressFactory.newNonLoopback().getHostAddress(),
-				getMasterUri());
+        try {
+            java.net.Socket socket = new java.net.Socket(getMasterUri().getHost(), getMasterUri().getPort());
+            java.net.InetAddress local_network_address = socket.getLocalAddress();
+            socket.close();
+            NodeConfiguration nodeConfiguration =
+                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
 
         String joyTopic = remaps.get(getString(R.string.joystick_topic));
         String camTopic = remaps.get(getString(R.string.camera_topic));
@@ -89,9 +94,10 @@ public class MainActivity extends RosAppActivity {
 				.setNodeName("android/camera_view"));
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("android/virtual_joystick"));
+        } catch (IOException e) {
+            // Socket problem
+        }
 
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
 	}
 	
 	  @Override
