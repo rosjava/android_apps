@@ -2,7 +2,7 @@ package com.github.rosjava.android_apps.map_nav;
 
 import android.content.Context;
 
-import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
+import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
 
 import map_store.ListMaps;
 import map_store.ListMapsRequest;

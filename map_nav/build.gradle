@@ -14,7 +14,7 @@
  * the License.
  */
 dependencies {
-  compile project(':application_management')
+  compile 'com.github.rosjava.android_remocons:common_tools:[0.1,0.2)'
   compile 'org.ros.android_core:android_honeycomb_mr2:[0.1,0.2)'
   compile 'org.ros.rosjava_core:rosjava_geometry:[0.1,0.2)'
   compile 'org.ros.rosjava_messages:map_store:[0.3,0.4)'

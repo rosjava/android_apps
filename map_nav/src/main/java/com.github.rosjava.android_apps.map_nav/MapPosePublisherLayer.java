@@ -26,8 +26,10 @@ import org.ros.rosjava_geometry.FrameTransformTree;
 import org.ros.rosjava_geometry.Transform;
 import org.ros.rosjava_geometry.Vector3;
 
-import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
-import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
+//import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
+//import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
+import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
+import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
 import com.google.common.base.Preconditions;
 
 public class MapPosePublisherLayer extends DefaultLayer {

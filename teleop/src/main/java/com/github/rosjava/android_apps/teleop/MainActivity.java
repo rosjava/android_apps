@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.util.Log;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 
