@@ -16,6 +16,7 @@
 
 package com.github.rosjava.android_apps.teleop;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,17 +57,17 @@ public class MainActivity extends RosAppActivity {
 		setMainWindowResource(R.layout.main);
 		super.onCreate(savedInstanceState);
 
-		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
-		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
-		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
-		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
-		backButton = (Button) findViewById(R.id.back_button);
-		backButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onBackPressed();
-			}
-		});
+        cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
+        cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
+        cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
+        virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
+        backButton = (Button) findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 	}
 
 	@Override
