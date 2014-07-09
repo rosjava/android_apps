@@ -40,7 +40,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import com.github.rosjava.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;

@@ -27,7 +27,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
+import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
 
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.visualization.Camera;

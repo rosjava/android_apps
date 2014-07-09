@@ -35,7 +35,7 @@ import map_store.ListMapsResponse;
 import map_store.MapListEntry;
 import map_store.PublishMapResponse;
 
-import com.github.rosjava.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.visualization.layer.RobotLayer;
 import org.ros.namespace.NameResolver;
@@ -66,7 +66,7 @@ public class MainActivity extends RosAppActivity {
 	private ViewGroup sideLayout;
 	private Button backButton;
 	private Button chooseMapButton;
-	private MapPosePublisherLayer mapPosePublisherLayer;
+	private com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer mapPosePublisherLayer;
 	private ProgressDialog waitingDialog;
 	private AlertDialog chooseMapDialog;
 	private NodeMainExecutor nodeMainExecutor;
@@ -140,7 +140,7 @@ public class MainActivity extends RosAppActivity {
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
-		ViewControlLayer viewControlLayer = new ViewControlLayer(this,
+		com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer = new com.github.rosjava.android_apps.map_nav.ViewControlLayer(this,
 				nodeMainExecutor.getScheduledExecutorService(), cameraView,
 				mapView, mainLayout, sideLayout, params);
 
@@ -171,9 +171,9 @@ public class MainActivity extends RosAppActivity {
 		mapView.addLayer(new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString()));
         mapView.addLayer(new LaserScanLayer(appNameSpace.resolve(scanTopic).toString()));
         mapView.addLayer(new PathLayer(appNameSpace.resolve(planTopic).toString()));
-        mapPosePublisherLayer = new MapPosePublisherLayer(appNameSpace, this, params, remaps);
+        mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(appNameSpace, this, params, remaps);
 		mapView.addLayer(mapPosePublisherLayer);
-		mapView.addLayer(new InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame));
+		mapView.addLayer(new com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame));
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
@@ -207,7 +207,7 @@ public class MainActivity extends RosAppActivity {
 	private void readAvailableMapList() {
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
 
-        MapManager mapManager = new MapManager(this, remaps);
+        com.github.rosjava.android_apps.map_nav.MapManager mapManager = new com.github.rosjava.android_apps.map_nav.MapManager(this, remaps);
         mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("list");
 		safeShowWaitingDialog("Waiting...", "Waiting for map list");
@@ -272,7 +272,7 @@ public class MainActivity extends RosAppActivity {
 
 	private void loadMap(MapListEntry mapListEntry) {
 
-		MapManager mapManager = new MapManager(this, remaps);
+        com.github.rosjava.android_apps.map_nav.MapManager mapManager = new com.github.rosjava.android_apps.map_nav.MapManager(this, remaps);
         mapManager.setNameResolver(getMasterNameSpace());
 		mapManager.setFunction("publish");
 		mapManager.setMapId(mapListEntry.getMapId());

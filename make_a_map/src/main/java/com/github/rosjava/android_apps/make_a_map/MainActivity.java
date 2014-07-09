@@ -35,7 +35,7 @@ import android.widget.Toast;
 
 import map_store.SaveMapResponse;
 
-import com.github.rosjava.android_apps.application_management.RosAppActivity;
+import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 import org.ros.android.view.RosImageView;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
