@@ -22,7 +22,7 @@ dependencies {
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 13
+    compileSdkVersion 15
     packagingOptions {
         /* https://github.com/rosjava/android_core/issues/194 */
         exclude 'META-INF/LICENSE.txt'

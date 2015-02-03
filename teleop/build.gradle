@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 dependencies {
   compile 'com.github.rosjava.android_remocons:common_tools:[0.1,0.2)'
   compile 'org.ros.android_core:android_honeycomb_mr2:[0.1,0.2)'
@@ -21,7 +22,7 @@ dependencies {
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 13
+    compileSdkVersion 15
     packagingOptions {
         /* https://github.com/rosjava/android_core/issues/194 */
         exclude 'META-INF/LICENSE.txt'

@@ -13,26 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.2.1'
 }
 
 buildscript {
-    def rosMavenPath = "$System.env.ROS_MAVEN_PATH".split(':').collect { 'file://' + it }
-    def rosMavenRepository = "$System.env.ROS_MAVEN_REPOSITORY"
-    repositories {
-        rosMavenPath.each { p ->
-            maven {
-                url p
-            }
-        }
-        mavenLocal()
-        maven {
-            url rosMavenRepository
-        }
-    }
+    apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/indigo/buildscript.gradle"
     dependencies {
-        classpath group: 'org.ros.rosjava_bootstrap', name: 'gradle_plugins', version: '[0.1,0.2)'
+        classpath "com.android.tools.build:gradle:1.0.1"
     }
 }
 
@@ -47,4 +36,4 @@ subprojects {
     apply plugin: 'ros-android'
 }
 
-defaultTasks 'assembleRelease'
+defaultTasks 'assembleRelease uploadArchives'
