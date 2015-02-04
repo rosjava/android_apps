@@ -21,7 +21,7 @@ dependencies {
   compile 'org.ros.rosjava_messages:move_base_msgs:[1.11,1.12)'
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 15

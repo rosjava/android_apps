@@ -21,7 +21,7 @@ dependencies {
   compile 'org.ros.rosjava_messages:map_store:[0.3,0.4)'
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 15
