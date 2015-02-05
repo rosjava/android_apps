@@ -29,6 +29,3 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 }
-
-defaultTasks 'assembleRelease'
-

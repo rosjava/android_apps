@@ -14,6 +14,7 @@
  * the License.
  */
 
+include 'application_management'
 include 'teleop'
 include 'map_nav'
 include 'make_a_map'

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Google Inc.
+ * Copyright (C) 2013 Daniel Stonier.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,24 +14,17 @@
  * the License.
  */
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+dependencies {
+  compile 'org.ros.android_core:android_gingerbread_mr1:[0.1,0.2)'
+  compile 'com.github.rosjava.android_extras:gingerbread:[0.1,0.2)'
+  compile 'org.ros.rosjava_core:rosjava:[0.1,)'
+  compile 'org.ros.rosjava_messages:rocon_app_manager_msgs:[0.6,0.7)'
+  compile 'org.ros.rosjava_messages:gateway_msgs:[0.6,0.7)'
+  compile 'org.ros.rosjava_messages:diagnostic_msgs:[1.10,1.11)'
 }
 
-buildscript {
-    apply from: "https://github.com/rosjava/rosjava_bootstrap/raw/indigo/buildscript.gradle"
-    dependencies {
-        classpath "com.android.tools.build:gradle:1.0.1"
-    }
-}
+apply plugin: 'com.android.library'
 
-apply plugin: 'catkin'
-
-allprojects {
-    group 'com.github.rosjava.android_apps'
-    version = project.catkin.pkg.version
-}
-
-subprojects {
-    apply plugin: 'ros-android'
+android {
+    compileSdkVersion 10
 }

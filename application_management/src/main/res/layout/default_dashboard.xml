@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              >
+  <!-- Robot battery level indicator. -->
+  <LinearLayout android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10sp"
+              android:text="Robot"/>
+    <com.github.rosjava.android_extras.gingerbread.view.BatteryLevelView android:layout_width="40dp"
+                                        android:layout_height="25dp"
+                                        android:id="@+id/robot_battery"/>
+  </LinearLayout>
+  <!-- Laptop battery level indicator. -->
+  <LinearLayout android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="10sp"
+              android:text="Laptop"/>
+    <com.github.rosjava.android_extras.gingerbread.view.BatteryLevelView android:layout_width="40dp"
+                                        android:layout_height="25dp"
+                                        android:id="@+id/laptop_battery"/>
+  </LinearLayout>
+</LinearLayout>
