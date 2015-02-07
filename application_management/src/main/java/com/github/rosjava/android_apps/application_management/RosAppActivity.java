@@ -16,9 +16,6 @@
 
 package com.github.rosjava.android_apps.application_management;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +26,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+import com.github.rosjava.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
+
 import org.ros.address.InetAddressFactory;
 import org.ros.android.RosActivity;
 import org.ros.exception.RemoteException;
@@ -38,7 +37,8 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
-import com.github.rosjava.android_apps.application_management.rapp_manager.PairingApplicationNamePublisher;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import rocon_app_manager_msgs.StartAppResponse;
 import rocon_app_manager_msgs.StopAppResponse;

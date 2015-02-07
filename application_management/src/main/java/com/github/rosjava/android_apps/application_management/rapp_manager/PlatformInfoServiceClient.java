@@ -2,12 +2,12 @@ package com.github.rosjava.android_apps.application_management.rapp_manager;
 
 import android.util.Log;
 
-import org.ros.exception.ServiceNotFoundException;
 import org.ros.exception.RemoteException;
 import org.ros.exception.RosRuntimeException;
-import org.ros.master.client.TopicSystemState;
-import org.ros.master.client.SystemState;
+import org.ros.exception.ServiceNotFoundException;
 import org.ros.master.client.MasterStateClient;
+import org.ros.master.client.SystemState;
+import org.ros.master.client.TopicSystemState;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
@@ -15,11 +15,11 @@ import org.ros.node.ConnectedNode;
 import org.ros.node.service.ServiceClient;
 import org.ros.node.service.ServiceResponseListener;
 
-import rocon_app_manager_msgs.Icon;
-import rocon_app_manager_msgs.PlatformInfo;
 import rocon_app_manager_msgs.GetPlatformInfo;
 import rocon_app_manager_msgs.GetPlatformInfoRequest;
 import rocon_app_manager_msgs.GetPlatformInfoResponse;
+import rocon_app_manager_msgs.Icon;
+import rocon_app_manager_msgs.PlatformInfo;
 
 /**
  * Communicates with the robot app manager and determines various facets of

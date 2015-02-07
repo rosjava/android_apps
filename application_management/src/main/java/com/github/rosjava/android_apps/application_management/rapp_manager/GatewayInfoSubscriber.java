@@ -9,6 +9,7 @@ import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
 import org.ros.node.topic.Subscriber;
+
 import gateway_msgs.GatewayInfo;
 
 /**

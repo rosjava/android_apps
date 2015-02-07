@@ -40,18 +40,17 @@ import com.github.rosjava.android_apps.application_management.rapp_manager.Gatew
 import com.github.rosjava.android_apps.application_management.rapp_manager.PlatformInfoServiceClient;
 import com.github.rosjava.android_apps.application_management.rapp_manager.StatusServiceClient;
 
+import org.ros.address.InetAddressFactory;
+import org.ros.android.NodeMainExecutorService;
+import org.ros.exception.ServiceNotFoundException;
+import org.ros.internal.node.client.ParameterClient;
+import org.ros.internal.node.server.NodeIdentifier;
+import org.ros.namespace.GraphName;
+import org.ros.node.NodeConfiguration;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-
-import org.ros.exception.RosRuntimeException;
-import org.ros.internal.node.client.ParameterClient;
-import org.ros.internal.node.server.NodeIdentifier;
-import org.ros.address.InetAddressFactory;
-import org.ros.exception.ServiceNotFoundException;
-import org.ros.namespace.GraphName;
-import org.ros.node.NodeConfiguration;
-import org.ros.android.NodeMainExecutorService;
 
 import rocon_app_manager_msgs.Icon;
 

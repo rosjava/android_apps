@@ -9,7 +9,6 @@ import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.AbstractNodeMain;
 import org.ros.node.ConnectedNode;
-import org.ros.exception.RosRuntimeException;
 
 public class RobotNameResolver extends AbstractNodeMain {
 

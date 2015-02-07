@@ -37,8 +37,9 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 import java.util.Date;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import rocon_app_manager_msgs.Icon;
 
 public class RobotDescription implements java.io.Serializable {

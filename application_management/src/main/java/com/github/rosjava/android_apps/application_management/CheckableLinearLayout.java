@@ -29,10 +29,10 @@
 
 package com.github.rosjava.android_apps.application_management;
 
-import android.widget.LinearLayout;
-import android.widget.Checkable;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.widget.Checkable;
+import android.widget.LinearLayout;
 /**
  * Simple extension of LinearLayout which trivially implements
  * Checkable interface and adds state_checked to drawable states when
