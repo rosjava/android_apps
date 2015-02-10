@@ -32,7 +32,7 @@ allprojects {
 
     repositories {
         maven {
-            url "http://www.github.com/talregev/rosjava_mvn_repo/raw/master"
+            url "https://github.com/talregev/rosjava_mvn_repo/raw/master"
         }
     }
 
@@ -43,3 +43,5 @@ allprojects {
 subprojects {
     apply plugin: 'ros-android'
 }
+
+defaultTasks 'assembleRelease', 'uploadArchives'
