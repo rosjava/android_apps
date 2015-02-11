@@ -29,13 +29,7 @@ buildscript {
 apply plugin: 'catkin'
 
 allprojects {
-
-    repositories {
-        maven {
-            url "https://github.com/talregev/rosjava_mvn_repo/raw/master"
-        }
-    }
-
+    apply from: "https://github.com/talregev/rosjava_mvn_repo/raw/master/maven.gradle"
     group 'com.github.rosjava.android_apps'
     version = project.catkin.pkg.version
 }
