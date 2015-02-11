@@ -25,10 +25,5 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 15
-    packagingOptions {
-        /* https://github.com/rosjava/android_core/issues/194 */
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
 }
 
