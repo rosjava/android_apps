@@ -19,22 +19,33 @@ task wrapper(type: Wrapper) {
 }
 
 buildscript {
-    apply from: "https://github.com/talregev/rosjava_mvn_repo/raw/master/buildscript.gradle"
-    //noinspection GroovyAssignabilityCheck
-    dependencies {
-        classpath "com.android.tools.build:gradle:1.0.1"
-    }
+    apply from: "https://github.com/rosjava/android_core/raw/indigo/buildscript.gradle"
 }
 
 apply plugin: 'catkin'
 
 allprojects {
-    apply from: "https://github.com/talregev/rosjava_mvn_repo/raw/master/maven.gradle"
     group 'com.github.rosjava.android_apps'
     version = project.catkin.pkg.version
 }
 
 subprojects {
+    /*
+     * The android plugin configures a few things:
+     *
+     *  - local deployment repository : where it dumps the jars and packaged artifacts)
+     *  - local maven repositories    : where it finds your locally installed/built artifacts)
+     *  - external maven repositories : where it goes looking if it can't find dependencies locally
+     *  - android build tools version : which version we use across the board
+     *
+     * To modify, or add repos to the default external maven repositories list, pull request against this code:
+     *
+     *   https://github.com/rosjava/rosjava_bootstrap/blob/indigo/gradle_plugins/src/main/groovy/org/ros/gradle_plugins/RosPlugin.groovy#L31
+     *
+     * To modify the build tools version, pull request against this code:
+     *
+     *   https://github.com/rosjava/rosjava_bootstrap/blob/indigo/gradle_plugins/src/main/groovy/org/ros/gradle_plugins/RosAndroid.groovy#L14
+     */
     apply plugin: 'ros-android'
 
     afterEvaluate { project ->
@@ -44,10 +55,6 @@ subprojects {
                 /* https://github.com/rosjava/android_core/issues/194 */
                 exclude 'META-INF/LICENSE.txt'
                 exclude 'META-INF/NOTICE.txt'
-                exclude 'META-INF/gradle-plugins/catkin.properties'
-                exclude 'META-INF/gradle-plugins/ros.properties'
-                exclude 'META-INF/gradle-plugins/ros-android.properties'
-                exclude 'META-INF/gradle-plugins/ros-java.properties'
             }
         }
     }
