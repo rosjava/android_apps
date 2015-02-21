@@ -1,6 +1,5 @@
 bin
 gen
-libs
 build.xml
 local.properties
 proguard-project.txt
@@ -12,4 +11,4 @@ build
 *.iml
 build.log
 build-log.xml
-docs.iml
+*~

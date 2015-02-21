@@ -21,14 +21,8 @@ dependencies {
   compile 'org.ros.rosjava_messages:map_store:[0.3,0.4)'
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 13
-    packagingOptions {
-        /* https://github.com/rosjava/android_core/issues/194 */
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
-    }
+    compileSdkVersion 15
 }
-

@@ -14,12 +14,8 @@
  * the License.
  */
 
+include 'application_management'
 include 'teleop'
 include 'map_nav'
 include 'make_a_map'
-include 'map_manager' 
-/*
-include 'make_a_map' -- Added (unstable, testing)
-include 'map_manager' -- Added (unstable, testing)
-include 'map_nav' -- Added (unstable, testing)
-*/
+include 'map_manager'

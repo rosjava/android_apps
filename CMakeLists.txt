@@ -3,7 +3,7 @@ project(android_apps)
 
 find_package(catkin REQUIRED rosjava_build_tools)
 
-catkin_android_setup(assembleRelease)
+catkin_android_setup(assembleRelease uploadArchives)
 
 catkin_package()
 
@@ -11,5 +11,5 @@ catkin_package()
 # Installation
 ##############################################################################
 
-install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/android_apps/ 
+install(DIRECTORY ${CATKIN_DEVEL_PREFIX}/${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/android_apps/
         DESTINATION ${CATKIN_GLOBAL_MAVEN_DESTINATION}/com/github/rosjava/android_apps)
