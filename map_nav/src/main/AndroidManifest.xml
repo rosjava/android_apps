@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.rosjava.android_apps.map_nav"
-    android:versionCode="3"
-    android:versionName="1.0"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-sdk android:minSdkVersion="13" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

@@ -22,5 +22,13 @@ dependencies {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 15
+  compileSdkVersion 15
+
+  defaultConfig {
+    minSdkVersion 15
+    targetSdkVersion 15
+    versionCode 2
+    versionName "1.0"
+  }
+
 }

@@ -67,7 +67,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight=".25"
-            android:src="@drawable/icon" />
+            android:src="@mipmap/icon" />
 
         <LinearLayout
             android:id="@+id/side_layout"
