@@ -1,7 +1,5 @@
 package com.github.rosjava.android_apps.map_nav;
 
-import android.content.Context;
-import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -11,18 +9,15 @@ import move_base_msgs.MoveBaseActionGoal;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import org.ros.android.view.visualization.Camera;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.DefaultLayer;
-import org.ros.android.view.visualization.shape.PoseShape;
+import org.ros.android.view.visualization.shape.PixelSpacePoseShape;
 import org.ros.android.view.visualization.shape.Shape;
 import org.ros.namespace.GraphName;
 import org.ros.namespace.NameResolver;
 import org.ros.node.ConnectedNode;
 import org.ros.node.Node;
 import org.ros.node.topic.Publisher;
-import org.ros.rosjava_geometry.FrameName;
-import org.ros.rosjava_geometry.FrameTransformTree;
 import org.ros.rosjava_geometry.Transform;
 import org.ros.rosjava_geometry.Vector3;
 
@@ -34,7 +29,6 @@ import com.google.common.base.Preconditions;
 
 public class MapPosePublisherLayer extends DefaultLayer {
 
-	private final Context context;
 	private Shape shape;
 	private Publisher<geometry_msgs.PoseWithCovarianceStamped> initialPosePublisher;
 	private Publisher<geometry_msgs.PoseStamped> androidGoalPublisher;
@@ -44,7 +38,6 @@ public class MapPosePublisherLayer extends DefaultLayer {
 	private GestureDetector gestureDetector;
 	private Transform pose;
 	private Transform fixedPose;
-	private Camera camera;
 	private ConnectedNode connectedNode;
 	private int mode;
 	private static final int POSE_MODE = 0;
@@ -56,18 +49,17 @@ public class MapPosePublisherLayer extends DefaultLayer {
     private String simpleGoalTopic;
     private String moveBaseGoalTopic;
 
-	public MapPosePublisherLayer(final NameResolver newNameResolver, final Context context,
+	public MapPosePublisherLayer(final NameResolver newNameResolver,
                                  final AppParameters params, final AppRemappings remaps) {
 		this.nameResolver = newNameResolver;
-		this.context = context;
 		visible = false;
 
-        this.mapFrame = (String) params.get("map_frame", context.getString(R.string.map_frame));
-        this.robotFrame = (String) params.get("robot_frame", context.getString(R.string.robot_frame));
+        this.mapFrame = (String) params.get("map_frame", R.string.map_frame);
+        this.robotFrame = (String) params.get("robot_frame", R.string.robot_frame);
 
-        this.initialPoseTopic = remaps.get(context.getString(R.string.initial_pose_topic));
-        this.simpleGoalTopic = remaps.get(context.getString(R.string.simple_goal_topic));
-        this.moveBaseGoalTopic = remaps.get(context.getString(R.string.move_base_goal_topic));
+        this.initialPoseTopic = remaps.get(R.string.initial_pose_topic);
+        this.simpleGoalTopic = remaps.get(R.string.simple_goal_topic);
+        this.moveBaseGoalTopic = remaps.get(R.string.move_base_goal_topic);
 	}
 
 	public void setPoseMode() {
@@ -79,10 +71,10 @@ public class MapPosePublisherLayer extends DefaultLayer {
 	}
 
 	@Override
-	public void draw(GL10 gl) {
+	public void draw(VisualizationView view, GL10 gl) {
 		if (visible) {
 			Preconditions.checkNotNull(pose);
-			shape.draw(gl);
+			shape.draw(view, gl);
 		}
 	}
 
@@ -102,7 +94,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 
 			if (event.getAction() == MotionEvent.ACTION_MOVE) {
 				poseVector = pose.apply(Vector3.zero());
-				pointerVector = camera.toMetricCoordinates((int) event.getX(),
+				pointerVector = view.getCamera().toCameraFrame((int) event.getX(),
 						(int) event.getY());
 
 				double angle = angle(pointerVector.getX(),
@@ -119,18 +111,18 @@ public class MapPosePublisherLayer extends DefaultLayer {
 				PoseStamped poseStamped;
 				switch (mode) {
 				case POSE_MODE:
-					camera.setFrame(mapFrame);
+                    view.getCamera().setFrame(mapFrame);
 					poseVector = fixedPose.apply(Vector3.zero());
-					pointerVector = camera.toMetricCoordinates(
+					pointerVector = view.getCamera().toCameraFrame(
 							(int) event.getX(), (int) event.getY());
 					double angle2 = angle(pointerVector.getX(),
 							pointerVector.getY(), poseVector.getX(),
 							poseVector.getY());
 					fixedPose = Transform.translation(poseVector).multiply(
 							Transform.zRotation(angle2));
-					camera.setFrame(robotFrame);
+					view.getCamera().setFrame(robotFrame);
 					poseStamped = fixedPose.toPoseStampedMessage(
-							FrameName.of(robotFrame),
+							GraphName.of(robotFrame),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 
@@ -146,7 +138,7 @@ public class MapPosePublisherLayer extends DefaultLayer {
 					break;
 				case GOAL_MODE:
 					poseStamped = pose.toPoseStampedMessage(
-							FrameName.of(robotFrame),
+							GraphName.of(robotFrame),
 							connectedNode.getCurrentTime(),
 							androidGoalPublisher.newMessage());
 					androidGoalPublisher.publish(poseStamped);
@@ -169,11 +161,9 @@ public class MapPosePublisherLayer extends DefaultLayer {
 	}
 
 	@Override
-	public void onStart(ConnectedNode connectedNode, Handler handler,
-			FrameTransformTree frameTransformTree, final Camera camera) {
+	public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
 		this.connectedNode = connectedNode;
-		this.camera = camera;
-		shape = new PoseShape(camera);
+		shape = new PixelSpacePoseShape();
 		mode = POSE_MODE;
 
 		initialPosePublisher = connectedNode.newPublisher(nameResolver.resolve(initialPoseTopic).toString(),
@@ -182,20 +172,20 @@ public class MapPosePublisherLayer extends DefaultLayer {
 				                                          "geometry_msgs/PoseStamped");
 		goalPublisher = connectedNode.newPublisher(nameResolver.resolve(moveBaseGoalTopic).toString(),
 				                                   "move_base_msgs/MoveBaseActionGoal");
-		handler.post(new Runnable() {
+		view.post(new Runnable() {
 			@Override
 			public void run() {
-				gestureDetector = new GestureDetector(context,
+				gestureDetector = new GestureDetector(view.getContext(),
 						new GestureDetector.SimpleOnGestureListener() {
 							@Override
 							public void onLongPress(MotionEvent e) {
-								pose = Transform.translation(camera.toMetricCoordinates(
+								pose = Transform.translation(view.getCamera().toCameraFrame(
                                         (int) e.getX(), (int) e.getY()));
 								shape.setTransform(pose);
-								camera.setFrame(mapFrame);
-								fixedPose = Transform.translation(camera.toMetricCoordinates(
+								view.getCamera().setFrame(mapFrame);
+								fixedPose = Transform.translation(view.getCamera().toCameraFrame(
                                         (int) e.getX(),	(int) e.getY()));
-								camera.setFrame(robotFrame);
+                                view.getCamera().setFrame(robotFrame);
 								visible = true;
 							}
 						});

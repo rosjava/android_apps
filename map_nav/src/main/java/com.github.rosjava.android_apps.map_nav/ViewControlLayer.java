@@ -20,7 +20,6 @@ package com.github.rosjava.android_apps.map_nav;
 import java.util.concurrent.ExecutorService;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -30,7 +29,6 @@ import android.view.ViewGroup;
 import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
 
 import org.ros.android.view.RosImageView;
-import org.ros.android.view.visualization.Camera;
 import org.ros.android.view.visualization.RotateGestureDetector;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.CameraControlLayer;
@@ -56,7 +54,7 @@ public class ViewControlLayer extends CameraControlLayer {
     private VisualizationView mapView;
     private ViewGroup mainLayout;
     private ViewGroup sideLayout;
-    private boolean mapViewGestureAvaiable;
+    private boolean mapViewGestureAvailable;
     private String robotFrame;
 
     private enum ViewMode {
@@ -72,7 +70,6 @@ public class ViewControlLayer extends CameraControlLayer {
                             final ViewGroup mainLayout,
                             final ViewGroup sideLayout,
                             final AppParameters params) {
-        super(context, executorService);
 
         this.context = context;
 
@@ -94,14 +91,14 @@ public class ViewControlLayer extends CameraControlLayer {
         this.mapView.setClickable(true);
         this.cameraView.setClickable(false);
         this.robotFrame = (String) params.get("robot_frame", context.getString(R.string.robot_frame));
-        mapViewGestureAvaiable = false;
+        mapViewGestureAvailable = false;
     }
 
     @Override
     public boolean onTouchEvent(VisualizationView view, MotionEvent event) {
 
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            mapViewGestureAvaiable = true;
+            mapViewGestureAvailable = true;
         }
         if (viewMode == ViewMode.CAMERA) {
             swapViews();
@@ -149,7 +146,7 @@ public class ViewControlLayer extends CameraControlLayer {
         // Remeber that we are in the other mode now.
         if (viewMode == ViewMode.CAMERA) {
             viewMode = ViewMode.MAP;
-            mapViewGestureAvaiable = false;
+            mapViewGestureAvailable = false;
         } else {
             viewMode = ViewMode.CAMERA;
         }
@@ -159,9 +156,8 @@ public class ViewControlLayer extends CameraControlLayer {
     }
 
     @Override
-    public void onStart(ConnectedNode connectedNode, Handler handler,
-                        FrameTransformTree frameTransformTree, final Camera camera) {
-        handler.post(new Runnable() {
+    public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
+        view.post(new Runnable() {
             @Override
             public void run() {
                 translateGestureDetector =
@@ -169,8 +165,8 @@ public class ViewControlLayer extends CameraControlLayer {
                             @Override
                             public boolean onScroll(MotionEvent event1, MotionEvent event2,
                                                     final float distanceX, final float distanceY) {
-                                if (mapViewGestureAvaiable) {
-                                    camera.translate(-distanceX, distanceY);
+                                if (mapViewGestureAvailable) {
+                                    view.getCamera().translate(-distanceX, distanceY);
                                     listeners.signal(new SignalRunnable<CameraControlListener>() {
                                         @Override
                                         public void run(CameraControlListener listener) {
@@ -188,10 +184,10 @@ public class ViewControlLayer extends CameraControlLayer {
                             @Override
                             public boolean onRotate(MotionEvent event1, MotionEvent event2,
                                                     final double deltaAngle) {
-                                if (mapViewGestureAvaiable) {
-                                    final double focusX = (event1.getX(0) + event1.getX(1)) / 2;
-                                    final double focusY = (event1.getY(0) + event1.getY(1)) / 2;
-                                    camera.rotate(focusX, focusY, deltaAngle);
+                                if (mapViewGestureAvailable) {
+                                    final float focusX = (event1.getX(0) + event1.getX(1)) / 2;
+                                    final float focusY = (event1.getY(0) + event1.getY(1)) / 2;
+                                    view.getCamera().rotate(focusX, focusY, deltaAngle);
                                     listeners.signal(new SignalRunnable<CameraControlListener>() {
                                         @Override
                                         public void run(CameraControlListener listener) {
@@ -214,11 +210,11 @@ public class ViewControlLayer extends CameraControlLayer {
                                         if (!detector.isInProgress()) {
                                             return false;
                                         }
-                                        if (mapViewGestureAvaiable) {
+                                        if (mapViewGestureAvailable) {
                                             final float focusX = detector.getFocusX();
                                             final float focusY = detector.getFocusY();
                                             final float factor = detector.getScaleFactor();
-                                            camera.zoom(focusX, focusY, factor);
+                                            view.getCamera().zoom(focusX, focusY, factor);
                                             listeners.signal(new SignalRunnable<CameraControlListener>() {
                                                 @Override
                                                 public void run(CameraControlListener listener) {

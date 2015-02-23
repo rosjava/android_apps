@@ -21,6 +21,8 @@ import java.text.DateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Lists;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -37,6 +39,7 @@ import map_store.PublishMapResponse;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.visualization.layer.Layer;
 import org.ros.android.view.visualization.layer.RobotLayer;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
@@ -50,9 +53,10 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.android.view.visualization.layer.OccupancyGridLayer;
 import org.ros.android.view.visualization.layer.LaserScanLayer;
 import org.ros.android.view.visualization.layer.PathLayer;
-import org.ros.android.view.visualization.layer.PoseSubscriberLayer;
 import org.ros.exception.RemoteException;
 import org.ros.time.NtpTimeProvider;
+
+import com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
@@ -146,17 +150,20 @@ public class MainActivity extends RosAppActivity {
 
 		viewControlLayer.addListener(new CameraControlListener() {
             @Override
-            public void onZoom(double focusX, double focusY, double factor) {
+            public void onZoom(float focusX, float focusY, float factor) {
 
             }
+            @Override
+            public void onDoubleTap(float x, float y) {
 
+            }
             @Override
             public void onTranslate(float distanceX, float distanceY) {
 
             }
 
             @Override
-            public void onRotate(double focusX, double focusY, double deltaAngle) {
+            public void onRotate(float focusX, float focusY, double deltaAngle) {
 
             }
         });
@@ -167,13 +174,22 @@ public class MainActivity extends RosAppActivity {
         String initTopic  = remaps.get(getString(R.string.initial_pose_topic));
         String robotFrame = (String) params.get("robot_frame", getString(R.string.robot_frame));
 
-        mapView.addLayer(viewControlLayer);
-		mapView.addLayer(new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString()));
-        mapView.addLayer(new LaserScanLayer(appNameSpace.resolve(scanTopic).toString()));
-        mapView.addLayer(new PathLayer(appNameSpace.resolve(planTopic).toString()));
-        mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(appNameSpace, this, params, remaps);
-		mapView.addLayer(mapPosePublisherLayer);
-		mapView.addLayer(new com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame));
+        OccupancyGridLayer occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
+        LaserScanLayer laserScanLayer = new LaserScanLayer(appNameSpace.resolve(scanTopic).toString());
+        PathLayer pathLayer = new PathLayer(appNameSpace.resolve(planTopic).toString());
+        mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(appNameSpace, params, remaps);
+        InitialPoseSubscriberLayer initialPoseSubscriberLayer = new InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame);
+
+        mapView.onCreate(
+                Lists.<Layer>newArrayList(
+                        viewControlLayer,
+                        occupancyGridLayer,
+                        laserScanLayer,
+                        pathLayer,
+                        mapPosePublisherLayer,
+                        initialPoseSubscriberLayer)
+        );
+
 		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
