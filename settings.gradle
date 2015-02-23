@@ -16,7 +16,7 @@
 
 include 'teleop'
 include 'map_nav'
-/*
 include 'make_a_map'
+/*
 include 'map_manager'
 */

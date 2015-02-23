@@ -36,7 +36,10 @@ import android.widget.Toast;
 import map_store.SaveMapResponse;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
+import com.google.common.collect.Lists;
+
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.visualization.layer.Layer;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
@@ -291,9 +294,14 @@ public class MainActivity extends RosAppActivity {
 
 		viewControlLayer.addListener(new CameraControlListener() {
 			@Override
-			public void onZoom(double focusX, double focusY, double factor) {
+			public void onZoom(float focusX, float focusY, float factor) {
 
 			}
+
+            @Override
+            public void onDoubleTap(float x, float y) {
+
+            }
 
 			@Override
 			public void onTranslate(float distanceX, float distanceY) {
@@ -301,7 +309,7 @@ public class MainActivity extends RosAppActivity {
 			}
 
 			@Override
-			public void onRotate(double focusX, double focusY, double deltaAngle) {
+			public void onRotate(float focusX, float focusY, double deltaAngle) {
 
 			}
 		});
@@ -310,11 +318,21 @@ public class MainActivity extends RosAppActivity {
         String scanTopic  = remaps.get(getString(R.string.scan_topic));
         String robotFrame = (String) params.get("robot_frame", getString(R.string.robot_frame));
 
-        mapView.addLayer(viewControlLayer);
-		mapView.addLayer(new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString()));
-		mapView.addLayer(new LaserScanLayer(appNameSpace.resolve(scanTopic).toString()));
-		mapView.addLayer(new RobotLayer(robotFrame));
-		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
+        OccupancyGridLayer occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
+        LaserScanLayer laserScanLayer = new LaserScanLayer(appNameSpace.resolve(scanTopic).toString());
+        RobotLayer robotLayer = new RobotLayer(robotFrame);
+
+        mapView.onCreate(
+                Lists.<Layer>newArrayList(
+                        viewControlLayer,
+                        occupancyGridLayer,
+                        laserScanLayer,
+                        robotLayer
+                )
+        );
+
+
+        NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 				InetAddressFactory.newFromHostString("192.168.0.1"),
 				nodeMainExecutor.getScheduledExecutorService());
 		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);

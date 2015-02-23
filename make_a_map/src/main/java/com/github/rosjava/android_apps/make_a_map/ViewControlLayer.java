@@ -20,7 +20,6 @@ package com.github.rosjava.android_apps.make_a_map;
 
 import java.util.concurrent.ExecutorService;
 import android.content.Context;
-import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -30,7 +29,6 @@ import android.view.ViewGroup;
 import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
 
 import org.ros.android.view.RosImageView;
-import org.ros.android.view.visualization.Camera;
 import org.ros.android.view.visualization.RotateGestureDetector;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.CameraControlLayer;
@@ -38,7 +36,6 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.concurrent.ListenerGroup;
 import org.ros.concurrent.SignalRunnable;
 import org.ros.node.ConnectedNode;
-import org.ros.rosjava_geometry.FrameTransformTree;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
@@ -73,7 +70,6 @@ public class ViewControlLayer extends CameraControlLayer {
                             final ViewGroup mainLayout,
                             final ViewGroup sideLayout,
                             final AppParameters params) {
-	super(context,executorService);
 
 	this.context = context;
 
@@ -163,9 +159,8 @@ public class ViewControlLayer extends CameraControlLayer {
     }
 
     @Override
-	public void onStart(ConnectedNode connectedNode, Handler handler,
-			    FrameTransformTree frameTransformTree, final Camera camera) {
-	handler.post(new Runnable() {
+	public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
+	view.post(new Runnable() {
 		@Override
 		    public void run() {
 		    translateGestureDetector =
@@ -174,7 +169,7 @@ public class ViewControlLayer extends CameraControlLayer {
 				    public boolean onScroll(MotionEvent event1, MotionEvent event2,
 							    final float distanceX, final float distanceY) {
 				    if (mapViewGestureAvaiable) {
-					camera.translate(-distanceX, distanceY);
+					view.getCamera().translate(-distanceX, distanceY);
 					listeners.signal(new SignalRunnable<CameraControlListener>() {
 						@Override
 						    public void run(CameraControlListener listener) {
@@ -193,9 +188,9 @@ public class ViewControlLayer extends CameraControlLayer {
 				    public boolean onRotate(MotionEvent event1, MotionEvent event2,
 							    final double deltaAngle) {
 				    if (mapViewGestureAvaiable) {
-					final double focusX = (event1.getX(0) + event1.getX(1)) / 2;
-					final double focusY = (event1.getY(0) + event1.getY(1)) / 2;
-					camera.rotate(focusX, focusY, deltaAngle);
+					final float focusX = (event1.getX(0) + event1.getX(1)) / 2;
+					final float focusY = (event1.getY(0) + event1.getY(1)) / 2;
+                        view.getCamera().rotate(focusX, focusY, deltaAngle);
 					listeners.signal(new SignalRunnable<CameraControlListener>() {
 						@Override
 						    public void run(CameraControlListener listener) {
@@ -222,7 +217,7 @@ public class ViewControlLayer extends CameraControlLayer {
 							     final float focusX = detector.getFocusX();
 							     final float focusY = detector.getFocusY();
 							     final float factor = detector.getScaleFactor();
-							     camera.zoom(focusX, focusY, factor);
+                                 view.getCamera().zoom(focusX, focusY, factor);
 							     listeners.signal(new SignalRunnable<CameraControlListener>() {
 								     @Override
 									 public void run(CameraControlListener listener) {
