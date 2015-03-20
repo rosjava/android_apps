@@ -42,8 +42,8 @@ import org.ros.node.ConnectedNode;
  */
 public class ViewControlLayer extends CameraControlLayer {
 
-    private final Context context;
-    private final ListenerGroup<CameraControlListener> listeners;
+    private Context context;
+    private ListenerGroup<CameraControlListener> listeners;
 
     private GestureDetector translateGestureDetector;
     private RotateGestureDetector rotateGestureDetector;
@@ -62,39 +62,35 @@ public class ViewControlLayer extends CameraControlLayer {
     private ViewMode viewMode;
     private String robotFrame;
 
+    public void initViewControlLayer(final Context context,
+                                    final ExecutorService executorService,
+                                    final RosImageView<sensor_msgs.CompressedImage> cameraView,
+                                    final VisualizationView mapView,
+                                    final ViewGroup mainLayout,
+                                    final ViewGroup sideLayout,
+                                    final AppParameters params) {
 
-    public ViewControlLayer(final Context context,
-                            final ExecutorService executorService,
-                            final RosImageView<sensor_msgs.CompressedImage> cameraView,
-                            final VisualizationView mapView,
-                            final ViewGroup mainLayout,
-                            final ViewGroup sideLayout,
-                            final AppParameters params) {
+        this.context = context;
+        listeners = new ListenerGroup<CameraControlListener>(executorService);
 
-	this.context = context;
+        this.cameraView = cameraView;
+        this.mapView = mapView;
+        this.mainLayout = mainLayout;
+        this.sideLayout = sideLayout;
 
-	listeners = new ListenerGroup<CameraControlListener>(executorService);
+        viewMode = ViewMode.CAMERA;
+        this.cameraView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                swapViews();
+            }
+        });
 
-	this.cameraView = cameraView;
-	this.mapView = mapView;
-	this.mainLayout = mainLayout;
-	this.sideLayout = sideLayout;
-
-	viewMode = ViewMode.CAMERA;
-	this.cameraView.setOnClickListener(new View.OnClickListener() {
-		@Override
-		    public void onClick(View v){
-		    swapViews();
-		}
-	    });
-
-	this.mapView.setClickable(true);
-	this.cameraView.setClickable(false);
+        this.mapView.setClickable(true);
+        this.cameraView.setClickable(false);
         this.robotFrame = (String) params.get("robot_frame", context.getString(R.string.robot_frame));
-	mapViewGestureAvaiable = false;
+        mapViewGestureAvaiable = false;
     }
-
-
     @Override
 	public boolean onTouchEvent(VisualizationView view,MotionEvent event){
 

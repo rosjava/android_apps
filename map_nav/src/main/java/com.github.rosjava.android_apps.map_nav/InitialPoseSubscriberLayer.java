@@ -37,7 +37,8 @@ public class InitialPoseSubscriberLayer extends
 
 	@Override
 	public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
-	    shape = new GoalShape();
+        super.onStart(view, connectedNode);
+        shape = new GoalShape();
 		getSubscriber().addMessageListener(
 				new MessageListener<geometry_msgs.PoseStamped>() {
 					@Override

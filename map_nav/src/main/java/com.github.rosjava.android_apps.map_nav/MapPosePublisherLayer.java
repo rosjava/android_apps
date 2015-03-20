@@ -1,5 +1,7 @@
 package com.github.rosjava.android_apps.map_nav;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
@@ -49,18 +51,20 @@ public class MapPosePublisherLayer extends DefaultLayer {
     private String simpleGoalTopic;
     private String moveBaseGoalTopic;
 
-	public MapPosePublisherLayer(final NameResolver newNameResolver,
+	public MapPosePublisherLayer(final Context context,
+                                 final NameResolver newNameResolver,
                                  final AppParameters params, final AppRemappings remaps) {
 		this.nameResolver = newNameResolver;
 		visible = false;
 
-        this.mapFrame = (String) params.get("map_frame", R.string.map_frame);
-        this.robotFrame = (String) params.get("robot_frame", R.string.robot_frame);
+        this.mapFrame = (String) params.get("map_frame",context.getString(R.string.map_frame));
+        this.robotFrame = (String) params.get("robot_frame", context.getString(R.string.robot_frame));
 
-        this.initialPoseTopic = remaps.get(R.string.initial_pose_topic);
-        this.simpleGoalTopic = remaps.get(R.string.simple_goal_topic);
-        this.moveBaseGoalTopic = remaps.get(R.string.move_base_goal_topic);
-	}
+        this.initialPoseTopic = remaps.get(context.getString(R.string.initial_pose_topic));
+        this.simpleGoalTopic = remaps.get(context.getString(R.string.simple_goal_topic));
+        this.moveBaseGoalTopic = remaps.get(context.getString(R.string.move_base_goal_topic));
+
+    }
 
 	public void setPoseMode() {
 		mode = POSE_MODE;

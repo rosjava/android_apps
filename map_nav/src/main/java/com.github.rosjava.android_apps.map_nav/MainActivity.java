@@ -33,9 +33,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import map_store.ListMapsResponse;
-import map_store.MapListEntry;
-import map_store.PublishMapResponse;
+import world_canvas_msgs.ListMapsResponse;
+import world_canvas_msgs.MapListEntry;
+import world_canvas_msgs.PublishMapResponse;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 import org.ros.android.view.RosImageView;
@@ -66,7 +66,7 @@ public class MainActivity extends RosAppActivity {
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
 	private VisualizationView mapView;
-	private ViewGroup mainLayout;
+    private ViewGroup mainLayout;
 	private ViewGroup sideLayout;
 	private Button backButton;
 	private Button chooseMapButton;
@@ -75,6 +75,8 @@ public class MainActivity extends RosAppActivity {
 	private AlertDialog chooseMapDialog;
 	private NodeMainExecutor nodeMainExecutor;
 	private NodeConfiguration nodeConfiguration;
+
+    private com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer;
 
 	public MainActivity() {
 		// The RosActivity constructor configures the notification title and
@@ -102,6 +104,9 @@ public class MainActivity extends RosAppActivity {
 		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
 		backButton = (Button) findViewById(R.id.back_button);
 		chooseMapButton = (Button) findViewById(R.id.choose_map_button);
+
+        viewControlLayer = new com.github.rosjava.android_apps.map_nav.ViewControlLayer();
+        mapView.onCreate(Lists.<Layer>newArrayList(viewControlLayer));
 
 		backButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -144,28 +149,19 @@ public class MainActivity extends RosAppActivity {
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
-		com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer = new com.github.rosjava.android_apps.map_nav.ViewControlLayer(this,
+        mapView.init(nodeMainExecutor);
+		viewControlLayer.initViewControlLayer(this,
 				nodeMainExecutor.getScheduledExecutorService(), cameraView,
 				mapView, mainLayout, sideLayout, params);
-
 		viewControlLayer.addListener(new CameraControlListener() {
             @Override
-            public void onZoom(float focusX, float focusY, float factor) {
-
-            }
+            public void onZoom(float focusX, float focusY, float factor) {}
             @Override
-            public void onDoubleTap(float x, float y) {
-
-            }
+            public void onDoubleTap(float x, float y) {}
             @Override
-            public void onTranslate(float distanceX, float distanceY) {
-
-            }
-
+            public void onTranslate(float distanceX, float distanceY) {}
             @Override
-            public void onRotate(float focusX, float focusY, double deltaAngle) {
-
-            }
+            public void onRotate(float focusX, float focusY, double deltaAngle) {}
         });
 
         String mapTopic   = remaps.get(getString(R.string.map_topic));
@@ -177,24 +173,20 @@ public class MainActivity extends RosAppActivity {
         OccupancyGridLayer occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
         LaserScanLayer laserScanLayer = new LaserScanLayer(appNameSpace.resolve(scanTopic).toString());
         PathLayer pathLayer = new PathLayer(appNameSpace.resolve(planTopic).toString());
-        mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(appNameSpace, params, remaps);
+        mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(this, appNameSpace, params, remaps);
         InitialPoseSubscriberLayer initialPoseSubscriberLayer = new InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame);
 
-        mapView.onCreate(
-                Lists.<Layer>newArrayList(
-                        viewControlLayer,
-                        occupancyGridLayer,
-                        laserScanLayer,
-                        pathLayer,
-                        mapPosePublisherLayer,
-                        initialPoseSubscriberLayer)
-        );
+        mapView.addLayer(occupancyGridLayer);
+        mapView.addLayer(laserScanLayer);
+        mapView.addLayer(pathLayer);
+        mapView.addLayer(mapPosePublisherLayer);
+        mapView.addLayer(initialPoseSubscriberLayer);
 
-		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
-				InetAddressFactory.newFromHostString("192.168.0.1"),
-				nodeMainExecutor.getScheduledExecutorService());
-		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
-		nodeConfiguration.setTimeProvider(ntpTimeProvider);
+//		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
+//				InetAddressFactory.newFromHostString("192.168.0.1"),
+//				nodeMainExecutor.getScheduledExecutorService());
+//		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
+//		nodeConfiguration.setTimeProvider(ntpTimeProvider);
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 
 		readAvailableMapList();

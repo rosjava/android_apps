@@ -55,11 +55,11 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.android.view.visualization.layer.OccupancyGridLayer;
 import org.ros.exception.RemoteException;
 
-import map_store.DeleteMapResponse;
-import map_store.ListMapsResponse;
-import map_store.MapListEntry;
-import map_store.PublishMapResponse;
-import map_store.RenameMapResponse;
+import world_canvas_msgs.DeleteMapResponse;
+import world_canvas_msgs.ListMapsResponse;
+import world_canvas_msgs.MapListEntry;
+import world_canvas_msgs.PublishMapResponse;
+import world_canvas_msgs.RenameMapResponse;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
@@ -87,6 +87,7 @@ public class MainActivity extends RosAppActivity {
 	private boolean visibleMapView = true;
 	private ProgressDialog waitingDialog;
 	private AlertDialog errorDialog;
+    private CameraControlLayer cameraControlLayer;
 	private OccupancyGridLayer occupancyGridLayer;
 
 	public MainActivity() {
@@ -115,6 +116,8 @@ public class MainActivity extends RosAppActivity {
 		mapView = (VisualizationView) findViewById(R.id.map_view);
 		backButton = (Button) findViewById(R.id.back_button);
 		renameButton = (Button) findViewById(R.id.rename_button);
+        cameraControlLayer = new CameraControlLayer();
+        mapView.onCreate(Lists.<Layer>newArrayList(cameraControlLayer));
 
 		backButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -202,34 +205,25 @@ public class MainActivity extends RosAppActivity {
 		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
 				.newNonLoopback().getHostAddress(), getMasterUri());
 
-		CameraControlLayer cameraControlLayer = new CameraControlLayer();
-		cameraControlLayer.addListener(new CameraControlListener() {
-			@Override
-			public void onZoom(float focusX, float focusY, float factor) {}
-
-            @Override
-            public void onDoubleTap(float x, float y) {}
-
-			@Override
-			public void onTranslate(float distanceX, float distanceY) {}
-
-			@Override
-			public void onRotate(float focusX, float focusY, double deltaAngle) {}
-
-		});
         NameResolver appNameSpace = getMasterNameSpace();
         String mapTopic = remaps.get(getString(R.string.map_topic));
-		occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
 
-        mapView.onCreate(
-                Lists.<Layer>newArrayList(
-                        cameraControlLayer,
-                        occupancyGridLayer
-                )
-        );
+        mapView.init(nodeMainExecutor);
+        cameraControlLayer.addListener(new CameraControlListener() {
+            @Override
+            public void onZoom(float focusX, float focusY, float factor) {}
+            @Override
+            public void onDoubleTap(float x, float y) {}
+            @Override
+            public void onTranslate(float distanceX, float distanceY) {}
+            @Override
+            public void onRotate(float focusX, float focusY, double deltaAngle) {}
+
+        });
+        occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
+        mapView.addLayer(occupancyGridLayer);
 
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
-
 		updateMapList();
 	}
 

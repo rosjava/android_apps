@@ -4,12 +4,12 @@ import android.content.Context;
 
 import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
 
-import map_store.ListMaps;
-import map_store.ListMapsRequest;
-import map_store.ListMapsResponse;
-import map_store.PublishMap;
-import map_store.PublishMapRequest;
-import map_store.PublishMapResponse;
+import world_canvas_msgs.ListMaps;
+import world_canvas_msgs.ListMapsRequest;
+import world_canvas_msgs.ListMapsResponse;
+import world_canvas_msgs.PublishMap;
+import world_canvas_msgs.PublishMapRequest;
+import world_canvas_msgs.PublishMapResponse;
 
 import org.ros.exception.RosRuntimeException;
 import org.ros.exception.ServiceNotFoundException;

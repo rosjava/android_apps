@@ -43,8 +43,8 @@ import org.ros.rosjava_geometry.FrameTransformTree;
  */
 public class ViewControlLayer extends CameraControlLayer {
 
-    private final Context context;
-    private final ListenerGroup<CameraControlListener> listeners;
+    private Context context;
+    private ListenerGroup<CameraControlListener> listeners;
 
     private GestureDetector translateGestureDetector;
     private RotateGestureDetector rotateGestureDetector;
@@ -62,8 +62,7 @@ public class ViewControlLayer extends CameraControlLayer {
     };
     private ViewMode viewMode;
 
-
-    public ViewControlLayer(final Context context,
+    public void initViewControlLayer(final Context context,
                             final ExecutorService executorService,
                             final RosImageView<sensor_msgs.CompressedImage> cameraView,
                             final VisualizationView mapView,
@@ -72,7 +71,6 @@ public class ViewControlLayer extends CameraControlLayer {
                             final AppParameters params) {
 
         this.context = context;
-
         listeners = new ListenerGroup<CameraControlListener>(executorService);
 
         this.cameraView = cameraView;
