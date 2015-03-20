@@ -1,15 +1,12 @@
 package com.github.rosjava.android_apps.map_nav;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import geometry_msgs.PoseStamped;
-import geometry_msgs.PoseWithCovarianceStamped;
-import move_base_msgs.MoveBaseActionGoal;
-
-import javax.microedition.khronos.opengles.GL10;
+import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
+import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
+import com.google.common.base.Preconditions;
 
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.DefaultLayer;
@@ -23,11 +20,14 @@ import org.ros.node.topic.Publisher;
 import org.ros.rosjava_geometry.Transform;
 import org.ros.rosjava_geometry.Vector3;
 
+import javax.microedition.khronos.opengles.GL10;
+
+import geometry_msgs.PoseStamped;
+import geometry_msgs.PoseWithCovarianceStamped;
+import move_base_msgs.MoveBaseActionGoal;
+
 //import com.github.rosjava.android_apps.application_management.rapp_manager.AppParameters;
 //import com.github.rosjava.android_apps.application_management.rapp_manager.AppRemappings;
-import com.github.rosjava.android_remocons.common_tools.apps.AppParameters;
-import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
-import com.google.common.base.Preconditions;
 
 public class MapPosePublisherLayer extends DefaultLayer {
 

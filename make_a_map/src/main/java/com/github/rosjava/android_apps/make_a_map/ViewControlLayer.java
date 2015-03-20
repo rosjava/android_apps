@@ -17,8 +17,6 @@
 package com.github.rosjava.android_apps.make_a_map;
 
 
-
-import java.util.concurrent.ExecutorService;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,6 +34,8 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.concurrent.ListenerGroup;
 import org.ros.concurrent.SignalRunnable;
 import org.ros.node.ConnectedNode;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)

@@ -16,17 +16,14 @@
 
 package com.github.rosjava.android_apps.teleop;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.util.Log;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 
-import org.ros.address.InetAddressFactory;
 import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.VirtualJoystickView;

@@ -1,5 +1,14 @@
 package com.github.rosjava.android_apps.map_manager;
 
+import org.ros.exception.RosRuntimeException;
+import org.ros.exception.ServiceNotFoundException;
+import org.ros.namespace.GraphName;
+import org.ros.namespace.NameResolver;
+import org.ros.node.AbstractNodeMain;
+import org.ros.node.ConnectedNode;
+import org.ros.node.service.ServiceClient;
+import org.ros.node.service.ServiceResponseListener;
+
 import world_canvas_msgs.DeleteMap;
 import world_canvas_msgs.DeleteMapRequest;
 import world_canvas_msgs.DeleteMapResponse;
@@ -12,15 +21,6 @@ import world_canvas_msgs.PublishMapResponse;
 import world_canvas_msgs.RenameMap;
 import world_canvas_msgs.RenameMapRequest;
 import world_canvas_msgs.RenameMapResponse;
-
-import org.ros.exception.RosRuntimeException;
-import org.ros.exception.ServiceNotFoundException;
-import org.ros.namespace.GraphName;
-import org.ros.namespace.NameResolver;
-import org.ros.node.AbstractNodeMain;
-import org.ros.node.ConnectedNode;
-import org.ros.node.service.ServiceClient;
-import org.ros.node.service.ServiceResponseListener;
 
 
 public class MapManager extends AbstractNodeMain {

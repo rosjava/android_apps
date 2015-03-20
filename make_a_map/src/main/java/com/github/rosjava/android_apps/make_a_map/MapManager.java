@@ -2,13 +2,8 @@ package com.github.rosjava.android_apps.make_a_map;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.github.rosjava.android_remocons.common_tools.apps.AppRemappings;
-
-import world_canvas_msgs.SaveMap;
-import world_canvas_msgs.SaveMapRequest;
-import world_canvas_msgs.SaveMapResponse;
 
 import org.ros.exception.RemoteException;
 import org.ros.exception.ServiceNotFoundException;
@@ -22,6 +17,10 @@ import org.ros.node.service.ServiceResponseListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import world_canvas_msgs.SaveMap;
+import world_canvas_msgs.SaveMapRequest;
+import world_canvas_msgs.SaveMapResponse;
 
 public class MapManager extends AbstractNodeMain {
 

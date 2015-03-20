@@ -16,13 +16,6 @@
 
 package com.github.rosjava.android_apps.map_nav;
 
-import java.sql.Date;
-import java.text.DateFormat;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Lists;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -33,30 +26,33 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import world_canvas_msgs.ListMapsResponse;
-import world_canvas_msgs.MapListEntry;
-import world_canvas_msgs.PublishMapResponse;
 
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
+import com.google.common.collect.Lists;
+
+import org.ros.address.InetAddressFactory;
+import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.view.RosImageView;
+import org.ros.android.view.VirtualJoystickView;
+import org.ros.android.view.visualization.VisualizationView;
+import org.ros.android.view.visualization.layer.CameraControlListener;
+import org.ros.android.view.visualization.layer.LaserScanLayer;
 import org.ros.android.view.visualization.layer.Layer;
-import org.ros.android.view.visualization.layer.RobotLayer;
+import org.ros.android.view.visualization.layer.OccupancyGridLayer;
+import org.ros.android.view.visualization.layer.PathLayer;
+import org.ros.exception.RemoteException;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
-import org.ros.address.InetAddressFactory;
-import org.ros.android.BitmapFromCompressedImage;
-import org.ros.android.view.VirtualJoystickView;
-import org.ros.android.view.visualization.VisualizationView;
-import org.ros.android.view.visualization.layer.CameraControlListener;
-import org.ros.android.view.visualization.layer.OccupancyGridLayer;
-import org.ros.android.view.visualization.layer.LaserScanLayer;
-import org.ros.android.view.visualization.layer.PathLayer;
-import org.ros.exception.RemoteException;
-import org.ros.time.NtpTimeProvider;
 
-import com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.util.List;
+
+import world_canvas_msgs.ListMapsResponse;
+import world_canvas_msgs.MapListEntry;
+import world_canvas_msgs.PublishMapResponse;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)

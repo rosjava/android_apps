@@ -16,10 +16,6 @@
 
 package com.github.rosjava.android_apps.map_manager;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,17 +39,22 @@ import android.widget.ListView;
 import com.github.rosjava.android_remocons.common_tools.apps.RosAppActivity;
 import com.google.common.collect.Lists;
 
-import org.ros.android.view.visualization.layer.Layer;
-import org.ros.namespace.NameResolver;
-import org.ros.node.NodeConfiguration;
-import org.ros.node.NodeMainExecutor;
-import org.ros.node.service.ServiceResponseListener;
 import org.ros.address.InetAddressFactory;
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.CameraControlLayer;
 import org.ros.android.view.visualization.layer.CameraControlListener;
+import org.ros.android.view.visualization.layer.Layer;
 import org.ros.android.view.visualization.layer.OccupancyGridLayer;
 import org.ros.exception.RemoteException;
+import org.ros.namespace.NameResolver;
+import org.ros.node.NodeConfiguration;
+import org.ros.node.NodeMainExecutor;
+import org.ros.node.service.ServiceResponseListener;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import world_canvas_msgs.DeleteMapResponse;
 import world_canvas_msgs.ListMapsResponse;
