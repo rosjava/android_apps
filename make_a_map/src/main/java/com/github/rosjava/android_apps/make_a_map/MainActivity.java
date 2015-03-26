@@ -39,7 +39,6 @@ import org.ros.android.BitmapFromCompressedImage;
 import org.ros.android.view.RosImageView;
 import org.ros.android.view.VirtualJoystickView;
 import org.ros.android.view.visualization.VisualizationView;
-import org.ros.android.view.visualization.layer.CameraControlLayer;
 import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.android.view.visualization.layer.LaserScanLayer;
 import org.ros.android.view.visualization.layer.Layer;
@@ -71,8 +70,7 @@ public class MainActivity extends RosAppActivity {
 	private ProgressDialog waitingDialog;
 	private AlertDialog notiDialog;
 
-    private CameraControlLayer cameraControlLayer = null;
-    private ViewControlLayer viewControlLayer= null;
+
     private OccupancyGridLayer occupancyGridLayer = null;
     private LaserScanLayer laserScanLayer = null;
     private RobotLayer robotLayer = null;
@@ -107,8 +105,7 @@ public class MainActivity extends RosAppActivity {
 		backButton = (Button) findViewById(R.id.back_button);
 
         mapView = (VisualizationView) findViewById(R.id.map_view);
-        viewControlLayer = new ViewControlLayer();
-        mapView.onCreate(Lists.<Layer>newArrayList(viewControlLayer));
+        mapView.onCreate(Lists.<Layer>newArrayList());
 
         refreshButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -293,20 +290,9 @@ public class MainActivity extends RosAppActivity {
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
-        mapView.init(nodeMainExecutor);
-		viewControlLayer.initViewControlLayer(this,
-				nodeMainExecutor.getScheduledExecutorService(), cameraView,
-				mapView, mainLayout, sideLayout, params);
-        viewControlLayer.addListener(new CameraControlListener() {
-			@Override
-			public void onZoom(float focusX, float focusY, float factor) {}
-            @Override
-            public void onDoubleTap(float x, float y) {}
-			@Override
-			public void onTranslate(float distanceX, float distanceY) {}
-			@Override
-			public void onRotate(float focusX, float focusY, double deltaAngle) {}
-		});
+        ViewControlLayer viewControlLayer = new ViewControlLayer(this,
+                nodeMainExecutor.getScheduledExecutorService(), cameraView,
+                mapView, mainLayout, sideLayout, params);
 
         String mapTopic   = remaps.get(getString(R.string.map_topic));
         String scanTopic  = remaps.get(getString(R.string.scan_topic));
@@ -321,6 +307,18 @@ public class MainActivity extends RosAppActivity {
         mapView.addLayer(laserScanLayer);
         mapView.addLayer(robotLayer);
 
+        mapView.init(nodeMainExecutor);
+        viewControlLayer.addListener(new CameraControlListener() {
+            @Override
+            public void onZoom(float focusX, float focusY, float factor) {}
+            @Override
+            public void onDoubleTap(float x, float y) {}
+            @Override
+            public void onTranslate(float distanceX, float distanceY) {}
+            @Override
+            public void onRotate(float focusX, float focusY, double deltaAngle) {}
+        });
+
         // dwlee
         //what is a main purpose of this function?
 //        NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
@@ -328,8 +326,7 @@ public class MainActivity extends RosAppActivity {
 //				nodeMainExecutor.getScheduledExecutorService());
 //		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 //		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView,
-				nodeConfiguration.setNodeName("android/map_view"));
+		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 	}
 
 	@Override

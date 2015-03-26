@@ -72,8 +72,6 @@ public class MainActivity extends RosAppActivity {
 	private NodeMainExecutor nodeMainExecutor;
 	private NodeConfiguration nodeConfiguration;
 
-    private com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer;
-
 	public MainActivity() {
 		// The RosActivity constructor configures the notification title and
 		// ticker
@@ -96,21 +94,18 @@ public class MainActivity extends RosAppActivity {
 		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
 		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
 		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
-		mapView = (VisualizationView) findViewById(R.id.map_view);
 		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
 		backButton = (Button) findViewById(R.id.back_button);
 		chooseMapButton = (Button) findViewById(R.id.choose_map_button);
+        mapView = (VisualizationView) findViewById(R.id.map_view);
+        mapView.onCreate(Lists.<Layer>newArrayList());
 
-        viewControlLayer = new com.github.rosjava.android_apps.map_nav.ViewControlLayer();
-        mapView.onCreate(Lists.<Layer>newArrayList(viewControlLayer));
-
-		backButton.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				onBackPressed();
 			}
 		});
-
 		chooseMapButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -145,20 +140,10 @@ public class MainActivity extends RosAppActivity {
 		nodeMainExecutor.execute(virtualJoystickView,
 				nodeConfiguration.setNodeName("android/virtual_joystick"));
 
-        mapView.init(nodeMainExecutor);
-		viewControlLayer.initViewControlLayer(this,
-				nodeMainExecutor.getScheduledExecutorService(), cameraView,
-				mapView, mainLayout, sideLayout, params);
-		viewControlLayer.addListener(new CameraControlListener() {
-            @Override
-            public void onZoom(float focusX, float focusY, float factor) {}
-            @Override
-            public void onDoubleTap(float x, float y) {}
-            @Override
-            public void onTranslate(float distanceX, float distanceY) {}
-            @Override
-            public void onRotate(float focusX, float focusY, double deltaAngle) {}
-        });
+        com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer =
+                new com.github.rosjava.android_apps.map_nav.ViewControlLayer(this,
+                		nodeMainExecutor.getScheduledExecutorService(), cameraView,
+                		mapView, mainLayout, sideLayout, params);
 
         String mapTopic   = remaps.get(getString(R.string.map_topic));
         String scanTopic  = remaps.get(getString(R.string.scan_topic));
@@ -170,13 +155,28 @@ public class MainActivity extends RosAppActivity {
         LaserScanLayer laserScanLayer = new LaserScanLayer(appNameSpace.resolve(scanTopic).toString());
         PathLayer pathLayer = new PathLayer(appNameSpace.resolve(planTopic).toString());
         mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(this, appNameSpace, params, remaps);
-        InitialPoseSubscriberLayer initialPoseSubscriberLayer = new InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame);
+        com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer initialPoseSubscriberLayer =
+                new com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame);
 
+        mapView.addLayer(viewControlLayer);
         mapView.addLayer(occupancyGridLayer);
         mapView.addLayer(laserScanLayer);
         mapView.addLayer(pathLayer);
         mapView.addLayer(mapPosePublisherLayer);
         mapView.addLayer(initialPoseSubscriberLayer);
+
+        mapView.init(nodeMainExecutor);
+        viewControlLayer.addListener(new CameraControlListener() {
+            @Override
+            public void onZoom(float focusX, float focusY, float factor) {}
+            @Override
+            public void onDoubleTap(float x, float y) {}
+            @Override
+            public void onTranslate(float distanceX, float distanceY) {}
+            @Override
+            public void onRotate(float focusX, float focusY, double deltaAngle) {}
+        });
+
 
 //		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
 //				InetAddressFactory.newFromHostString("192.168.0.1"),

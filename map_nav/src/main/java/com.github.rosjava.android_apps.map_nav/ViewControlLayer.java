@@ -17,6 +17,8 @@
 package com.github.rosjava.android_apps.map_nav;
 
 
+import java.util.concurrent.ExecutorService;
+
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -34,16 +36,15 @@ import org.ros.android.view.visualization.layer.CameraControlListener;
 import org.ros.concurrent.ListenerGroup;
 import org.ros.concurrent.SignalRunnable;
 import org.ros.node.ConnectedNode;
-
-import java.util.concurrent.ExecutorService;
+import org.ros.rosjava_geometry.FrameTransformTree;
 
 /**
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
 public class ViewControlLayer extends CameraControlLayer {
 
-    private Context context;
-    private ListenerGroup<CameraControlListener> listeners;
+    private final Context context;
+    private final ListenerGroup<CameraControlListener> listeners;
 
     private GestureDetector translateGestureDetector;
     private RotateGestureDetector rotateGestureDetector;
@@ -61,7 +62,8 @@ public class ViewControlLayer extends CameraControlLayer {
     };
     private ViewMode viewMode;
 
-    public void initViewControlLayer(final Context context,
+
+    public ViewControlLayer(final Context context,
                             final ExecutorService executorService,
                             final RosImageView<sensor_msgs.CompressedImage> cameraView,
                             final VisualizationView mapView,
@@ -70,6 +72,7 @@ public class ViewControlLayer extends CameraControlLayer {
                             final AppParameters params) {
 
         this.context = context;
+
         listeners = new ListenerGroup<CameraControlListener>(executorService);
 
         this.cameraView = cameraView;
@@ -102,13 +105,13 @@ public class ViewControlLayer extends CameraControlLayer {
             return true;
         } else {
             if (translateGestureDetector == null ||
-                rotateGestureDetector == null ||
-                zoomGestureDetector == null) {
+                    rotateGestureDetector == null ||
+                    zoomGestureDetector == null) {
                 return false;
             }
             return translateGestureDetector.onTouchEvent(event) ||
-                   rotateGestureDetector.onTouchEvent(event) ||
-                   zoomGestureDetector.onTouchEvent(event);
+                    rotateGestureDetector.onTouchEvent(event) ||
+                    zoomGestureDetector.onTouchEvent(event);
         }
     }
 
