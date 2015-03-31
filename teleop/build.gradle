@@ -30,5 +30,9 @@ android {
     versionCode 2
     versionName "1.0.0"
   }
-
+  productFlavors {
+    indigo {
+      applicationId "com.github.rosjava.android_apps.teleop.indigo"
+      }
+  }
 }

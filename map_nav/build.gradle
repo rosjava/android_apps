@@ -31,7 +31,12 @@ android {
     minSdkVersion 15
     targetSdkVersion 15
     versionCode 3
-    versionName "1.0"
+    versionName "1.0.0"
+  }
+  productFlavors {
+    indigo {
+      applicationId "com.github.rosjava.android_apps.map_nav.indigo"
+    }
   }
 }
 
