@@ -19,6 +19,7 @@ dependencies {
   compile 'org.ros.rosjava_core:rosjava_geometry:[0.2,0.3)'
   compile 'org.ros.rosjava_messages:map_store:[0.3,0.4)'
   compile 'org.ros.rosjava_messages:move_base_msgs:[1.12,1.13)'
+  compile 'org.ros.rosjava_messages:world_canvas_msgs:[0.1,0.2)'
 }
 
 apply plugin: 'com.android.application'
@@ -30,7 +31,12 @@ android {
     minSdkVersion 15
     targetSdkVersion 15
     versionCode 3
-    versionName "1.0"
+    versionName "1.0.0"
+  }
+  productFlavors {
+    indigo {
+      applicationId "com.github.rosjava.android_apps.map_nav.indigo"
+    }
   }
 }
 

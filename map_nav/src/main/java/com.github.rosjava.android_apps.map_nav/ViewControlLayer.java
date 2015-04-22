@@ -105,13 +105,13 @@ public class ViewControlLayer extends CameraControlLayer {
             return true;
         } else {
             if (translateGestureDetector == null ||
-                rotateGestureDetector == null ||
-                zoomGestureDetector == null) {
+                    rotateGestureDetector == null ||
+                    zoomGestureDetector == null) {
                 return false;
             }
             return translateGestureDetector.onTouchEvent(event) ||
-                   rotateGestureDetector.onTouchEvent(event) ||
-                   zoomGestureDetector.onTouchEvent(event);
+                    rotateGestureDetector.onTouchEvent(event) ||
+                    zoomGestureDetector.onTouchEvent(event);
         }
     }
 

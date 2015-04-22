@@ -28,7 +28,11 @@ android {
     minSdkVersion 15
     targetSdkVersion 15
     versionCode 2
-    versionName "1.0"
+    versionName "1.0.0"
   }
-
+  productFlavors {
+    indigo {
+      applicationId "com.github.rosjava.android_apps.teleop.indigo"
+      }
+  }
 }

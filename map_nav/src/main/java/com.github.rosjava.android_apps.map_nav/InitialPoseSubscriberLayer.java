@@ -1,7 +1,5 @@
 package com.github.rosjava.android_apps.map_nav;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import org.ros.android.view.visualization.VisualizationView;
 import org.ros.android.view.visualization.layer.SubscriberLayer;
 import org.ros.android.view.visualization.layer.TfLayer;
@@ -12,6 +10,8 @@ import org.ros.namespace.GraphName;
 import org.ros.node.ConnectedNode;
 import org.ros.rosjava_geometry.FrameTransform;
 import org.ros.rosjava_geometry.Transform;
+
+import javax.microedition.khronos.opengles.GL10;
 
 
 public class InitialPoseSubscriberLayer extends
@@ -37,7 +37,8 @@ public class InitialPoseSubscriberLayer extends
 
 	@Override
 	public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
-	    shape = new GoalShape();
+        super.onStart(view, connectedNode);
+        shape = new GoalShape();
 		getSubscriber().addMessageListener(
 				new MessageListener<geometry_msgs.PoseStamped>() {
 					@Override
