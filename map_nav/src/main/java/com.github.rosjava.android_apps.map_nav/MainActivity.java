@@ -46,6 +46,7 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.List;
@@ -59,96 +60,100 @@ import world_canvas_msgs.PublishMapResponse;
  */
 public class MainActivity extends RosAppActivity {
 
-	private RosImageView<sensor_msgs.CompressedImage> cameraView;
-	private VirtualJoystickView virtualJoystickView;
-	private VisualizationView mapView;
+    private RosImageView<sensor_msgs.CompressedImage> cameraView;
+    private VirtualJoystickView virtualJoystickView;
+    private VisualizationView mapView;
     private ViewGroup mainLayout;
-	private ViewGroup sideLayout;
-	private Button backButton;
-	private Button chooseMapButton;
-	private com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer mapPosePublisherLayer;
-	private ProgressDialog waitingDialog;
-	private AlertDialog chooseMapDialog;
-	private NodeMainExecutor nodeMainExecutor;
-	private NodeConfiguration nodeConfiguration;
+    private ViewGroup sideLayout;
+    private Button backButton;
+    private Button chooseMapButton;
+    private com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer mapPosePublisherLayer;
+    private ProgressDialog waitingDialog;
+    private AlertDialog chooseMapDialog;
+    private NodeMainExecutor nodeMainExecutor;
+    private NodeConfiguration nodeConfiguration;
 
-	public MainActivity() {
-		// The RosActivity constructor configures the notification title and
-		// ticker
-		// messages.
-		super("Map nav", "Map nav");
-	}
+    public MainActivity() {
+        // The RosActivity constructor configures the notification title and
+        // ticker
+        // messages.
+        super("Map nav", "Map nav");
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
 
-		String defaultRobotName = getString(R.string.default_robot);
-		String defaultAppName = getString(R.string.default_app);
+        String defaultRobotName = getString(R.string.default_robot);
+        String defaultAppName = getString(R.string.default_app);
         setDefaultMasterName(defaultRobotName);
-		setDefaultAppName(defaultAppName);
-		setDashboardResource(R.id.top_bar);
-		setMainWindowResource(R.layout.main);
-		super.onCreate(savedInstanceState);
+        setDefaultAppName(defaultAppName);
+        setDashboardResource(R.id.top_bar);
+        setMainWindowResource(R.layout.main);
+        super.onCreate(savedInstanceState);
 
-		cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
-		cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
-		cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
-		virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
-		backButton = (Button) findViewById(R.id.back_button);
-		chooseMapButton = (Button) findViewById(R.id.choose_map_button);
+        cameraView = (RosImageView<sensor_msgs.CompressedImage>) findViewById(R.id.image);
+        cameraView.setMessageType(sensor_msgs.CompressedImage._TYPE);
+        cameraView.setMessageToBitmapCallable(new BitmapFromCompressedImage());
+        virtualJoystickView = (VirtualJoystickView) findViewById(R.id.virtual_joystick);
+        backButton = (Button) findViewById(R.id.back_button);
+        chooseMapButton = (Button) findViewById(R.id.choose_map_button);
         mapView = (VisualizationView) findViewById(R.id.map_view);
         mapView.onCreate(Lists.<Layer>newArrayList());
 
         backButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onBackPressed();
-			}
-		});
-		chooseMapButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				onChooseMapButtonPressed();
-			}
-		});
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        chooseMapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onChooseMapButtonPressed();
+            }
+        });
 
-		mapView.getCamera().jumpToFrame((String) params.get("map_frame", getString(R.string.map_frame)));
-		mainLayout = (ViewGroup) findViewById(R.id.main_layout);
-		sideLayout = (ViewGroup) findViewById(R.id.side_layout);
+        mapView.getCamera().jumpToFrame((String) params.get("map_frame", getString(R.string.map_frame)));
+        mainLayout = (ViewGroup) findViewById(R.id.main_layout);
+        sideLayout = (ViewGroup) findViewById(R.id.side_layout);
 
-	}
+    }
 
-	@Override
-	protected void init(NodeMainExecutor nodeMainExecutor) {
+    @Override
+    protected void init(NodeMainExecutor nodeMainExecutor) {
 
-		super.init(nodeMainExecutor);
-		
-		this.nodeMainExecutor = nodeMainExecutor;
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
+        super.init(nodeMainExecutor);
+
+        this.nodeMainExecutor = nodeMainExecutor;
+        try {
+            nodeConfiguration = NodeConfiguration.newPublic(getMasterUri());
+        } catch (IOException e) {
+            // Socket problem
+            Log.e("Map Nav", "Error while configuring node " + e);
+        }
 
         String joyTopic = remaps.get(getString(R.string.joystick_topic));
         String camTopic = remaps.get(getString(R.string.camera_topic));
 
-		NameResolver appNameSpace = getMasterNameSpace();
+        NameResolver appNameSpace = getMasterNameSpace();
         cameraView.setTopicName(appNameSpace.resolve(camTopic).toString());
         virtualJoystickView.setTopicName(appNameSpace.resolve(joyTopic).toString());
 
-		nodeMainExecutor.execute(cameraView,
-				nodeConfiguration.setNodeName("android/camera_view"));
-		nodeMainExecutor.execute(virtualJoystickView,
-				nodeConfiguration.setNodeName("android/virtual_joystick"));
+        nodeMainExecutor.execute(cameraView,
+                nodeConfiguration.setNodeName("android/camera_view"));
+        nodeMainExecutor.execute(virtualJoystickView,
+                nodeConfiguration.setNodeName("android/virtual_joystick"));
 
         com.github.rosjava.android_apps.map_nav.ViewControlLayer viewControlLayer =
                 new com.github.rosjava.android_apps.map_nav.ViewControlLayer(this,
-                		nodeMainExecutor.getScheduledExecutorService(), cameraView,
-                		mapView, mainLayout, sideLayout, params);
+                        nodeMainExecutor.getScheduledExecutorService(), cameraView,
+                        mapView, mainLayout, sideLayout, params);
 
-        String mapTopic   = remaps.get(getString(R.string.map_topic));
-        String scanTopic  = remaps.get(getString(R.string.scan_topic));
-        String planTopic  = remaps.get(getString(R.string.global_plan_topic));
-        String initTopic  = remaps.get(getString(R.string.initial_pose_topic));
+        String mapTopic = remaps.get(getString(R.string.map_topic));
+        String scanTopic = remaps.get(getString(R.string.scan_topic));
+        String planTopic = remaps.get(getString(R.string.global_plan_topic));
+        String initTopic = remaps.get(getString(R.string.initial_pose_topic));
         String robotFrame = (String) params.get("robot_frame", getString(R.string.robot_frame));
 
         OccupancyGridLayer occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
@@ -168,13 +173,20 @@ public class MainActivity extends RosAppActivity {
         mapView.init(nodeMainExecutor);
         viewControlLayer.addListener(new CameraControlListener() {
             @Override
-            public void onZoom(float focusX, float focusY, float factor) {}
+            public void onZoom(float focusX, float focusY, float factor) {
+            }
+
             @Override
-            public void onDoubleTap(float x, float y) {}
+            public void onDoubleTap(float x, float y) {
+            }
+
             @Override
-            public void onTranslate(float distanceX, float distanceY) {}
+            public void onTranslate(float distanceX, float distanceY) {
+            }
+
             @Override
-            public void onRotate(float focusX, float focusY, double deltaAngle) {}
+            public void onRotate(float focusX, float focusY, double deltaAngle) {
+            }
         });
 
 
@@ -183,189 +195,189 @@ public class MainActivity extends RosAppActivity {
 //				nodeMainExecutor.getScheduledExecutorService());
 //		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
 //		nodeConfiguration.setTimeProvider(ntpTimeProvider);
-		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
+        nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 
-		readAvailableMapList();
-	}
+        readAvailableMapList();
+    }
 
-	private void onChooseMapButtonPressed() {
-		readAvailableMapList();
-	}
+    private void onChooseMapButtonPressed() {
+        readAvailableMapList();
+    }
 
-	public void setPoseClicked(View view) {
-		setPose();
-	}
+    public void setPoseClicked(View view) {
+        setPose();
+    }
 
-	public void setGoalClicked(View view) {
-		setGoal();
-	}
+    public void setGoalClicked(View view) {
+        setGoal();
+    }
 
-	private void setPose() {
-		mapPosePublisherLayer.setPoseMode();
-	}
+    private void setPose() {
+        mapPosePublisherLayer.setPoseMode();
+    }
 
-	private void setGoal() {
-		mapPosePublisherLayer.setGoalMode();
-	}
+    private void setGoal() {
+        mapPosePublisherLayer.setGoalMode();
+    }
 
-	private void readAvailableMapList() {
-		safeShowWaitingDialog("Waiting...", "Waiting for map list");
-
-        com.github.rosjava.android_apps.map_nav.MapManager mapManager = new com.github.rosjava.android_apps.map_nav.MapManager(this, remaps);
-        mapManager.setNameResolver(getMasterNameSpace());
-		mapManager.setFunction("list");
-		safeShowWaitingDialog("Waiting...", "Waiting for map list");
-		mapManager.setListService(new ServiceResponseListener<ListMapsResponse>() {
-					@Override
-					public void onSuccess(ListMapsResponse message) {
-						Log.i("MapNav", "readAvailableMapList() Success");
-						safeDismissWaitingDialog();
-						showMapListDialog(message.getMapList());
-					}
-
-					@Override
-					public void onFailure(RemoteException e) {
-						Log.i("MapNav", "readAvailableMapList() Failure");
-						safeDismissWaitingDialog();
-					}
-				});
-
-		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("android/list_maps"));
-	}
-
-	/**
-	 * Show a dialog with a list of maps. Safe to call from any thread.
-	 */
-	private void showMapListDialog(final List<MapListEntry> list) {
-		// Make an array of map name/date strings.
-		final CharSequence[] availableMapNames = new CharSequence[list.size()];
-		for (int i = 0; i < list.size(); i++) {
-			String displayString;
-			String name = list.get(i).getName();
-			Date creationDate = new Date(list.get(i).getDate() * 1000);
-			String dateTime = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-					DateFormat.SHORT).format(creationDate);
-			if (name != null && !name.equals("")) {
-				displayString = name + " " + dateTime;
-			} else {
-				displayString = dateTime;
-			}
-			availableMapNames[i] = displayString;
-		}
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						MainActivity.this);
-				builder.setTitle("Choose a map");
-				builder.setItems(availableMapNames,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog,
-									int itemIndex) {
-								loadMap(list.get(itemIndex));
-							}
-						});
-				chooseMapDialog = builder.create();
-				chooseMapDialog.show();
-			}
-		});
-	}
-
-	private void loadMap(MapListEntry mapListEntry) {
+    private void readAvailableMapList() {
+        safeShowWaitingDialog("Waiting...", "Waiting for map list");
 
         com.github.rosjava.android_apps.map_nav.MapManager mapManager = new com.github.rosjava.android_apps.map_nav.MapManager(this, remaps);
         mapManager.setNameResolver(getMasterNameSpace());
-		mapManager.setFunction("publish");
-		mapManager.setMapId(mapListEntry.getMapId());
+        mapManager.setFunction("list");
+        safeShowWaitingDialog("Waiting...", "Waiting for map list");
+        mapManager.setListService(new ServiceResponseListener<ListMapsResponse>() {
+            @Override
+            public void onSuccess(ListMapsResponse message) {
+                Log.i("MapNav", "readAvailableMapList() Success");
+                safeDismissWaitingDialog();
+                showMapListDialog(message.getMapList());
+            }
 
-		safeShowWaitingDialog("Waiting...", "Loading map");
-		try {
-			mapManager
-					.setPublishService(new ServiceResponseListener<PublishMapResponse>() {
-						@Override
-						public void onSuccess(PublishMapResponse message) {
-							Log.i("MapNav", "loadMap() Success");
-							safeDismissWaitingDialog();
-							// poseSetter.enable();
-						}
+            @Override
+            public void onFailure(RemoteException e) {
+                Log.i("MapNav", "readAvailableMapList() Failure");
+                safeDismissWaitingDialog();
+            }
+        });
 
-						@Override
-						public void onFailure(RemoteException e) {
-							Log.i("MapNav", "loadMap() Failure");
-							safeDismissWaitingDialog();
-						}
-					});
-		} catch (Throwable ex) {
-			Log.e("MapNav", "loadMap() caught exception.", ex);
-			safeDismissWaitingDialog();
-		}
-		nodeMainExecutor.execute(mapManager,
-				nodeConfiguration.setNodeName("android/publish_map"));
-	}
+        nodeMainExecutor.execute(mapManager,
+                nodeConfiguration.setNodeName("android/list_maps"));
+    }
 
-	private void safeDismissChooseMapDialog() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (chooseMapDialog != null) {
-					chooseMapDialog.dismiss();
-					chooseMapDialog = null;
-				}
-			}
-		});
-	}
+    /**
+     * Show a dialog with a list of maps. Safe to call from any thread.
+     */
+    private void showMapListDialog(final List<MapListEntry> list) {
+        // Make an array of map name/date strings.
+        final CharSequence[] availableMapNames = new CharSequence[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            String displayString;
+            String name = list.get(i).getName();
+            Date creationDate = new Date(list.get(i).getDate() * 1000);
+            String dateTime = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+                    DateFormat.SHORT).format(creationDate);
+            if (name != null && !name.equals("")) {
+                displayString = name + " " + dateTime;
+            } else {
+                displayString = dateTime;
+            }
+            availableMapNames[i] = displayString;
+        }
 
-	private void showWaitingDialog(final CharSequence title,
-			final CharSequence message) {
-		dismissWaitingDialog();
-		waitingDialog = ProgressDialog.show(MainActivity.this, title, message,
-				true);
-		waitingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-	}
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(
+                        MainActivity.this);
+                builder.setTitle("Choose a map");
+                builder.setItems(availableMapNames,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int itemIndex) {
+                                loadMap(list.get(itemIndex));
+                            }
+                        });
+                chooseMapDialog = builder.create();
+                chooseMapDialog.show();
+            }
+        });
+    }
 
-	private void dismissWaitingDialog() {
-		if (waitingDialog != null) {
-			waitingDialog.dismiss();
-			waitingDialog = null;
-		}
-	}
+    private void loadMap(MapListEntry mapListEntry) {
 
-	private void safeShowWaitingDialog(final CharSequence title,
-			final CharSequence message) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				showWaitingDialog(title, message);
-			}
-		});
-	}
+        com.github.rosjava.android_apps.map_nav.MapManager mapManager = new com.github.rosjava.android_apps.map_nav.MapManager(this, remaps);
+        mapManager.setNameResolver(getMasterNameSpace());
+        mapManager.setFunction("publish");
+        mapManager.setMapId(mapListEntry.getMapId());
 
-	private void safeDismissWaitingDialog() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				dismissWaitingDialog();
-			}
-		});
-	}
+        safeShowWaitingDialog("Waiting...", "Loading map");
+        try {
+            mapManager
+                    .setPublishService(new ServiceResponseListener<PublishMapResponse>() {
+                        @Override
+                        public void onSuccess(PublishMapResponse message) {
+                            Log.i("MapNav", "loadMap() Success");
+                            safeDismissWaitingDialog();
+                            // poseSetter.enable();
+                        }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, 0, 0, R.string.stop_app);
-		return super.onCreateOptionsMenu(menu);
-	}
+                        @Override
+                        public void onFailure(RemoteException e) {
+                            Log.i("MapNav", "loadMap() Failure");
+                            safeDismissWaitingDialog();
+                        }
+                    });
+        } catch (Throwable ex) {
+            Log.e("MapNav", "loadMap() caught exception.", ex);
+            safeDismissWaitingDialog();
+        }
+        nodeMainExecutor.execute(mapManager,
+                nodeConfiguration.setNodeName("android/publish_map"));
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		super.onOptionsItemSelected(item);
-		switch (item.getItemId()) {
-		case 0:
-			onDestroy();
-			break;
-		}
-		return true;
-	}
+    private void safeDismissChooseMapDialog() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (chooseMapDialog != null) {
+                    chooseMapDialog.dismiss();
+                    chooseMapDialog = null;
+                }
+            }
+        });
+    }
+
+    private void showWaitingDialog(final CharSequence title,
+                                   final CharSequence message) {
+        dismissWaitingDialog();
+        waitingDialog = ProgressDialog.show(MainActivity.this, title, message,
+                true);
+        waitingDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    }
+
+    private void dismissWaitingDialog() {
+        if (waitingDialog != null) {
+            waitingDialog.dismiss();
+            waitingDialog = null;
+        }
+    }
+
+    private void safeShowWaitingDialog(final CharSequence title,
+                                       final CharSequence message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showWaitingDialog(title, message);
+            }
+        });
+    }
+
+    private void safeDismissWaitingDialog() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dismissWaitingDialog();
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 0, 0, R.string.stop_app);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case 0:
+                onDestroy();
+                break;
+        }
+        return true;
+    }
 }
