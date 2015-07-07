@@ -17,6 +17,7 @@
 package com.github.rosjava.android_apps.teleop;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,29 +74,25 @@ public class MainActivity extends RosAppActivity {
 		super.init(nodeMainExecutor);
 
         try {
-            java.net.Socket socket = new java.net.Socket(getMasterUri().getHost(), getMasterUri().getPort());
-            java.net.InetAddress local_network_address = socket.getLocalAddress();
-            socket.close();
-            NodeConfiguration nodeConfiguration =
-                    NodeConfiguration.newPublic(local_network_address.getHostAddress(), getMasterUri());
+			NodeConfiguration nodeConfiguration = NodeConfiguration.newPublic(getMasterUri());
 
-        String joyTopic = remaps.get(getString(R.string.joystick_topic));
-        String camTopic = remaps.get(getString(R.string.camera_topic));
+        	String joyTopic = remaps.get(getString(R.string.joystick_topic));
+        	String camTopic = remaps.get(getString(R.string.camera_topic));
 
-        NameResolver appNameSpace = getMasterNameSpace();
-        joyTopic = appNameSpace.resolve(joyTopic).toString();
-        camTopic = appNameSpace.resolve(camTopic).toString();
+        	NameResolver appNameSpace = getMasterNameSpace();
+        	joyTopic = appNameSpace.resolve(joyTopic).toString();
+        	camTopic = appNameSpace.resolve(camTopic).toString();
 
-		cameraView.setTopicName(camTopic);
-        virtualJoystickView.setTopicName(joyTopic);
+			cameraView.setTopicName(camTopic);
+        	virtualJoystickView.setTopicName(joyTopic);
 		
-		nodeMainExecutor.execute(cameraView, nodeConfiguration
-				.setNodeName("android/camera_view"));
-		nodeMainExecutor.execute(virtualJoystickView,
-				nodeConfiguration.setNodeName("android/virtual_joystick"));
+			nodeMainExecutor.execute(cameraView, nodeConfiguration.setNodeName("android/camera_view"));
+			nodeMainExecutor.execute(virtualJoystickView,
+			nodeConfiguration.setNodeName("android/virtual_joystick"));
         } catch (IOException e) {
             // Socket problem
-        }
+			Log.e("Teleop", "Error while configuring node " + e);
+		}
 
 	}
 	

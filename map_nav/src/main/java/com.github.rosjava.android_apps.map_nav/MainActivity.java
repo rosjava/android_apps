@@ -46,6 +46,7 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.List;
@@ -125,8 +126,12 @@ public class MainActivity extends RosAppActivity {
 		super.init(nodeMainExecutor);
 		
 		this.nodeMainExecutor = nodeMainExecutor;
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
+		try {
+			nodeConfiguration = NodeConfiguration.newPublic(getMasterUri());
+		} catch (IOException e) {
+			// Socket problem
+			Log.e("Map Nav", "Error while configuring node " + e);
+		}
 
         String joyTopic = remaps.get(getString(R.string.joystick_topic));
         String camTopic = remaps.get(getString(R.string.camera_topic));

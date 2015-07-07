@@ -51,6 +51,7 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -203,9 +204,12 @@ public class MainActivity extends RosAppActivity {
 		super.init(nodeMainExecutor);
 
 		this.nodeMainExecutor = nodeMainExecutor;
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
-
+		try {
+			nodeConfiguration = NodeConfiguration.newPublic(getMasterUri());
+		} catch (IOException e) {
+			// Socket problem
+			Log.e("Map Manager", "Error while configuring node " + e);
+		}
         NameResolver appNameSpace = getMasterNameSpace();
         String mapTopic = remaps.get(getString(R.string.map_topic));
 

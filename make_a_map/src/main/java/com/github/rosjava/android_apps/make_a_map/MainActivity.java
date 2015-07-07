@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +48,8 @@ import org.ros.android.view.visualization.layer.RobotLayer;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
+
+import java.io.IOException;
 
 import world_canvas_msgs.SaveMapResponse;
 
@@ -273,9 +276,12 @@ public class MainActivity extends RosAppActivity {
 		super.init(nodeMainExecutor);
 		this.nodeMainExecutor = nodeMainExecutor;
 
-		nodeConfiguration = NodeConfiguration.newPublic(InetAddressFactory
-				.newNonLoopback().getHostAddress(), getMasterUri());
-
+		try {
+			nodeConfiguration = NodeConfiguration.newPublic(getMasterUri());
+		} catch (IOException e) {
+			// Socket problem
+			Log.e("Make a Map", "Error while configuring node " + e);
+		}
         String joyTopic = remaps.get(getString(R.string.joystick_topic));
         String camTopic = remaps.get(getString(R.string.camera_topic));
 
