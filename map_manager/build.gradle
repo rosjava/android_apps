@@ -22,17 +22,18 @@ dependencies {
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 15
+  compileSdkVersion 25
+  buildToolsVersion "25.0.2"
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 15
+    targetSdkVersion 25
     versionCode 3
     versionName "1.0.0"
   }
   productFlavors {
-    indigo {
-      applicationId "com.github.rosjava.android_apps.map_manager.indigo"
+    kinetic {
+      applicationId "com.github.rosjava.android_apps.map_manager.kinetic"
     }
   }
 }
