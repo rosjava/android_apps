@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 
 public class InitialPoseSubscriberLayer extends
-		SubscriberLayer<geometry_msgs.PoseStamped> implements TfLayer {
+		SubscriberLayer<geometry_msgs.PoseWithCovarianceStamped> implements TfLayer {
 
 	private final GraphName targetFrame;
 
@@ -26,7 +26,7 @@ public class InitialPoseSubscriberLayer extends
 	}
 
 	public InitialPoseSubscriberLayer(GraphName topic, String robotFrame) {
-		super(topic, "geometry_msgs/PoseStamped");
+		super(topic, "geometry_msgs/PoseWithCovarianceStamped");
 		targetFrame = GraphName.of(robotFrame);
 	}
 
@@ -40,15 +40,15 @@ public class InitialPoseSubscriberLayer extends
         super.onStart(view, connectedNode);
         shape = new GoalShape();
 		getSubscriber().addMessageListener(
-				new MessageListener<geometry_msgs.PoseStamped>() {
+				new MessageListener<geometry_msgs.PoseWithCovarianceStamped>() {
 					@Override
-					public void onNewMessage(geometry_msgs.PoseStamped pose) {
+					public void onNewMessage(geometry_msgs.PoseWithCovarianceStamped pose) {
                         GraphName source = GraphName.of(pose.getHeader()
 								.getFrameId());
 						FrameTransform frameTransform = view.getFrameTransformTree().transform(source, targetFrame);
 						if (frameTransform != null) {
 							Transform poseTransform = Transform
-									.fromPoseMessage(pose.getPose());
+									.fromPoseMessage(pose.getPose().getPose());
 							shape.setTransform(frameTransform.getTransform()
 									.multiply(poseTransform));
 						}
