@@ -45,10 +45,12 @@ import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
+import org.ros.time.NtpTimeProvider;
 
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import world_canvas_msgs.ListMapsResponse;
 import world_canvas_msgs.MapListEntry;
@@ -177,15 +179,12 @@ public class MainActivity extends RosAppActivity {
             public void onRotate(float focusX, float focusY, double deltaAngle) {}
         });
 
-
-//		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
-//				InetAddressFactory.newFromHostString("192.168.0.1"),
-//				nodeMainExecutor.getScheduledExecutorService());
-//		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
-//		nodeConfiguration.setTimeProvider(ntpTimeProvider);
+		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
+				InetAddressFactory.newFromHostString("pool.ntp.org"),
+				nodeMainExecutor.getScheduledExecutorService());
+		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
+		nodeConfiguration.setTimeProvider(ntpTimeProvider);
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
-
-		readAvailableMapList();
 	}
 
 	private void onChooseMapButtonPressed() {
