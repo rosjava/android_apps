@@ -6,7 +6,7 @@
     <string name="default_app">turtlebot_core_apps/android_map_nav</string>
     <string name="map_frame">map</string>
     <string name="robot_frame">base_footprint</string>
-    <string name="camera_topic">compressed_image</string>
+    <string name="camera_topic">tango/camera/color_1/image_raw/compressed</string>
     <string name="joystick_topic">cmd_vel</string>
     <string name="map_topic">map</string>
     <string name="scan_topic">scan</string>
