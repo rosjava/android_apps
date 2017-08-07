@@ -36,7 +36,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="setPoseClicked"
-                android:checked="true"
                 android:text="Set Pose" />
 
             <RadioButton
@@ -44,6 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="setGoalClicked"
+                android:checked="true"
                 android:text="Set Goal" />
 
             <LinearLayout
