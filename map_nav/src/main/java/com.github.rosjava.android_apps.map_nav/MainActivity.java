@@ -147,13 +147,15 @@ public class MainActivity extends RosAppActivity {
                 		nodeMainExecutor.getScheduledExecutorService(), cameraView,
                 		mapView, mainLayout, sideLayout, params);
 
-        String mapTopic   = remaps.get(getString(R.string.map_topic));
-        String scanTopic  = remaps.get(getString(R.string.scan_topic));
-        String planTopic  = remaps.get(getString(R.string.global_plan_topic));
-        String initTopic  = remaps.get(getString(R.string.initial_pose_topic));
-        String robotFrame = (String) params.get("robot_frame", getString(R.string.robot_frame));
+        String mapTopic      = remaps.get(getString(R.string.map_topic));
+        String costmapTopic  = remaps.get(getString(R.string.costmap_topic));
+        String scanTopic     = remaps.get(getString(R.string.scan_topic));
+        String planTopic     = remaps.get(getString(R.string.global_plan_topic));
+        String initTopic     = remaps.get(getString(R.string.initial_pose_topic));
+        String robotFrame    = (String) params.get("robot_frame", getString(R.string.robot_frame));
 
-        OccupancyGridLayer occupancyGridLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
+        OccupancyGridLayer mapLayer = new OccupancyGridLayer(appNameSpace.resolve(mapTopic).toString());
+		OccupancyGridLayer costmapLayer = new OccupancyGridLayer(appNameSpace.resolve(costmapTopic).toString());
         LaserScanLayer laserScanLayer = new LaserScanLayer(appNameSpace.resolve(scanTopic).toString());
         PathLayer pathLayer = new PathLayer(appNameSpace.resolve(planTopic).toString());
         mapPosePublisherLayer = new com.github.rosjava.android_apps.map_nav.MapPosePublisherLayer(this, appNameSpace, params, remaps);
@@ -161,7 +163,8 @@ public class MainActivity extends RosAppActivity {
                 new com.github.rosjava.android_apps.map_nav.InitialPoseSubscriberLayer(appNameSpace.resolve(initTopic).toString(), robotFrame);
 
         mapView.addLayer(viewControlLayer);
-        mapView.addLayer(occupancyGridLayer);
+        mapView.addLayer(mapLayer);
+        mapView.addLayer(costmapLayer);
         mapView.addLayer(laserScanLayer);
         mapView.addLayer(pathLayer);
         mapView.addLayer(mapPosePublisherLayer);

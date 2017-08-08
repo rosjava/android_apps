@@ -9,8 +9,9 @@
     <string name="camera_topic">compressed_image</string>
     <string name="joystick_topic">cmd_vel</string>
     <string name="map_topic">map</string>
+    <string name="costmap_topic">/move_base/local_costmap/costmap</string>
     <string name="scan_topic">scan</string>
-    <string name="global_plan_topic">move_base/TrajectoryPlannerROS/global_plan</string>
+    <string name="global_plan_topic">move_base/NavfnROS/plan</string>
     <string name="initial_pose_topic">initialpose</string>
     <string name="simple_goal_topic">move_base_simple/goal</string>
     <string name="move_base_goal_topic">move_base/goal</string>
