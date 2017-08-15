@@ -23,6 +23,7 @@ public class InitialPoseSubscriberLayer extends
 
 	public InitialPoseSubscriberLayer(String topic, String robotFrame) {
 		this(GraphName.of(topic), robotFrame);
+		shape = new GoalShape();
 	}
 
 	public InitialPoseSubscriberLayer(GraphName topic, String robotFrame) {
@@ -38,7 +39,6 @@ public class InitialPoseSubscriberLayer extends
 	@Override
 	public void onStart(final VisualizationView view, ConnectedNode connectedNode) {
         super.onStart(view, connectedNode);
-        shape = new GoalShape();
 		getSubscriber().addMessageListener(
 				new MessageListener<geometry_msgs.PoseWithCovarianceStamped>() {
 					@Override
