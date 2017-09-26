@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +48,11 @@ import org.ros.android.view.visualization.layer.RobotLayer;
 import org.ros.namespace.NameResolver;
 import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
+import org.ros.time.NtpTimeProvider;
+import org.ros.time.TimeProvider;
+import org.ros.time.WallTimeProvider;
+
+import java.util.concurrent.TimeUnit;
 
 import world_canvas_msgs.SaveMapResponse;
 
@@ -319,13 +325,19 @@ public class MainActivity extends RosAppActivity {
             public void onRotate(float focusX, float focusY, double deltaAngle) {}
         });
 
-        // dwlee
-        //what is a main purpose of this function?
-//        NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
-//				InetAddressFactory.newFromHostString("192.168.0.1"),
-//				nodeMainExecutor.getScheduledExecutorService());
-//		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
-//		nodeConfiguration.setTimeProvider(ntpTimeProvider);
+		TimeProvider timeProvider = null;
+		try {
+			NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
+					InetAddressFactory.newFromHostString("pool.ntp.org"),
+					nodeMainExecutor.getScheduledExecutorService());
+			ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
+			timeProvider = ntpTimeProvider;
+		} catch (Throwable t) {
+			Log.w("MakeAMap", "Unable to use NTP provider, using Wall Time. Error: " + t.getMessage(), t);
+			timeProvider = new WallTimeProvider();
+		}
+		nodeConfiguration.setTimeProvider(timeProvider);
+
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 	}
 
@@ -345,5 +357,4 @@ public class MainActivity extends RosAppActivity {
 		}
 		return true;
 	}
-
 }

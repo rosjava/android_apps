@@ -46,6 +46,8 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeMainExecutor;
 import org.ros.node.service.ServiceResponseListener;
 import org.ros.time.NtpTimeProvider;
+import org.ros.time.TimeProvider;
+import org.ros.time.WallTimeProvider;
 
 import java.sql.Date;
 import java.text.DateFormat;
@@ -60,6 +62,7 @@ import world_canvas_msgs.PublishMapResponse;
  * @author murase@jsk.imi.i.u-tokyo.ac.jp (Kazuto Murase)
  */
 public class MainActivity extends RosAppActivity {
+	private static final String TAG = "MapNav";
 
 	private RosImageView<sensor_msgs.CompressedImage> cameraView;
 	private VirtualJoystickView virtualJoystickView;
@@ -182,11 +185,18 @@ public class MainActivity extends RosAppActivity {
             public void onRotate(float focusX, float focusY, double deltaAngle) {}
         });
 
-		NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
-				InetAddressFactory.newFromHostString("pool.ntp.org"),
-				nodeMainExecutor.getScheduledExecutorService());
-		ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
-		nodeConfiguration.setTimeProvider(ntpTimeProvider);
+		TimeProvider timeProvider = null;
+		try {
+			NtpTimeProvider ntpTimeProvider = new NtpTimeProvider(
+					InetAddressFactory.newFromHostString("pool.ntp.org"),
+					nodeMainExecutor.getScheduledExecutorService());
+			ntpTimeProvider.startPeriodicUpdates(1, TimeUnit.MINUTES);
+			timeProvider = ntpTimeProvider;
+		} catch (Throwable t) {
+			Log.w(TAG, "Unable to use NTP provider, using Wall Time. Error: " + t.getMessage(), t);
+			timeProvider = new WallTimeProvider();
+		}
+		nodeConfiguration.setTimeProvider(timeProvider);
 		nodeMainExecutor.execute(mapView, nodeConfiguration.setNodeName("android/map_view"));
 	}
 
@@ -220,14 +230,14 @@ public class MainActivity extends RosAppActivity {
 		mapManager.setListService(new ServiceResponseListener<ListMapsResponse>() {
 					@Override
 					public void onSuccess(ListMapsResponse message) {
-						Log.i("MapNav", "readAvailableMapList() Success");
+						Log.i(TAG, "readAvailableMapList() Success");
 						safeDismissWaitingDialog();
 						showMapListDialog(message.getMapList());
 					}
 
 					@Override
 					public void onFailure(RemoteException e) {
-						Log.i("MapNav", "readAvailableMapList() Failure");
+						Log.i(TAG, "readAvailableMapList() Failure");
 						safeDismissWaitingDialog();
 					}
 				});
@@ -289,19 +299,19 @@ public class MainActivity extends RosAppActivity {
 					.setPublishService(new ServiceResponseListener<PublishMapResponse>() {
 						@Override
 						public void onSuccess(PublishMapResponse message) {
-							Log.i("MapNav", "loadMap() Success");
+							Log.i(TAG, "loadMap() Success");
 							safeDismissWaitingDialog();
 							// poseSetter.enable();
 						}
 
 						@Override
 						public void onFailure(RemoteException e) {
-							Log.i("MapNav", "loadMap() Failure");
+							Log.i(TAG, "loadMap() Failure");
 							safeDismissWaitingDialog();
 						}
 					});
 		} catch (Throwable ex) {
-			Log.e("MapNav", "loadMap() caught exception.", ex);
+			Log.e(TAG, "loadMap() caught exception.", ex);
 			safeDismissWaitingDialog();
 		}
 		nodeMainExecutor.execute(mapManager,
