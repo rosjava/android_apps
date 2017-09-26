@@ -30,7 +30,7 @@ android {
 
   defaultConfig {
     minSdkVersion 15
-    targetSdkVersion 25
+    targetSdkVersion 22
     versionCode 3
     versionName "1.0.1"
   }
@@ -39,5 +39,7 @@ android {
       applicationId "com.github.rosjava.android_apps.make_a_map.kinetic"
     }
   }
-
+  lintOptions {
+    abortOnError = false
+  }
 }
