@@ -27,6 +27,12 @@ apply plugin: 'catkin'
 allprojects {
     group 'com.github.rosjava.android_apps'
     version = project.catkin.pkg.version
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+    }
 }
 
 subprojects {
