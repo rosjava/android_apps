@@ -15,8 +15,8 @@
  */
 
 dependencies {
-  compile 'com.github.rosjava.android_remocons:common_tools:[0.2,0.3)'
-  compile 'org.ros.android_core:android_15:[0.3,0.4)'
+  compile 'com.github.rosjava.android_remocons:common_tools:[0.3,0.4)'
+  compile 'org.ros.android_core:android_core_components:[0.4,0.5)'
 }
 
 apply plugin: 'com.android.application'

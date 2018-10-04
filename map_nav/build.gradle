@@ -14,8 +14,8 @@
  * the License.
  */
 dependencies {
-  compile 'com.github.rosjava.android_remocons:common_tools:[0.2,0.3)'
-  compile 'org.ros.android_core:android_15:[0.3,0.4)'
+  compile 'com.github.rosjava.android_remocons:common_tools:[0.3,0.4)'
+  compile 'org.ros.android_core:android_core_components:[0.4,0.5)'
   compile 'org.ros.rosjava_core:rosjava_geometry:[0.3,0.4)'
   compile 'org.ros.rosjava_messages:map_store:[0.3,0.4)'
   compile 'org.ros.rosjava_messages:move_base_msgs:[1.12,1.13)'
